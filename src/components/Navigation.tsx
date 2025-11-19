@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { Menu, X, Globe } from "lucide-react";
+import { Menu, X, Globe, Shield } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { Link } from "react-router-dom";
 
 export const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { language, toggleLanguage, t } = useLanguage();
+  const { isAdmin } = useAuth();
 
   const navLinks = [
     { href: "#home", key: "home" },
@@ -37,6 +40,15 @@ export const Navigation = () => {
                 {t(link.key)}
               </a>
             ))}
+            {isAdmin && (
+              <Link
+                to="/admin"
+                className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors font-medium"
+              >
+                <Shield className="w-4 h-4" />
+                Admin
+              </Link>
+            )}
             <button 
               onClick={toggleLanguage}
               className="flex items-center gap-2 px-4 py-2 bg-secondary rounded-full border border-border hover:bg-muted transition-colors"
@@ -70,6 +82,16 @@ export const Navigation = () => {
                 {t(link.key)}
               </a>
             ))}
+            {isAdmin && (
+              <Link
+                to="/admin"
+                className="flex items-center gap-2 py-2 text-primary font-medium"
+                onClick={() => setIsOpen(false)}
+              >
+                <Shield className="w-4 h-4" />
+                Admin Dashboard
+              </Link>
+            )}
             <button 
               onClick={() => {
                 toggleLanguage();
