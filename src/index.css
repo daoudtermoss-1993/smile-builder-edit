@@ -2,87 +2,171 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 210 20% 15%;
+    --background: 260 40% 5%;
+    --foreground: 0 0% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 210 20% 15%;
+    --card: 260 30% 10%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 210 20% 15%;
+    --popover: 260 30% 10%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 188 95% 42%;
+    --primary: 265 85% 65%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 188 25% 96%;
-    --secondary-foreground: 188 95% 30%;
+    --secondary: 265 25% 20%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 210 15% 96%;
-    --muted-foreground: 210 10% 50%;
+    --muted: 260 25% 16%;
+    --muted-foreground: 260 10% 65%;
 
-    --accent: 188 95% 42%;
+    --accent: 320 85% 65%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 20% 90%;
-    --input: 210 20% 90%;
-    --ring: 188 95% 42%;
+    --border: 260 25% 20%;
+    --input: 260 25% 20%;
+    --ring: 265 85% 65%;
 
-    --radius: 0.75rem;
+    --radius: 1.5rem;
 
-    --medical-light: 188 90% 95%;
-    --medical-dark: 188 95% 25%;
+    --vibe-purple: 265 85% 65%;
+    --vibe-pink: 320 85% 65%;
+    --vibe-blue: 220 85% 65%;
     
-    --gradient-primary: linear-gradient(135deg, hsl(188 95% 42%), hsl(188 85% 52%));
-    --gradient-hero: linear-gradient(135deg, hsl(188 95% 42% / 0.9), hsl(188 85% 35% / 0.95));
+    --gradient-vibe: linear-gradient(135deg, hsl(265 85% 65%), hsl(295 85% 65%), hsl(320 85% 65%));
+    --gradient-hero: linear-gradient(135deg, hsl(265 85% 65% / 0.3), hsl(320 85% 65% / 0.3));
+    --gradient-card: linear-gradient(135deg, hsl(260 30% 10% / 0.6), hsl(265 30% 15% / 0.4));
     
-    --shadow-soft: 0 4px 12px hsl(188 95% 42% / 0.08);
-    --shadow-medium: 0 8px 24px hsl(188 95% 42% / 0.12);
+    --shadow-glow: 0 0 40px hsl(265 85% 65% / 0.4);
+    --shadow-glow-pink: 0 0 40px hsl(320 85% 65% / 0.3);
+    --shadow-soft: 0 10px 30px hsl(260 40% 5% / 0.5);
     
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
+}
 
-  .dark {
-    --background: 210 30% 8%;
-    --foreground: 0 0% 98%;
+body {
+  font-family: 'Inter', sans-serif;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
 
-    --card: 210 25% 12%;
-    --card-foreground: 0 0% 98%;
+.vibe-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-weight: 800;
+  line-height: 1.1;
+  background: var(--gradient-vibe);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+  animation: glow-pulse 3s ease-in-out infinite;
+}
 
-    --popover: 210 25% 12%;
-    --popover-foreground: 0 0% 98%;
+.vibe-sub {
+  font-size: clamp(1rem, 3vw, 1.5rem);
+  font-weight: 400;
+  opacity: 0.8;
+  text-align: center;
+  color: hsl(var(--foreground));
+}
 
-    --primary: 188 85% 52%;
-    --primary-foreground: 210 30% 8%;
+.vibe-btn {
+  padding: 1rem 2.5rem;
+  background: var(--gradient-vibe);
+  border: none;
+  border-radius: 2rem;
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  box-shadow: var(--shadow-glow);
+  position: relative;
+  overflow: hidden;
+}
 
-    --secondary: 210 25% 16%;
-    --secondary-foreground: 0 0% 98%;
+.vibe-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 60px hsl(265 85% 65% / 0.6);
+}
 
-    --muted: 210 25% 16%;
-    --muted-foreground: 210 15% 65%;
+.vibe-btn:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
 
-    --accent: 188 85% 52%;
-    --accent-foreground: 210 30% 8%;
+.vibe-btn:hover:before {
+  left: 100%;
+}
 
-    --destructive: 0 72% 50%;
-    --destructive-foreground: 0 0% 98%;
+.vibe-section {
+  padding: 6rem 2rem;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
 
-    --border: 210 25% 20%;
-    --input: 210 25% 20%;
-    --ring: 188 85% 52%;
-    
-    --medical-light: 188 70% 15%;
-    --medical-dark: 188 85% 45%;
-    
-    --gradient-hero: linear-gradient(135deg, hsl(188 85% 52% / 0.9), hsl(188 75% 42% / 0.95));
+.vibe-section.fade-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.vibe-card {
+  background: var(--gradient-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid hsl(265 85% 65% / 0.2);
+  border-radius: 2rem;
+  padding: 2.5rem;
+  transition: var(--transition-smooth);
+  box-shadow: var(--shadow-soft);
+}
+
+.vibe-card:hover {
+  transform: translateY(-8px);
+  border-color: hsl(265 85% 65% / 0.5);
+  box-shadow: var(--shadow-glow);
+}
+
+.vibe-glow {
+  position: relative;
+}
+
+.vibe-glow:before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, hsl(265 85% 65% / 0.3), transparent 70%);
+  transform: translate(-50%, -50%);
+  filter: blur(60px);
+  z-index: -1;
+  animation: glow-pulse 4s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    opacity: 0.6;
+    filter: blur(60px);
+  }
+  50% {
+    opacity: 1;
+    filter: blur(80px);
   }
 }
 
@@ -90,8 +174,21 @@ All colors MUST be HSL.
   * {
     @apply border-border;
   }
+}
 
-  body {
-    @apply bg-background text-foreground;
+@layer utilities {
+  .fade-in {
+    animation: fadeIn 0.8s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }

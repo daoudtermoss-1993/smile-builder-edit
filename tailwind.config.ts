@@ -47,18 +47,25 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        medical: {
-          light: "hsl(var(--medical-light))",
-          dark: "hsl(var(--medical-dark))",
+        vibe: {
+          purple: "hsl(var(--vibe-purple))",
+          pink: "hsl(var(--vibe-pink))",
+          blue: "hsl(var(--vibe-blue))",
         },
       },
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+        display: ['Poppins', 'sans-serif'],
+      },
       backgroundImage: {
-        'gradient-primary': 'var(--gradient-primary)',
+        'gradient-vibe': 'var(--gradient-vibe)',
         'gradient-hero': 'var(--gradient-hero)',
+        'gradient-card': 'var(--gradient-card)',
       },
       boxShadow: {
         'soft': 'var(--shadow-soft)',
-        'medium': 'var(--shadow-medium)',
+        'glow': 'var(--shadow-glow)',
+        'glow-pink': 'var(--shadow-glow-pink)',
       },
       transitionProperty: {
         'smooth': 'var(--transition-smooth)',

@@ -5,10 +5,13 @@ import { Services } from "@/components/Services";
 import { Booking } from "@/components/Booking";
 import { Contact } from "@/components/Contact";
 import { Footer } from "@/components/Footer";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import heroImage from "@/assets/hero-dental.jpg";
 import doctorImage from "@/assets/doctor-portrait.jpg";
 
 const Index = () => {
+  useScrollAnimation();
+  
   return (
     <div className="min-h-screen">
       <Navigation />
