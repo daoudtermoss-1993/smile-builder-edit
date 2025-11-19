@@ -58,6 +58,13 @@ export const Booking = () => {
       return;
     }
 
+    // Check if selected time slot is still available
+    const selectedSlot = availableSlots.find(slot => slot.slot_time === formData.time);
+    if (!selectedSlot || !selectedSlot.is_available) {
+      toast.error("Sorry, this time slot is no longer available. Please select another time.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -187,22 +194,41 @@ export const Booking = () => {
               ) : availableSlots.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No available slots for this date</p>
               ) : (
-                <Select value={formData.time} onValueChange={(value) => handleChange("time", value)}>
-                  <SelectTrigger className="bg-background/50 border-primary/20">
-                    <SelectValue placeholder="Choose a time slot" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableSlots.map((slot) => (
-                      <SelectItem 
-                        key={slot.slot_time} 
-                        value={slot.slot_time}
-                        disabled={!slot.is_available}
-                      >
-                        {slot.slot_time} {!slot.is_available && "(Booked)"}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <>
+                  <Select value={formData.time} onValueChange={(value) => handleChange("time", value)}>
+                    <SelectTrigger className="bg-background/50 border-primary/20">
+                      <SelectValue placeholder="Choose a time slot" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableSlots.map((slot) => (
+                        <SelectItem 
+                          key={slot.slot_time} 
+                          value={slot.slot_time}
+                          disabled={!slot.is_available}
+                          className={!slot.is_available ? "opacity-50" : ""}
+                        >
+                          <span className="flex items-center justify-between w-full gap-2">
+                            <span>{slot.slot_time}</span>
+                            {!slot.is_available ? (
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-destructive/20 text-destructive">
+                                Réservé
+                              </span>
+                            ) : (
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-600">
+                                Disponible
+                              </span>
+                            )}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {availableSlots.every(slot => !slot.is_available) && (
+                    <p className="text-sm text-destructive mt-2">
+                      ⚠️ All time slots are fully booked for this date. Please select another date.
+                    </p>
+                  )}
+                </>
               )}
             </div>
             </div>
