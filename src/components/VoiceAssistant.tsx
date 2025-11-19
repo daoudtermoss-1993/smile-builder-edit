@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useConversation } from "@11labs/react";
 import { Phone, PhoneOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,9 +12,10 @@ interface VoiceAssistantProps {
 
 export const VoiceAssistant = ({ onClose }: VoiceAssistantProps) => {
   const { t } = useLanguage();
-  const [agentId, setAgentId] = useState<string>("");
-  const [isConfigured, setIsConfigured] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Fixed agent ID - no configuration needed for patients
+  const AGENT_ID = "agent_0601k7f005mxfams7w22csdfvcdh";
 
   const conversation = useConversation({
     onConnect: () => {
@@ -59,21 +60,8 @@ export const VoiceAssistant = ({ onClose }: VoiceAssistantProps) => {
     }
   });
 
-  useEffect(() => {
-    // Load agent ID from localStorage
-    const savedAgentId = localStorage.getItem("elevenlabs_agent_id");
-    if (savedAgentId) {
-      setAgentId(savedAgentId);
-      setIsConfigured(true);
-    }
-  }, []);
 
   const startConversation = async () => {
-    if (!agentId) {
-      toast.error(t("configureAgentFirst"));
-      return;
-    }
-
     setIsLoading(true);
 
     try {
@@ -82,7 +70,7 @@ export const VoiceAssistant = ({ onClose }: VoiceAssistantProps) => {
 
       // Get signed URL from edge function
       const { data, error } = await supabase.functions.invoke("elevenlabs-session", {
-        body: { agentId }
+        body: { agentId: AGENT_ID }
       });
 
       if (error) throw error;
@@ -103,41 +91,6 @@ export const VoiceAssistant = ({ onClose }: VoiceAssistantProps) => {
     if (onClose) onClose();
   };
 
-  const saveAgentId = () => {
-    localStorage.setItem("elevenlabs_agent_id", agentId);
-    setIsConfigured(true);
-    toast.success(t("agentIdSaved"));
-  };
-
-  if (!isConfigured) {
-    return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div className="bg-background vibe-card p-6 max-w-md w-full">
-          <h3 className="text-xl font-semibold mb-4">{t("configureVoice")}</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            {t("enterAgentId")} <a href="https://elevenlabs.io/app/conversational-ai" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">elevenlabs.io</a>
-          </p>
-          <input
-            type="text"
-            value={agentId}
-            onChange={(e) => setAgentId(e.target.value)}
-            placeholder="Agent ID"
-            className="w-full px-3 py-2 border border-border rounded-md bg-secondary mb-4"
-          />
-          <div className="flex gap-2">
-            <Button onClick={saveAgentId} className="flex-1">
-              {t("save")}
-            </Button>
-            {onClose && (
-              <Button onClick={onClose} variant="outline">
-                {t("cancel")}
-              </Button>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
