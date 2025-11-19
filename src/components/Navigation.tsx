@@ -1,27 +1,29 @@
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Globe } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { language, toggleLanguage, t } = useLanguage();
 
   const navLinks = [
-    { href: "#home", label: "Home" },
-    { href: "#about", label: "About" },
-    { href: "#services", label: "Services" },
-    { href: "#booking", label: "Booking" },
-    { href: "#contact", label: "Contact" },
+    { href: "#home", key: "home" },
+    { href: "#about", key: "about" },
+    { href: "#services", key: "services" },
+    { href: "#booking", key: "booking" },
+    { href: "#contact", key: "contact" },
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-xl border-b border-primary/20">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-b border-border shadow-sm">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-gradient-vibe rounded-full flex items-center justify-center shadow-glow">
+              <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center shadow-sm">
                 <span className="text-white font-bold text-lg">YG</span>
               </div>
-              <span className="font-display font-bold text-xl bg-gradient-vibe bg-clip-text text-transparent">Dr. Yousif German</span>
+              <span className="font-display font-bold text-xl text-primary">Dr. Yousif German</span>
             </div>
           </div>
 
@@ -30,21 +32,26 @@ export const Navigation = () => {
               <a
                 key={link.href}
                 href={link.href}
-                className="text-foreground hover:text-vibe-purple transition-colors font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-gradient-vibe after:transition-all hover:after:w-full"
+                className="text-foreground hover:text-primary transition-colors font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all hover:after:w-full"
               >
-                {link.label}
+                {t(link.key)}
               </a>
             ))}
-            <div className="flex items-center gap-2 px-4 py-2 bg-gradient-card backdrop-blur-xl rounded-full border border-primary/30">
-              <span className="text-sm">🇰🇼</span>
-              <span className="text-sm text-foreground">العربية</span>
-            </div>
+            <button 
+              onClick={toggleLanguage}
+              className="flex items-center gap-2 px-4 py-2 bg-secondary rounded-full border border-border hover:bg-muted transition-colors"
+            >
+              <Globe className="w-4 h-4 text-primary" />
+              <span className="text-sm text-foreground font-medium">
+                {language === 'en' ? 'العربية' : 'English'}
+              </span>
+            </button>
           </div>
 
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="w-10 h-10 flex items-center justify-center text-foreground hover:text-vibe-purple transition-colors"
+              className="w-10 h-10 flex items-center justify-center text-foreground hover:text-primary transition-colors"
             >
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -52,21 +59,29 @@ export const Navigation = () => {
         </div>
 
         {isOpen && (
-          <div className="md:hidden py-4 border-t border-primary/20">
+          <div className="md:hidden py-4 border-t border-border">
             {navLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
-                className="block py-2 text-foreground hover:text-vibe-purple transition-colors"
+                className="block py-2 text-foreground hover:text-primary transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                {link.label}
+                {t(link.key)}
               </a>
             ))}
-            <div className="flex items-center gap-2 py-2">
-              <span className="text-sm">🇰🇼</span>
-              <span className="text-sm text-foreground">العربية</span>
-            </div>
+            <button 
+              onClick={() => {
+                toggleLanguage();
+                setIsOpen(false);
+              }}
+              className="flex items-center gap-2 py-2 mt-2"
+            >
+              <Globe className="w-4 h-4 text-primary" />
+              <span className="text-sm text-foreground font-medium">
+                {language === 'en' ? 'العربية' : 'English'}
+              </span>
+            </button>
           </div>
         )}
       </div>

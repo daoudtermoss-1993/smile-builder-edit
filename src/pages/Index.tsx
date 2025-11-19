@@ -3,12 +3,12 @@ import { Hero } from "@/components/Hero";
 import { About } from "@/components/About";
 import { Services } from "@/components/Services";
 import { Booking } from "@/components/Booking";
-import { Contact } from "@/components/Contact";
+import { ContactMap } from "@/components/ContactMap";
 import { Footer } from "@/components/Footer";
 import { Chatbot } from "@/components/Chatbot";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import heroImage from "@/assets/hero-dental.jpg";
-import doctorImage from "@/assets/doctor-portrait.jpg";
+import heroImage from "@/assets/dr-yousif-hero.jpg";
+import doctorImage from "@/assets/dr-yousif-hero.jpg";
 
 const Index = () => {
   useScrollAnimation();
@@ -48,9 +48,9 @@ const Index = () => {
       </div>
       
       <div id="contact">
-        <Contact
+        <ContactMap
           address="Kuwait City, Kuwait"
-          phone="+965 XXXX XXXX"
+          phone="+96561112299"
           email="info@dryousifgerman.com"
           hours="Sat-Thu: 9AM-8PM"
         />

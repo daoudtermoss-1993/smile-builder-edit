@@ -10,17 +10,17 @@ interface Message {
   isBot: boolean;
 }
 
-const FAQ = [
-  { q: "Quels sont vos horaires d'ouverture?", a: "Nous sommes ouverts du samedi au jeudi, de 9h à 20h." },
-  { q: "Où êtes-vous situé?", a: "Nous sommes situés à Kuwait City, Kuwait." },
-  { q: "Quels services offrez-vous?", a: "Nous offrons des implants dentaires, dentisterie cosmétique, orthodontie, traitement de canal, nettoyage et soins d'urgence." },
-  { q: "Comment prendre rendez-vous?", a: "Vous pouvez prendre rendez-vous via notre formulaire de réservation sur le site ou en nous appelant." },
-];
+  const FAQ = [
+    { q: "What are your opening hours?", a: "We are open Saturday to Thursday, 9am to 8pm." },
+    { q: "Where are you located?", a: "We are located in Kuwait City, Kuwait." },
+    { q: "What services do you offer?", a: "We offer dental implants, cosmetic dentistry, orthodontics, root canal treatment, cleaning and emergency care." },
+    { q: "How do I book an appointment?", a: "You can book an appointment via our booking form on the site or by calling us at +96561112299." },
+  ];
 
 export const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { text: "Bonjour! Je suis l'assistant virtuel de Dr. Yousif German. Comment puis-je vous aider aujourd'hui?", isBot: true }
+    { text: "Hello! I'm Dr. Yousif German's virtual assistant. How can I help you today?", isBot: true }
   ]);
   const [input, setInput] = useState("");
   const [collectingInfo, setCollectingInfo] = useState(false);
@@ -67,7 +67,7 @@ export const Chatbot = () => {
       }
 
       setMessages(prev => [...prev, {
-        text: "Merci! Vos informations ont été enregistrées. Nous vous contacterons bientôt!",
+        text: "Thank you! Your information has been recorded. We will contact you soon!",
         isBot: true
       }]);
       setCollectingInfo(false);
@@ -90,11 +90,11 @@ export const Chatbot = () => {
       if (step === "name") {
         setLeadData(prev => ({ ...prev, name: input }));
         setStep("email");
-        setMessages(prev => [...prev, { text: "Parfait! Quel est votre email?", isBot: true }]);
+        setMessages(prev => [...prev, { text: "Perfect! What is your email?", isBot: true }]);
       } else if (step === "email") {
         setLeadData(prev => ({ ...prev, email: input }));
         setStep("phone");
-        setMessages(prev => [...prev, { text: "Et votre numéro WhatsApp/téléphone?", isBot: true }]);
+        setMessages(prev => [...prev, { text: "And your WhatsApp/phone number?", isBot: true }]);
       } else if (step === "phone") {
         setLeadData(prev => ({ ...prev, phone: input }));
         await saveLead();
@@ -111,10 +111,10 @@ export const Chatbot = () => {
       setTimeout(() => {
         setMessages(prev => [...prev, { text: faqMatch.a, isBot: true }]);
       }, 500);
-    } else if (input.toLowerCase().includes("rendez-vous") || input.toLowerCase().includes("réserver")) {
+    } else if (input.toLowerCase().includes("appointment") || input.toLowerCase().includes("book")) {
       setTimeout(() => {
         setMessages(prev => [...prev, { 
-          text: "Je peux vous aider à prendre rendez-vous! Pour commencer, quel est votre nom?", 
+          text: "I can help you book an appointment! To get started, what is your name?", 
           isBot: true 
         }]);
         setCollectingInfo(true);
@@ -123,7 +123,7 @@ export const Chatbot = () => {
     } else {
       setTimeout(() => {
         setMessages(prev => [...prev, { 
-          text: "Je peux vous aider avec:\n- Horaires d'ouverture\n- Services offerts\n- Localisation\n- Prise de rendez-vous\n\nQue souhaitez-vous savoir?", 
+          text: "I can help you with:\n- Opening hours\n- Services offered\n- Location\n- Booking appointments\n\nWhat would you like to know?", 
           isBot: true 
         }]);
       }, 500);
@@ -135,7 +135,7 @@ export const Chatbot = () => {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 w-16 h-16 rounded-full bg-gradient-vibe shadow-glow flex items-center justify-center hover:scale-110 transition-transform z-50"
+          className="fixed bottom-6 right-6 w-16 h-16 rounded-full bg-primary shadow-glow flex items-center justify-center hover:scale-110 transition-transform z-50"
         >
           <MessageCircle className="w-8 h-8 text-white" />
         </button>
@@ -143,17 +143,17 @@ export const Chatbot = () => {
 
       {isOpen && (
         <div className="fixed bottom-6 right-6 w-96 h-[500px] vibe-card flex flex-col z-50 animate-scale-in">
-          <div className="flex items-center justify-between p-4 border-b border-primary/20">
+          <div className="flex items-center justify-between p-4 border-b border-border">
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-full bg-gradient-vibe flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
                 <MessageCircle className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold text-foreground">Assistant Dr. Yousif</h3>
-                <p className="text-xs text-foreground/60">En ligne</p>
+                <h3 className="font-semibold text-foreground">Dr. Yousif Assistant</h3>
+                <p className="text-xs text-muted-foreground">Online</p>
               </div>
             </div>
-            <button onClick={() => setIsOpen(false)} className="text-foreground/60 hover:text-foreground">
+            <button onClick={() => setIsOpen(false)} className="text-muted-foreground hover:text-foreground">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -163,8 +163,8 @@ export const Chatbot = () => {
               <div key={idx} className={`flex ${msg.isBot ? "justify-start" : "justify-end"}`}>
                 <div className={`max-w-[80%] p-3 rounded-lg ${
                   msg.isBot 
-                    ? "bg-background/50 text-foreground" 
-                    : "bg-gradient-vibe text-white"
+                    ? "bg-secondary text-foreground" 
+                    : "bg-primary text-white"
                 }`}>
                   <p className="text-sm whitespace-pre-line">{msg.text}</p>
                 </div>
@@ -172,16 +172,16 @@ export const Chatbot = () => {
             ))}
           </div>
 
-          <div className="p-4 border-t border-primary/20">
+          <div className="p-4 border-t border-border">
             <div className="flex gap-2">
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && handleSend()}
-                placeholder="Écrivez votre message..."
-                className="bg-background/50 border-primary/20"
+                placeholder="Write your message..."
+                className="bg-secondary border-border"
               />
-              <Button onClick={handleSend} size="icon" className="bg-gradient-vibe hover:opacity-90">
+              <Button onClick={handleSend} size="icon" className="bg-primary hover:bg-vibe-cyan">
                 <Send className="w-4 h-4" />
               </Button>
             </div>
