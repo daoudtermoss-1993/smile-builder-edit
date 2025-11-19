@@ -14,6 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
+      appointments: {
+        Row: {
+          appointment_date: string
+          appointment_time: string
+          created_at: string
+          google_calendar_event_id: string | null
+          id: string
+          notes: string | null
+          patient_email: string
+          patient_name: string
+          patient_phone: string | null
+          service: string
+          source: string | null
+          status: string
+        }
+        Insert: {
+          appointment_date: string
+          appointment_time: string
+          created_at?: string
+          google_calendar_event_id?: string | null
+          id?: string
+          notes?: string | null
+          patient_email: string
+          patient_name: string
+          patient_phone?: string | null
+          service: string
+          source?: string | null
+          status?: string
+        }
+        Update: {
+          appointment_date?: string
+          appointment_time?: string
+          created_at?: string
+          google_calendar_event_id?: string | null
+          id?: string
+          notes?: string | null
+          patient_email?: string
+          patient_name?: string
+          patient_phone?: string | null
+          service?: string
+          source?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      available_slots: {
+        Row: {
+          created_at: string
+          day_of_week: number
+          end_time: string
+          id: string
+          is_active: boolean | null
+          start_time: string
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: number
+          end_time: string
+          id?: string
+          is_active?: boolean | null
+          start_time: string
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_active?: boolean | null
+          start_time?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           created_at: string
@@ -49,7 +121,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_available_slots: {
+        Args: { check_date: string }
+        Returns: {
+          is_available: boolean
+          slot_time: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

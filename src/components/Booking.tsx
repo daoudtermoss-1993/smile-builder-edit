@@ -1,22 +1,49 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { format } from "date-fns";
 
 export const Booking = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [availableSlots, setAvailableSlots] = useState<{ slot_time: string; is_available: boolean }[]>([]);
+  const [isLoadingSlots, setIsLoadingSlots] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
     email: "",
     service: "",
-    date: "",
     time: "",
     notes: "",
   });
+
+  useEffect(() => {
+    if (selectedDate) {
+      loadAvailableSlots(selectedDate);
+    }
+  }, [selectedDate]);
+
+  const loadAvailableSlots = async (date: Date) => {
+    setIsLoadingSlots(true);
+    try {
+      const { data, error } = await supabase.rpc('get_available_slots', {
+        check_date: format(date, 'yyyy-MM-dd')
+      });
+
+      if (error) throw error;
+      setAvailableSlots(data || []);
+    } catch (error) {
+      console.error('Error loading slots:', error);
+      toast.error('Failed to load available time slots');
+    } finally {
+      setIsLoadingSlots(false);
+    }
+  };
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -26,7 +53,7 @@ export const Booking = () => {
     e.preventDefault();
     
     // Validation
-    if (!formData.name || !formData.phone || !formData.email || !formData.service || !formData.date || !formData.time) {
+    if (!formData.name || !formData.phone || !formData.email || !formData.service || !selectedDate || !formData.time) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -35,7 +62,10 @@ export const Booking = () => {
 
     try {
       const { data, error } = await supabase.functions.invoke('send-booking-notification', {
-        body: formData,
+        body: {
+          ...formData,
+          date: format(selectedDate, 'yyyy-MM-dd')
+        },
       });
 
       if (error) throw error;
@@ -48,10 +78,11 @@ export const Booking = () => {
         phone: "",
         email: "",
         service: "",
-        date: "",
         time: "",
         notes: "",
       });
+      setSelectedDate(undefined);
+      setAvailableSlots([]);
     } catch (error) {
       console.error("Error submitting appointment:", error);
       toast.error("Failed to submit appointment. Please try again or call us directly.");
@@ -128,27 +159,52 @@ export const Booking = () => {
             </div>
             
             <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Preferred Date *</label>
-                <Input 
-                  type="date" 
-                  className="bg-background/50 border-primary/20"
-                  value={formData.date}
-                  onChange={(e) => handleChange("date", e.target.value)}
-                  required
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Select Date *</label>
+              <div className="flex justify-center">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                  disabled={(date) => {
+                    const day = date.getDay();
+                    // Disable Friday (5) and Saturday (6) - closed days
+                    return day === 5 || day === 6 || date < new Date();
+                  }}
+                  className="rounded-md border border-primary/20 bg-background/50"
                 />
               </div>
+            </div>
               
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Preferred Time *</label>
-                <Input 
-                  type="time" 
-                  className="bg-background/50 border-primary/20"
-                  value={formData.time}
-                  onChange={(e) => handleChange("time", e.target.value)}
-                  required
-                />
-              </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Select Time *</label>
+              {!selectedDate ? (
+                <p className="text-sm text-muted-foreground">Please select a date first</p>
+              ) : isLoadingSlots ? (
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                </div>
+              ) : availableSlots.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No available slots for this date</p>
+              ) : (
+                <Select value={formData.time} onValueChange={(value) => handleChange("time", value)}>
+                  <SelectTrigger className="bg-background/50 border-primary/20">
+                    <SelectValue placeholder="Choose a time slot" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableSlots.map((slot) => (
+                      <SelectItem 
+                        key={slot.slot_time} 
+                        value={slot.slot_time}
+                        disabled={!slot.is_available}
+                      >
+                        {slot.slot_time} {!slot.is_available && "(Booked)"}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
             </div>
             
             <div className="space-y-2">

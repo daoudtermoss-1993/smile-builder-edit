@@ -34,24 +34,41 @@ export const VoiceAssistant = ({ onClose }: VoiceAssistantProps) => {
     },
     // Client tools for booking appointments
     clientTools: {
-      bookAppointment: async (parameters: { name: string; email: string; phone: string; date: string; time: string }) => {
+      bookAppointment: async (parameters: { name: string; email: string; phone: string; date: string; time: string; service: string }) => {
         console.log("Booking appointment:", parameters);
         
         try {
-          const { error } = await supabase.from("leads").insert([
+          // Save to appointments table
+          const { error: appointmentError } = await supabase.from("appointments").insert([
             {
-              name: parameters.name,
-              email: parameters.email,
-              phone: parameters.phone,
-              message: `Appointment request: ${parameters.date} at ${parameters.time}`,
-              source: "voice_assistant"
+              patient_name: parameters.name,
+              patient_email: parameters.email,
+              patient_phone: parameters.phone,
+              service: parameters.service || "General Consultation",
+              appointment_date: parameters.date,
+              appointment_time: parameters.time,
+              source: "voice_assistant",
+              status: "pending"
             }
           ]);
 
-          if (error) throw error;
+          if (appointmentError) throw appointmentError;
+
+          // Also send to n8n for WhatsApp notification
+          await supabase.functions.invoke('send-booking-notification', {
+            body: {
+              name: parameters.name,
+              email: parameters.email,
+              phone: parameters.phone,
+              service: parameters.service || "General Consultation",
+              date: parameters.date,
+              time: parameters.time,
+              notes: "Booked via voice assistant"
+            }
+          });
 
           toast.success(t("appointmentBooked"));
-          return "Appointment booked successfully. We will contact you shortly to confirm.";
+          return "Appointment booked successfully. We will contact you shortly via WhatsApp to confirm.";
         } catch (error) {
           console.error("Error booking appointment:", error);
           return "There was an error booking your appointment. Please try again or contact us directly.";
