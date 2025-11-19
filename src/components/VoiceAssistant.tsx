@@ -109,6 +109,13 @@ export const VoiceAssistant = ({ onClose }: VoiceAssistantProps) => {
     toast.success(t("agentIdSaved"));
   };
 
+  const resetAgentId = () => {
+    localStorage.removeItem("elevenlabs_agent_id");
+    setAgentId("");
+    setIsConfigured(false);
+    toast.success(t("agentIdReset"));
+  };
+
   if (!isConfigured) {
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -142,6 +149,23 @@ export const VoiceAssistant = ({ onClose }: VoiceAssistantProps) => {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-background vibe-card p-8 max-w-md w-full text-center">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex-1" />
+          <h3 className="text-2xl font-semibold flex-1">
+            {t("drYousifAssistant")}
+          </h3>
+          <div className="flex-1 flex justify-end">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={resetAgentId}
+              className="text-xs text-muted-foreground hover:text-foreground"
+            >
+              {t("changeAgentId")}
+            </Button>
+          </div>
+        </div>
+
         <div className="mb-6">
           <div className={`w-24 h-24 rounded-full mx-auto flex items-center justify-center ${
             conversation.status === "connected" && conversation.isSpeaking 
@@ -151,10 +175,6 @@ export const VoiceAssistant = ({ onClose }: VoiceAssistantProps) => {
             <Phone className="w-12 h-12 text-primary" />
           </div>
         </div>
-
-        <h3 className="text-2xl font-semibold mb-2">
-          {t("drYousifAssistant")}
-        </h3>
         
         <p className="text-muted-foreground mb-6">
           {conversation.status === "connected" 
