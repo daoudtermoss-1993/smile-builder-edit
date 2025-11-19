@@ -1,5 +1,8 @@
+import { useState } from "react";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Button } from "@/components/ui/button";
+import { VoiceAssistant } from "@/components/VoiceAssistant";
 
 interface ContactMapProps {
   address: string;
@@ -10,6 +13,7 @@ interface ContactMapProps {
 
 export const ContactMap = ({ address, phone, email, hours }: ContactMapProps) => {
   const { t } = useLanguage();
+  const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
   
   return (
     <section id="contact" className="vibe-section bg-secondary/30">
@@ -66,6 +70,20 @@ export const ContactMap = ({ address, phone, email, hours }: ContactMapProps) =>
                 <p className="text-muted-foreground">{hours}</p>
               </div>
             </div>
+
+            <div className="pt-4 border-t border-border">
+              <Button 
+                onClick={() => setShowVoiceAssistant(true)}
+                size="lg"
+                className="w-full bg-primary hover:bg-primary/90 text-white"
+              >
+                <Phone className="w-5 h-5 mr-2" />
+                {t('callAIAssistant')}
+              </Button>
+              <p className="text-sm text-muted-foreground mt-2 text-center">
+                {t('speakWithAI')}
+              </p>
+            </div>
           </div>
 
           <div className="vibe-card p-0 overflow-hidden h-[500px]">
@@ -82,6 +100,10 @@ export const ContactMap = ({ address, phone, email, hours }: ContactMapProps) =>
           </div>
         </div>
       </div>
+
+      {showVoiceAssistant && (
+        <VoiceAssistant onClose={() => setShowVoiceAssistant(false)} />
+      )}
     </section>
   );
 };
