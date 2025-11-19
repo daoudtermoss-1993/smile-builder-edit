@@ -26,7 +26,7 @@ export const VoiceAssistant = ({ onClose }: VoiceAssistantProps) => {
     },
     onError: (error) => {
       console.error("Voice assistant error:", error);
-      toast.error(t("voiceError") + error.message);
+      toast.error(t("voiceError") + error);
     },
     onMessage: (message) => {
       console.log("Message:", message);
@@ -89,7 +89,7 @@ export const VoiceAssistant = ({ onClose }: VoiceAssistantProps) => {
       if (!data?.signedUrl) throw new Error("No signed URL received");
 
       console.log("Starting conversation with signed URL");
-      await conversation.startSession({ url: data.signedUrl });
+      await conversation.startSession({ signedUrl: data.signedUrl });
     } catch (error) {
       console.error("Error starting conversation:", error);
       toast.error(error instanceof Error ? error.message : t("failedToStart"));
