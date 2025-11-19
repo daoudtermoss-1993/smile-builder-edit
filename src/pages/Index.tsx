@@ -2,6 +2,7 @@ import { Navigation } from "@/components/Navigation";
 import { Hero } from "@/components/Hero";
 import { About } from "@/components/About";
 import { Services } from "@/components/Services";
+import { BeforeAfter } from "@/components/BeforeAfter";
 import { Booking } from "@/components/Booking";
 import { ContactMap } from "@/components/ContactMap";
 import { Footer } from "@/components/Footer";
@@ -41,6 +42,10 @@ const Index = () => {
       
       <div id="services">
         <Services />
+      </div>
+      
+      <div id="gallery">
+        <BeforeAfter />
       </div>
       
       <div id="booking">
