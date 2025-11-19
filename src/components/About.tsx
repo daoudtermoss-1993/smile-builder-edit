@@ -1,3 +1,5 @@
+import { Award, Users, Clock } from "lucide-react";
+
 interface AboutProps {
   doctorImage?: string;
   doctorName: string;
@@ -16,42 +18,48 @@ export const About = ({
   stats
 }: AboutProps) => {
   return (
-    <section className="py-20 bg-background">
+    <section className="vibe-section py-20">
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="relative">
-            <div className="relative rounded-2xl overflow-hidden shadow-medium">
-              <img
-                src={doctorImage}
-                alt={doctorName}
-                className="w-full h-auto object-cover"
-              />
-            </div>
-            <div className="absolute -bottom-6 -right-6 bg-primary text-primary-foreground px-6 py-3 rounded-xl shadow-medium">
-              <p className="text-sm font-medium">Your trusted dental specialist</p>
-            </div>
+            <div className="absolute inset-0 bg-gradient-vibe opacity-20 rounded-3xl blur-3xl" />
+            <img
+              src={doctorImage}
+              alt={doctorName}
+              className="relative rounded-3xl shadow-glow object-cover w-full aspect-square border border-primary/20"
+            />
           </div>
           
-          <div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">
-              About {doctorName}
+          <div className="space-y-6">
+            <div className="inline-block px-6 py-2 bg-gradient-card backdrop-blur-xl rounded-full border border-primary/30">
+              <span className="text-sm font-semibold bg-gradient-vibe bg-clip-text text-transparent">About Our Clinic</span>
+            </div>
+            
+            <h2 className="text-4xl md:text-5xl font-display font-bold bg-gradient-vibe bg-clip-text text-transparent">
+              Meet {doctorName}
             </h2>
-            <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+            
+            <p className="text-lg text-foreground/80 leading-relaxed">
               {description}
             </p>
             
-            <div className="grid grid-cols-3 gap-6">
-              <div className="text-center p-4 bg-secondary rounded-xl">
-                <div className="text-3xl font-bold text-primary mb-2">{stats.years}</div>
-                <div className="text-sm text-muted-foreground">Years Experience</div>
+            <div className="grid grid-cols-3 gap-4 pt-6">
+              <div className="vibe-card text-center">
+                <Clock className="h-8 w-8 mx-auto mb-2 text-vibe-purple" />
+                <div className="text-2xl font-bold text-foreground">{stats.years}</div>
+                <div className="text-sm text-foreground/60">Years</div>
               </div>
-              <div className="text-center p-4 bg-secondary rounded-xl">
-                <div className="text-3xl font-bold text-primary mb-2">{stats.patients}</div>
-                <div className="text-sm text-muted-foreground">Happy Patients</div>
+              
+              <div className="vibe-card text-center">
+                <Users className="h-8 w-8 mx-auto mb-2 text-vibe-pink" />
+                <div className="text-2xl font-bold text-foreground">{stats.patients}</div>
+                <div className="text-sm text-foreground/60">Patients</div>
               </div>
-              <div className="text-center p-4 bg-secondary rounded-xl">
-                <div className="text-3xl font-bold text-primary mb-2">{stats.treatments}</div>
-                <div className="text-sm text-muted-foreground">Treatments</div>
+              
+              <div className="vibe-card text-center">
+                <Award className="h-8 w-8 mx-auto mb-2 text-vibe-blue" />
+                <div className="text-2xl font-bold text-foreground">{stats.treatments}</div>
+                <div className="text-sm text-foreground/60">Treatments</div>
               </div>
             </div>
           </div>
