@@ -168,8 +168,8 @@ export const Booking = () => {
                   onSelect={setSelectedDate}
                   disabled={(date) => {
                     const day = date.getDay();
-                    // Disable Friday (5) and Saturday (6) - closed days
-                    return day === 5 || day === 6 || date < new Date();
+                    // Disable Saturday (6) and Sunday (0) - closed days
+                    return day === 0 || day === 6 || date < new Date();
                   }}
                   className="rounded-md border border-primary/20 bg-background/50"
                 />
