@@ -4,49 +4,49 @@
 
 @layer base {
   :root {
-    --background: 260 40% 5%;
-    --foreground: 0 0% 98%;
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
 
-    --card: 260 30% 10%;
-    --card-foreground: 0 0% 98%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
 
-    --popover: 260 30% 10%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
 
-    --primary: 265 85% 65%;
+    --primary: 180 100% 35%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 265 25% 20%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 260 25% 16%;
-    --muted-foreground: 260 10% 65%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 20% 40%;
 
-    --accent: 320 85% 65%;
+    --accent: 180 100% 35%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 260 25% 20%;
-    --input: 260 25% 20%;
-    --ring: 265 85% 65%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 180 100% 35%;
 
-    --radius: 1.5rem;
+    --radius: 0.75rem;
 
-    --vibe-purple: 265 85% 65%;
-    --vibe-pink: 320 85% 65%;
-    --vibe-blue: 220 85% 65%;
+    --vibe-teal: 180 100% 35%;
+    --vibe-cyan: 190 100% 45%;
+    --vibe-blue: 200 90% 45%;
     
-    --gradient-vibe: linear-gradient(135deg, hsl(265 85% 65%), hsl(295 85% 65%), hsl(320 85% 65%));
-    --gradient-hero: linear-gradient(135deg, hsl(265 85% 65% / 0.3), hsl(320 85% 65% / 0.3));
-    --gradient-card: linear-gradient(135deg, hsl(260 30% 10% / 0.6), hsl(265 30% 15% / 0.4));
+    --gradient-vibe: linear-gradient(135deg, hsl(180 100% 35%), hsl(190 100% 45%));
+    --gradient-hero: linear-gradient(135deg, rgba(0, 158, 158, 0.1), rgba(255, 255, 255, 0.9));
+    --gradient-card: linear-gradient(135deg, rgba(0, 158, 158, 0.05), rgba(0, 191, 191, 0.05));
     
-    --shadow-glow: 0 0 40px hsl(265 85% 65% / 0.4);
-    --shadow-glow-pink: 0 0 40px hsl(320 85% 65% / 0.3);
-    --shadow-soft: 0 10px 30px hsl(260 40% 5% / 0.5);
+    --shadow-glow: 0 0 30px hsl(180 100% 35% / 0.3);
+    --shadow-glow-cyan: 0 0 30px hsl(190 100% 45% / 0.3);
+    --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.05);
     
-    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
@@ -54,6 +54,11 @@ body {
   font-family: 'Inter', sans-serif;
   background: hsl(var(--background));
   color: hsl(var(--foreground));
+  direction: ltr;
+}
+
+body[dir="rtl"] {
+  direction: rtl;
 }
 
 .vibe-title {
@@ -61,55 +66,40 @@ body {
   font-size: clamp(2.5rem, 8vw, 5rem);
   font-weight: 800;
   line-height: 1.1;
-  background: var(--gradient-vibe);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: hsl(var(--foreground));
   text-align: center;
-  animation: glow-pulse 3s ease-in-out infinite;
 }
 
 .vibe-sub {
   font-size: clamp(1rem, 3vw, 1.5rem);
   font-weight: 400;
-  opacity: 0.8;
   text-align: center;
-  color: hsl(var(--foreground));
+  color: hsl(var(--muted-foreground));
 }
 
 .vibe-btn {
   padding: 1rem 2.5rem;
-  background: var(--gradient-vibe);
+  background: hsl(var(--primary));
   border: none;
-  border-radius: 2rem;
+  border-radius: var(--radius);
   color: white;
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
   transition: var(--transition-smooth);
-  box-shadow: var(--shadow-glow);
+  box-shadow: var(--shadow-soft);
   position: relative;
   overflow: hidden;
 }
 
 .vibe-btn:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 0 60px hsl(265 85% 65% / 0.6);
+  transform: translateY(-2px);
+  background: hsl(var(--vibe-cyan));
+  box-shadow: var(--shadow-glow);
 }
 
-.vibe-btn:before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-  transition: left 0.5s;
-}
-
-.vibe-btn:hover:before {
-  left: 100%;
+.vibe-btn:active {
+  transform: translateY(0);
 }
 
 .vibe-section {
@@ -125,49 +115,23 @@ body {
 }
 
 .vibe-card {
-  background: var(--gradient-card);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid hsl(265 85% 65% / 0.2);
-  border-radius: 2rem;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
   padding: 2.5rem;
   transition: var(--transition-smooth);
   box-shadow: var(--shadow-soft);
 }
 
 .vibe-card:hover {
-  transform: translateY(-8px);
-  border-color: hsl(265 85% 65% / 0.5);
-  box-shadow: var(--shadow-glow);
+  transform: translateY(-4px);
+  border-color: hsl(var(--primary) / 0.3);
+  box-shadow: 0 8px 24px rgba(0, 158, 158, 0.15);
 }
 
 .vibe-glow {
   position: relative;
-}
-
-.vibe-glow:before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle, hsl(265 85% 65% / 0.3), transparent 70%);
-  transform: translate(-50%, -50%);
-  filter: blur(60px);
-  z-index: -1;
-  animation: glow-pulse 4s ease-in-out infinite;
-}
-
-@keyframes glow-pulse {
-  0%, 100% {
-    opacity: 0.6;
-    filter: blur(60px);
-  }
-  50% {
-    opacity: 1;
-    filter: blur(80px);
-  }
+  background: linear-gradient(135deg, rgba(0, 158, 158, 0.03), rgba(255, 255, 255, 0.95));
 }
 
 @layer base {

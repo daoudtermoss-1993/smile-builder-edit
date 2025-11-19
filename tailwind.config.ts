@@ -48,8 +48,8 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
         vibe: {
-          purple: "hsl(var(--vibe-purple))",
-          pink: "hsl(var(--vibe-pink))",
+          teal: "hsl(var(--vibe-teal))",
+          cyan: "hsl(var(--vibe-cyan))",
           blue: "hsl(var(--vibe-blue))",
         },
       },
@@ -65,7 +65,7 @@ export default {
       boxShadow: {
         'soft': 'var(--shadow-soft)',
         'glow': 'var(--shadow-glow)',
-        'glow-pink': 'var(--shadow-glow-pink)',
+        'glow-cyan': 'var(--shadow-glow-cyan)',
       },
       transitionProperty: {
         'smooth': 'var(--transition-smooth)',

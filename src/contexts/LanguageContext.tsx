@@ -1,0 +1,145 @@
+import { createContext, useContext, useState, ReactNode } from 'react';
+
+type Language = 'en' | 'ar';
+
+interface LanguageContextType {
+  language: Language;
+  toggleLanguage: () => void;
+  t: (key: string) => string;
+}
+
+const translations = {
+  en: {
+    // Navigation
+    home: 'Home',
+    about: 'About',
+    services: 'Services',
+    booking: 'Booking',
+    contact: 'Contact',
+    
+    // Hero
+    dentist: 'Dentist',
+    heroTitle: 'Dr. Yousif German',
+    heroSubtitle: 'Advanced dental care with precision and comfort.',
+    bookAppointment: 'Book Appointment',
+    contactClinic: 'Contact Clinic',
+    
+    // About
+    aboutTitle: 'About Dr. Yousif German',
+    aboutDescription: 'With years of experience in advanced dentistry, Dr. Yousif German provides comprehensive dental care using the latest technology and techniques. Our clinic in Kuwait is equipped with state-of-the-art facilities to ensure your comfort and safety.',
+    yearsExperience: 'Years Experience',
+    happyPatients: 'Happy Patients',
+    successfulTreatments: 'Successful Treatments',
+    
+    // Services
+    servicesTitle: 'Our Services',
+    servicesSubtitle: 'Comprehensive dental care for all your needs',
+    
+    // Booking
+    bookingTitle: 'Book Your Appointment',
+    bookingSubtitle: 'Schedule your visit with Dr. Yousif German',
+    name: 'Full Name',
+    phone: 'Phone Number',
+    email: 'Email Address',
+    service: 'Select Service',
+    selectService: 'Choose a service',
+    date: 'Preferred Date',
+    time: 'Preferred Time',
+    notes: 'Additional Notes',
+    submit: 'Book Appointment',
+    
+    // Contact
+    contactTitle: 'Contact Us',
+    contactSubtitle: 'Get in touch with our clinic',
+    address: 'Address',
+    hours: 'Working Hours',
+    followUs: 'Follow Us',
+    
+    // Footer
+    footerDescription: 'Advanced dental care with precision and comfort in Kuwait.',
+    quickLinks: 'Quick Links',
+    allRightsReserved: 'All rights reserved.',
+  },
+  ar: {
+    // Navigation
+    home: 'الرئيسية',
+    about: 'عن الدكتور',
+    services: 'الخدمات',
+    booking: 'حجز موعد',
+    contact: 'اتصل بنا',
+    
+    // Hero
+    dentist: 'طبيب أسنان',
+    heroTitle: 'د. يوسف جيرمان',
+    heroSubtitle: 'رعاية أسنان متقدمة بدقة وراحة.',
+    bookAppointment: 'احجز موعد',
+    contactClinic: 'اتصل بالعيادة',
+    
+    // About
+    aboutTitle: 'عن د. يوسف جيرمان',
+    aboutDescription: 'مع سنوات من الخبرة في طب الأسنان المتقدم، يوفر د. يوسف جيرمان رعاية شاملة للأسنان باستخدام أحدث التقنيات. عيادتنا في الكويت مجهزة بأحدث المرافق لضمان راحتك وسلامتك.',
+    yearsExperience: 'سنوات خبرة',
+    happyPatients: 'مرضى سعداء',
+    successfulTreatments: 'علاجات ناجحة',
+    
+    // Services
+    servicesTitle: 'خدماتنا',
+    servicesSubtitle: 'رعاية أسنان شاملة لجميع احتياجاتك',
+    
+    // Booking
+    bookingTitle: 'احجز موعدك',
+    bookingSubtitle: 'حدد موعد زيارتك مع د. يوسف جيرمان',
+    name: 'الاسم الكامل',
+    phone: 'رقم الهاتف',
+    email: 'البريد الإلكتروني',
+    service: 'اختر الخدمة',
+    selectService: 'اختر خدمة',
+    date: 'التاريخ المفضل',
+    time: 'الوقت المفضل',
+    notes: 'ملاحظات إضافية',
+    submit: 'احجز موعد',
+    
+    // Contact
+    contactTitle: 'اتصل بنا',
+    contactSubtitle: 'تواصل مع عيادتنا',
+    address: 'العنوان',
+    hours: 'ساعات العمل',
+    followUs: 'تابعنا',
+    
+    // Footer
+    footerDescription: 'رعاية أسنان متقدمة بدقة وراحة في الكويت.',
+    quickLinks: 'روابط سريعة',
+    allRightsReserved: 'جميع الحقوق محفوظة.',
+  },
+};
+
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
+export const LanguageProvider = ({ children }: { children: ReactNode }) => {
+  const [language, setLanguage] = useState<Language>('en');
+
+  const toggleLanguage = () => {
+    const newLang = language === 'en' ? 'ar' : 'en';
+    setLanguage(newLang);
+    document.documentElement.setAttribute('dir', newLang === 'ar' ? 'rtl' : 'ltr');
+    document.documentElement.setAttribute('lang', newLang);
+  };
+
+  const t = (key: string): string => {
+    return translations[language][key as keyof typeof translations.en] || key;
+  };
+
+  return (
+    <LanguageContext.Provider value={{ language, toggleLanguage, t }}>
+      {children}
+    </LanguageContext.Provider>
+  );
+};
+
+export const useLanguage = () => {
+  const context = useContext(LanguageContext);
+  if (!context) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
+  }
+  return context;
+};
