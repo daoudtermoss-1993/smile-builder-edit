@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -15,6 +16,35 @@ serve(async (req) => {
     
     console.log('Appointment booking received:', { name, email, phone, service, date, time });
 
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Save appointment to database
+    const { data: appointment, error: dbError } = await supabase
+      .from('appointments')
+      .insert({
+        patient_name: name,
+        patient_email: email,
+        patient_phone: phone,
+        service: service,
+        appointment_date: date,
+        appointment_time: time,
+        notes: notes || null,
+        source: 'booking_form',
+        status: 'pending'
+      })
+      .select()
+      .single();
+
+    if (dbError) {
+      console.error('Database error:', dbError);
+      throw dbError;
+    }
+
+    console.log('Appointment saved to database:', appointment.id);
+
     // Send to n8n webhook for WhatsApp notification
     const n8nWebhook = Deno.env.get('N8N_WEBHOOK_URL');
     
@@ -28,6 +58,7 @@ serve(async (req) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'appointment_booking',
+          appointment_id: appointment.id,
           patient: {
             name,
             email,
