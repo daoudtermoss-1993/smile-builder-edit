@@ -24,6 +24,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths } from 'date-fns';
+import AnalyticsCard from '@/components/admin/AnalyticsCard';
 
 interface Appointment {
   id: string;
@@ -239,23 +240,28 @@ export default function Admin() {
 
       <main className="container mx-auto px-4 py-8">
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card className="p-6 bg-gradient-card backdrop-blur-xl border-primary/20">
-            <div className="text-sm text-muted-foreground mb-1">Total Appointments</div>
-            <div className="text-3xl font-bold text-foreground">{stats.total}</div>
-          </Card>
-          <Card className="p-6 bg-gradient-card backdrop-blur-xl border-primary/20">
-            <div className="text-sm text-muted-foreground mb-1">Pending</div>
-            <div className="text-3xl font-bold text-yellow-600">{stats.pending}</div>
-          </Card>
-          <Card className="p-6 bg-gradient-card backdrop-blur-xl border-primary/20">
-            <div className="text-sm text-muted-foreground mb-1">Confirmed</div>
-            <div className="text-3xl font-bold text-green-600">{stats.confirmed}</div>
-          </Card>
-          <Card className="p-6 bg-gradient-card backdrop-blur-xl border-primary/20">
-            <div className="text-sm text-muted-foreground mb-1">Blocked</div>
-            <div className="text-3xl font-bold text-red-600">{stats.blocked}</div>
-          </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Card className="p-6 bg-gradient-card backdrop-blur-xl border-primary/20">
+              <div className="text-sm text-muted-foreground mb-1">Total</div>
+              <div className="text-3xl font-bold text-foreground">{stats.total}</div>
+            </Card>
+            <Card className="p-6 bg-gradient-card backdrop-blur-xl border-primary/20">
+              <div className="text-sm text-muted-foreground mb-1">Pending</div>
+              <div className="text-3xl font-bold text-yellow-600">{stats.pending}</div>
+            </Card>
+            <Card className="p-6 bg-gradient-card backdrop-blur-xl border-primary/20">
+              <div className="text-sm text-muted-foreground mb-1">Confirmed</div>
+              <div className="text-3xl font-bold text-green-600">{stats.confirmed}</div>
+            </Card>
+            <Card className="p-6 bg-gradient-card backdrop-blur-xl border-primary/20">
+              <div className="text-sm text-muted-foreground mb-1">Blocked</div>
+              <div className="text-3xl font-bold text-red-600">{stats.blocked}</div>
+            </Card>
+          </div>
+          
+          {/* Analytics Card */}
+          <AnalyticsCard />
         </div>
 
         {/* Monthly Calendar View */}
