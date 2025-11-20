@@ -115,11 +115,18 @@ console.log('Valid appointment request:', {
 #### **send-booking-notification**
 ✅ Input validation with Zod schemas  
 ✅ Rate limiting by IP address  
+✅ Duplicate booking prevention  
 ✅ Sanitized logging (no PII)  
 ✅ Comprehensive error handling  
 ✅ Service role authentication (bypasses RLS safely)  
 ✅ Proper CORS headers  
 ✅ Returns detailed error messages without exposing internals
+
+**Duplicate Booking Protection:**
+- Max 1 appointment per email/phone per date (prevents slot monopolization)
+- Max 2 appointments per email/phone in 24 hours (prevents rapid booking abuse)
+- Returns HTTP 409 (Conflict) for duplicate attempts
+- Checks both email AND phone to prevent circumvention
 
 #### **elevenlabs-session**
 ✅ Rate limiting by IP address  

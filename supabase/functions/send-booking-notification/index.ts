@@ -128,6 +128,54 @@ serve(async (req) => {
       hasPhone: !!validatedData.phone
     });
 
+    // SECURITY: Check for duplicate bookings (max 1 pending appointment per email/phone per day)
+    const { data: existingAppointments, error: duplicateCheckError } = await supabase
+      .from('appointments')
+      .select('id, appointment_date, appointment_time')
+      .or(`patient_email.eq.${validatedData.email},patient_phone.eq.${validatedData.phone}`)
+      .eq('appointment_date', validatedData.date)
+      .in('status', ['pending', 'confirmed']);
+
+    if (duplicateCheckError) {
+      console.error('Duplicate check error:', duplicateCheckError.message);
+    } else if (existingAppointments && existingAppointments.length > 0) {
+      console.warn(`Duplicate booking attempt blocked for ${validatedData.email.substring(0, 5)}***`);
+      return new Response(
+        JSON.stringify({ 
+          error: 'You already have an appointment scheduled for this date.',
+          details: `An appointment is already booked for ${validatedData.date} at ${existingAppointments[0].appointment_time}. Please contact the clinic to modify your existing appointment.`
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 409 // Conflict
+        }
+      );
+    }
+
+    // SECURITY: Additional check - max 2 appointments per email in the last 24 hours (prevent rapid booking abuse)
+    const { data: recentAppointments, error: recentCheckError } = await supabase
+      .from('appointments')
+      .select('id')
+      .or(`patient_email.eq.${validatedData.email},patient_phone.eq.${validatedData.phone}`)
+      .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
+      .in('status', ['pending', 'confirmed']);
+
+    if (recentCheckError) {
+      console.error('Recent appointments check error:', recentCheckError.message);
+    } else if (recentAppointments && recentAppointments.length >= 2) {
+      console.warn(`Multiple booking abuse detected for ${validatedData.email.substring(0, 5)}***`);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Too many appointments requested.',
+          details: 'You have reached the maximum number of appointments (2) in a 24-hour period. Please contact the clinic directly for additional bookings.'
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 429 // Too Many Requests
+        }
+      );
+    }
+
     // Save appointment to database (service role bypasses RLS)
     const { data: appointment, error: dbError } = await supabase
       .from('appointments')
