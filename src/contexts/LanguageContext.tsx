@@ -98,6 +98,7 @@ const translations = {
     footerDescription: 'Advanced dental care with precision and comfort in Kuwait.',
     quickLinks: 'Quick Links',
     allRightsReserved: 'All rights reserved.',
+    adminLogin: 'Admin Login',
   },
   ar: {
     // Navigation
@@ -188,6 +189,7 @@ const translations = {
     footerDescription: 'رعاية أسنان متقدمة بدقة وراحة في الكويت.',
     quickLinks: 'روابط سريعة',
     allRightsReserved: 'جميع الحقوق محفوظة.',
+    adminLogin: 'دخول الإدارة',
   },
 };
 
