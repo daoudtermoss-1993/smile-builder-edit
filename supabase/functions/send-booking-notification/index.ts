@@ -1,10 +1,54 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// SECURITY: Comprehensive validation schema
+const appointmentSchema = z.object({
+  name: z.string()
+    .trim()
+    .min(2, { message: "Name must be at least 2 characters" })
+    .max(100, { message: "Name must be less than 100 characters" }),
+  
+  email: z.string()
+    .trim()
+    .email({ message: "Invalid email address" })
+    .max(255, { message: "Email must be less than 255 characters" })
+    .toLowerCase(),
+  
+  phone: z.string()
+    .trim()
+    .regex(/^\+?[0-9]{8,15}$/, { message: "Invalid phone number format" })
+    .min(8)
+    .max(20),
+  
+  service: z.string()
+    .trim()
+    .min(3, { message: "Service must be at least 3 characters" })
+    .max(100, { message: "Service must be less than 100 characters" }),
+  
+  date: z.string()
+    .regex(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/, { message: "Invalid date format" })
+    .refine((date) => {
+      const d = new Date(date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return d >= today;
+    }, { message: "Date must be today or in the future" }),
+  
+  time: z.string()
+    .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/, { message: "Invalid time format" }),
+  
+  notes: z.string()
+    .trim()
+    .max(500, { message: "Notes must be less than 500 characters" })
+    .optional()
+    .transform(val => val || null)
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -12,26 +56,89 @@ serve(async (req) => {
   }
 
   try {
-    const { name, email, phone, service, date, time, notes } = await req.json();
+    // SECURITY: Get client IP for rate limiting
+    const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0] || 
+                     req.headers.get('x-real-ip') || 
+                     'unknown';
     
-    console.log('Appointment booking received:', { name, email, phone, service, date, time });
+    console.log(`Appointment booking request from IP: ${clientIP.substring(0, 10)}***`);
 
-    // Initialize Supabase client
+    // Initialize Supabase client with service role (bypasses RLS)
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Save appointment to database
+    // SECURITY: Check rate limit (max 5 bookings per hour per IP)
+    const { data: rateLimitCheck, error: rateLimitError } = await supabase
+      .rpc('check_rate_limit', {
+        _identifier: clientIP,
+        _action: 'booking',
+        _max_attempts: 5,
+        _time_window_minutes: 60
+      });
+
+    if (rateLimitError) {
+      console.error('Rate limit check error:', rateLimitError.message);
+      // Continue anyway if rate limit check fails (fail open for availability)
+    } else if (rateLimitCheck === false) {
+      console.warn(`Rate limit exceeded for IP: ${clientIP.substring(0, 10)}***`);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Too many booking attempts. Please try again later.',
+          details: 'Rate limit exceeded. Maximum 5 bookings per hour allowed.'
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 429 
+        }
+      );
+    }
+
+    // SECURITY: Parse and validate input
+    const rawData = await req.json();
+    let validatedData;
+    
+    try {
+      validatedData = appointmentSchema.parse(rawData);
+    } catch (validationError) {
+      if (validationError instanceof z.ZodError) {
+        const firstError = validationError.errors[0];
+        console.warn('Validation failed:', firstError.message);
+        return new Response(
+          JSON.stringify({ 
+            error: 'Invalid input data',
+            details: firstError.message
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 400 
+          }
+        );
+      }
+      throw validationError;
+    }
+
+    // SECURITY: Sanitized logging (no PII in logs)
+    console.log('Valid appointment request:', { 
+      service: validatedData.service, 
+      date: validatedData.date, 
+      time: validatedData.time,
+      hasName: !!validatedData.name,
+      hasEmail: !!validatedData.email,
+      hasPhone: !!validatedData.phone
+    });
+
+    // Save appointment to database (service role bypasses RLS)
     const { data: appointment, error: dbError } = await supabase
       .from('appointments')
       .insert({
-        patient_name: name,
-        patient_email: email,
-        patient_phone: phone,
-        service: service,
-        appointment_date: date,
-        appointment_time: time,
-        notes: notes || null,
+        patient_name: validatedData.name,
+        patient_email: validatedData.email,
+        patient_phone: validatedData.phone,
+        service: validatedData.service,
+        appointment_date: validatedData.date,
+        appointment_time: validatedData.time,
+        notes: validatedData.notes,
         source: 'booking_form',
         status: 'pending'
       })
@@ -39,56 +146,63 @@ serve(async (req) => {
       .single();
 
     if (dbError) {
-      console.error('Database error:', dbError);
+      console.error('Database error:', dbError.message);
       throw dbError;
     }
 
-    console.log('Appointment saved to database:', appointment.id);
+    console.log('Appointment created:', appointment.id);
 
     // Send to n8n webhook for WhatsApp notification
     const n8nWebhook = Deno.env.get('N8N_WEBHOOK_URL');
     
     if (!n8nWebhook) {
-      console.warn('N8N_WEBHOOK_URL not configured. Please add it to send WhatsApp notifications.');
+      console.warn('N8N_WEBHOOK_URL not configured. WhatsApp notifications disabled.');
     } else {
-      console.log('Sending to n8n webhook for WhatsApp notification...');
+      console.log('Sending notification to n8n webhook...');
       
-      const webhookResponse = await fetch(n8nWebhook, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'appointment_booking',
-          appointment_id: appointment.id,
-          patient: {
-            name,
-            email,
-            phone,
-          },
-          appointment: {
-            service,
-            date,
-            time,
-            notes: notes || 'No additional notes'
-          },
-          timestamp: new Date().toISOString(),
-          clinic: {
-            name: 'Dr. Yousif Smile Builder',
-            phone: '+96561112299'
-          }
-        }),
-      });
+      try {
+        const webhookResponse = await fetch(n8nWebhook, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'appointment_booking',
+            appointment_id: appointment.id,
+            patient: {
+              name: validatedData.name,
+              email: validatedData.email,
+              phone: validatedData.phone,
+            },
+            appointment: {
+              service: validatedData.service,
+              date: validatedData.date,
+              time: validatedData.time,
+              notes: validatedData.notes || 'No additional notes'
+            },
+            timestamp: new Date().toISOString(),
+            clinic: {
+              name: 'Dr. Yousif Smile Builder',
+              phone: '+96561112299'
+            }
+          }),
+        });
 
-      if (!webhookResponse.ok) {
-        console.error('n8n webhook failed:', await webhookResponse.text());
-      } else {
-        console.log('n8n webhook triggered successfully');
+        if (!webhookResponse.ok) {
+          const errorText = await webhookResponse.text();
+          console.error('n8n webhook failed:', errorText.substring(0, 200));
+        } else {
+          console.log('n8n notification sent successfully');
+        }
+      } catch (webhookError) {
+        console.error('n8n webhook error:', webhookError instanceof Error ? webhookError.message : 'Unknown error');
+        // Don't fail the request if webhook fails
       }
     }
 
     return new Response(
       JSON.stringify({ 
         success: true,
-        message: 'Appointment request received! You will receive a WhatsApp confirmation shortly.'
+        message: 'Appointment request received! You will receive a WhatsApp confirmation shortly.',
+        appointment_id: appointment.id
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -96,7 +210,7 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error('Error processing appointment booking:', error);
+    console.error('Error processing appointment:', error instanceof Error ? error.message : 'Unknown error');
     return new Response(
       JSON.stringify({ 
         error: 'Failed to process appointment booking',
