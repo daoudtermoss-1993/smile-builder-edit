@@ -42,12 +42,33 @@ export const Chatbot = () => {
 
   const saveLead = async () => {
     try {
+      // SECURITY: Validate lead data before saving
+      const { leadSchema } = await import('@/lib/validation');
+      const validationResult = leadSchema.safeParse({
+        name: leadData.name,
+        email: leadData.email,
+        phone: leadData.phone,
+        message: messages.map(m => m.text).join("\n")
+      });
+
+      if (!validationResult.success) {
+        const firstError = validationResult.error.errors[0];
+        toast.error(firstError.message);
+        setMessages(prev => [...prev, {
+          text: `Invalid information: ${firstError.message}. Please try again.`,
+          isBot: true
+        }]);
+        return;
+      }
+
+      const validatedData = validationResult.data;
+
       const { error } = await supabase.from("leads").insert([
         {
-          name: leadData.name,
-          email: leadData.email,
-          phone: leadData.phone,
-          message: messages.map(m => m.text).join("\n"),
+          name: validatedData.name,
+          email: validatedData.email,
+          phone: validatedData.phone,
+          message: validatedData.message,
           source: "chatbot"
         }
       ]);
@@ -58,10 +79,10 @@ export const Chatbot = () => {
       const n8nWebhook = localStorage.getItem("n8n_webhook_url");
       if (n8nWebhook) {
         await sendToN8n(n8nWebhook, {
-          name: leadData.name,
-          email: leadData.email,
-          phone: leadData.phone,
-          message: messages.map(m => m.text).join("\n"),
+          name: validatedData.name,
+          email: validatedData.email,
+          phone: validatedData.phone,
+          message: validatedData.message,
           timestamp: new Date().toISOString()
         });
       }

@@ -52,9 +52,28 @@ export const Booking = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validation
+    // Basic validation
     if (!formData.name || !formData.phone || !formData.email || !formData.service || !selectedDate || !formData.time) {
       toast.error("Please fill in all required fields");
+      return;
+    }
+
+    // SECURITY: Validate input with zod schema
+    try {
+      const { appointmentSchema } = await import('@/lib/validation');
+      const validationResult = appointmentSchema.safeParse({
+        ...formData,
+        date: format(selectedDate, 'yyyy-MM-dd')
+      });
+
+      if (!validationResult.success) {
+        const firstError = validationResult.error.errors[0];
+        toast.error(firstError.message);
+        return;
+      }
+    } catch (error) {
+      console.error("Validation error:", error);
+      toast.error("Invalid input. Please check your information.");
       return;
     }
 

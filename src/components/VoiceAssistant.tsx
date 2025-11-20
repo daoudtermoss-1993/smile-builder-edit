@@ -35,37 +35,39 @@ export const VoiceAssistant = ({ onClose }: VoiceAssistantProps) => {
     // Client tools for booking appointments
     clientTools: {
       bookAppointment: async (parameters: { name: string; email: string; phone: string; date: string; time: string; service: string }) => {
-        console.log("Booking appointment:", parameters);
+        console.log("Voice appointment booking initiated");
         
         try {
-          // Save to appointments table
-          const { error: appointmentError } = await supabase.from("appointments").insert([
-            {
-              patient_name: parameters.name,
-              patient_email: parameters.email,
-              patient_phone: parameters.phone,
-              service: parameters.service || "General Consultation",
-              appointment_date: parameters.date,
-              appointment_time: parameters.time,
-              source: "voice_assistant",
-              status: "pending"
-            }
-          ]);
+          // SECURITY: Validate appointment data from voice AI
+          const { voiceAppointmentSchema } = await import('@/lib/validation');
+          const validationResult = voiceAppointmentSchema.safeParse({
+            ...parameters,
+            service: parameters.service || "General Consultation",
+            notes: "Booked via voice assistant"
+          });
 
-          if (appointmentError) throw appointmentError;
+          if (!validationResult.success) {
+            const firstError = validationResult.error.errors[0];
+            console.error("Voice booking validation failed:", firstError.message);
+            return `Invalid booking information: ${firstError.message}. Please provide correct details.`;
+          }
 
-          // Also send to n8n for WhatsApp notification
-          await supabase.functions.invoke('send-booking-notification', {
+          const validatedData = validationResult.data;
+
+          // Send to edge function which will handle rate limiting and database insertion
+          const { data, error } = await supabase.functions.invoke('send-booking-notification', {
             body: {
-              name: parameters.name,
-              email: parameters.email,
-              phone: parameters.phone,
-              service: parameters.service || "General Consultation",
-              date: parameters.date,
-              time: parameters.time,
-              notes: "Booked via voice assistant"
+              name: validatedData.name,
+              email: validatedData.email,
+              phone: validatedData.phone,
+              service: validatedData.service,
+              date: validatedData.date,
+              time: validatedData.time,
+              notes: validatedData.notes || "Booked via voice assistant"
             }
           });
+
+          if (error) throw error;
 
           toast.success(t("appointmentBooked"));
           return "Appointment booked successfully. We will contact you shortly via WhatsApp to confirm.";
