@@ -123,10 +123,11 @@ console.log('Valid appointment request:', {
 ✅ Returns detailed error messages without exposing internals
 
 **Duplicate Booking Protection:**
-- Max 1 appointment per email/phone per date (prevents slot monopolization)
-- Max 2 appointments per email/phone in 24 hours (prevents rapid booking abuse)
-- Returns HTTP 409 (Conflict) for duplicate attempts
-- Checks both email AND phone to prevent circumvention
+- Prevents same patient (name + contact) from booking multiple times on same date
+- Allows booking for different family members using same contact info
+- Max 3 consecutive appointments per contact in 30-minute window (prevents slot monopolization)
+- Returns HTTP 409 (Conflict) for duplicate patient bookings
+- Returns HTTP 429 for slot monopolization attempts
 
 #### **elevenlabs-session**
 ✅ Rate limiting by IP address  

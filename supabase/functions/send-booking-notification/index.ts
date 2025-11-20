@@ -128,10 +128,12 @@ serve(async (req) => {
       hasPhone: !!validatedData.phone
     });
 
-    // SECURITY: Check for duplicate bookings (max 1 pending appointment per email/phone per day)
+    // SECURITY: Check for duplicate bookings (same patient name + contact info on same date)
+    // This allows booking for multiple people (family members) but prevents duplicate bookings for the same person
     const { data: existingAppointments, error: duplicateCheckError } = await supabase
       .from('appointments')
-      .select('id, appointment_date, appointment_time')
+      .select('id, appointment_date, appointment_time, patient_name')
+      .eq('patient_name', validatedData.name)
       .or(`patient_email.eq.${validatedData.email},patient_phone.eq.${validatedData.phone}`)
       .eq('appointment_date', validatedData.date)
       .in('status', ['pending', 'confirmed']);
@@ -139,11 +141,11 @@ serve(async (req) => {
     if (duplicateCheckError) {
       console.error('Duplicate check error:', duplicateCheckError.message);
     } else if (existingAppointments && existingAppointments.length > 0) {
-      console.warn(`Duplicate booking attempt blocked for ${validatedData.email.substring(0, 5)}***`);
+      console.warn(`Duplicate booking attempt blocked for patient: ${validatedData.name.substring(0, 3)}***`);
       return new Response(
         JSON.stringify({ 
-          error: 'You already have an appointment scheduled for this date.',
-          details: `An appointment is already booked for ${validatedData.date} at ${existingAppointments[0].appointment_time}. Please contact the clinic to modify your existing appointment.`
+          error: 'This patient already has an appointment scheduled for this date.',
+          details: `An appointment for ${validatedData.name} is already booked for ${validatedData.date} at ${existingAppointments[0].appointment_time}. Please contact the clinic to modify the existing appointment.`
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -152,22 +154,28 @@ serve(async (req) => {
       );
     }
 
-    // SECURITY: Additional check - max 2 appointments per email in the last 24 hours (prevent rapid booking abuse)
-    const { data: recentAppointments, error: recentCheckError } = await supabase
+    // SECURITY: Check for slot monopolization - max 3 appointments per contact in same time window (30 min)
+    // This allows family bookings but prevents someone from blocking all consecutive slots
+    const timeSlotStart = new Date(`2000-01-01 ${validatedData.time}`);
+    const timeSlotEnd = new Date(timeSlotStart.getTime() + 30 * 60000); // +30 minutes
+    
+    const { data: nearbyAppointments, error: slotCheckError } = await supabase
       .from('appointments')
-      .select('id')
+      .select('id, appointment_time')
       .or(`patient_email.eq.${validatedData.email},patient_phone.eq.${validatedData.phone}`)
-      .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
+      .eq('appointment_date', validatedData.date)
+      .gte('appointment_time', timeSlotStart.toTimeString().substring(0, 8))
+      .lte('appointment_time', timeSlotEnd.toTimeString().substring(0, 8))
       .in('status', ['pending', 'confirmed']);
 
-    if (recentCheckError) {
-      console.error('Recent appointments check error:', recentCheckError.message);
-    } else if (recentAppointments && recentAppointments.length >= 2) {
-      console.warn(`Multiple booking abuse detected for ${validatedData.email.substring(0, 5)}***`);
+    if (slotCheckError) {
+      console.error('Slot check error:', slotCheckError.message);
+    } else if (nearbyAppointments && nearbyAppointments.length >= 3) {
+      console.warn(`Slot monopolization attempt blocked for contact info`);
       return new Response(
         JSON.stringify({ 
-          error: 'Too many appointments requested.',
-          details: 'You have reached the maximum number of appointments (2) in a 24-hour period. Please contact the clinic directly for additional bookings.'
+          error: 'Too many consecutive appointments.',
+          details: 'You already have 3 appointments in this time window. Please select a different time or contact the clinic directly for special arrangements.'
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
