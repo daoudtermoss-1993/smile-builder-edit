@@ -43,7 +43,7 @@ export default function AdminAccessButton() {
   if (!show) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 animate-in slide-in-from-bottom-4 fade-in">
+    <div className="fixed bottom-4 left-4 z-50 animate-in slide-in-from-bottom-4 fade-in">
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -55,7 +55,7 @@ export default function AdminAccessButton() {
               <Shield className="h-6 w-6" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="left">
+          <TooltipContent side="right">
             <p>Admin Access</p>
           </TooltipContent>
         </Tooltip>
