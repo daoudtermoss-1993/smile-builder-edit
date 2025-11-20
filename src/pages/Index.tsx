@@ -8,15 +8,19 @@ import { ContactMap } from "@/components/ContactMap";
 import { Footer } from "@/components/Footer";
 import { Chatbot } from "@/components/Chatbot";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useVisitorTracking } from "@/hooks/useVisitorTracking";
+import AdminAccessButton from "@/components/AdminAccessButton";
 import heroImage from "@/assets/dr-yousif-hero.jpg";
 import doctorImage from "@/assets/dr-yousif-hero.jpg";
 
 const Index = () => {
   useScrollAnimation();
+  useVisitorTracking();
   
   return (
     <div className="min-h-screen">
       <Navigation />
+      <AdminAccessButton />
       
       <div id="home">
         <Hero
