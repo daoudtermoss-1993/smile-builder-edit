@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { 
-  Calendar, 
+  Calendar as CalendarIcon, 
   Clock, 
   User, 
   Mail, 
@@ -19,9 +19,11 @@ import {
   CheckCircle,
   XCircle,
   Ban,
-  Filter
+  Filter,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths } from 'date-fns';
 
 interface Appointment {
   id: string;
@@ -44,6 +46,8 @@ export default function Admin() {
   const [isLoading, setIsLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   useEffect(() => {
     if (!authLoading && (!user || !isAdmin)) {
@@ -78,7 +82,7 @@ export default function Admin() {
   }, [user, isAdmin]);
 
   useEffect(() => {
-    // Filter appointments based on status and search
+    // Filter appointments based on status, search, and selected date
     let filtered = appointments;
 
     if (statusFilter !== 'all') {
@@ -94,8 +98,14 @@ export default function Admin() {
       );
     }
 
+    if (selectedDate) {
+      filtered = filtered.filter(apt => 
+        isSameDay(new Date(apt.appointment_date), selectedDate)
+      );
+    }
+
     setFilteredAppointments(filtered);
-  }, [appointments, statusFilter, searchQuery]);
+  }, [appointments, statusFilter, searchQuery, selectedDate]);
 
   const loadAppointments = async () => {
     try {
@@ -154,6 +164,26 @@ export default function Admin() {
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
+  };
+
+  const getAppointmentsForDate = (date: Date) => {
+    return appointments.filter(apt => 
+      isSameDay(new Date(apt.appointment_date), date)
+    );
+  };
+
+  const getDaysInMonth = () => {
+    const start = startOfMonth(currentMonth);
+    const end = endOfMonth(currentMonth);
+    return eachDayOfInterval({ start, end });
+  };
+
+  const goToPreviousMonth = () => {
+    setCurrentMonth(prev => subMonths(prev, 1));
+  };
+
+  const goToNextMonth = () => {
+    setCurrentMonth(prev => addMonths(prev, 1));
   };
 
   const getStatusBadge = (status: string) => {
@@ -228,6 +258,88 @@ export default function Admin() {
           </Card>
         </div>
 
+        {/* Monthly Calendar View */}
+        <Card className="p-6 mb-8 bg-gradient-card backdrop-blur-xl border-primary/20">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold bg-gradient-vibe bg-clip-text text-transparent">
+              Monthly Calendar
+            </h2>
+            <div className="flex items-center gap-4">
+              <Button onClick={goToPreviousMonth} variant="outline" size="sm">
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <span className="text-lg font-semibold min-w-[150px] text-center">
+                {format(currentMonth, 'MMMM yyyy')}
+              </span>
+              <Button onClick={goToNextMonth} variant="outline" size="sm">
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              {selectedDate && (
+                <Button onClick={() => setSelectedDate(null)} variant="ghost" size="sm">
+                  Clear Filter
+                </Button>
+              )}
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-7 gap-2">
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+              <div key={day} className="text-center font-semibold text-sm p-2">
+                {day}
+              </div>
+            ))}
+            
+            {getDaysInMonth().map(day => {
+              const dayAppointments = getAppointmentsForDate(day);
+              const isSelected = selectedDate && isSameDay(day, selectedDate);
+              const isToday = isSameDay(day, new Date());
+              
+              return (
+                <button
+                  key={day.toISOString()}
+                  onClick={() => setSelectedDate(day)}
+                  className={`
+                    min-h-[80px] p-2 rounded-lg border transition-all
+                    ${isSelected ? 'bg-primary text-primary-foreground border-primary' : 'bg-card hover:bg-accent'}
+                    ${isToday ? 'ring-2 ring-primary' : ''}
+                  `}
+                >
+                  <div className="text-sm font-semibold mb-1">
+                    {format(day, 'd')}
+                  </div>
+                  {dayAppointments.length > 0 && (
+                    <div className="space-y-1">
+                      {dayAppointments.slice(0, 2).map(apt => (
+                        <div
+                          key={apt.id}
+                          className={`text-xs px-1 py-0.5 rounded truncate ${
+                            apt.status === 'confirmed' ? 'bg-green-500/20 text-green-300' :
+                            apt.status === 'pending' ? 'bg-yellow-500/20 text-yellow-300' :
+                            apt.status === 'blocked' ? 'bg-red-500/20 text-red-300' :
+                            'bg-gray-500/20 text-gray-300'
+                          }`}
+                        >
+                          {apt.appointment_time}
+                        </div>
+                      ))}
+                      {dayAppointments.length > 2 && (
+                        <div className="text-xs text-muted-foreground">
+                          +{dayAppointments.length - 2} more
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+          {selectedDate && (
+            <div className="mt-4 text-sm text-muted-foreground">
+              Showing appointments for: <strong>{format(selectedDate, 'PPP')}</strong>
+            </div>
+          )}
+        </Card>
+
         {/* Filters */}
         <Card className="p-6 mb-6 bg-gradient-card backdrop-blur-xl border-primary/20">
           <div className="flex flex-col md:flex-row gap-4">
@@ -287,7 +399,7 @@ export default function Admin() {
                         <span className="text-muted-foreground">{appointment.patient_phone}</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
-                        <Calendar className="w-4 h-4 text-primary" />
+                        <CalendarIcon className="w-4 h-4 text-primary" />
                         <span className="font-medium">
                           {format(new Date(appointment.appointment_date), 'EEEE, MMM dd, yyyy')}
                         </span>
