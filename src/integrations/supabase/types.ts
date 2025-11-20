@@ -167,6 +167,36 @@ export type Database = {
         }
         Relationships: []
       }
+      site_analytics: {
+        Row: {
+          created_at: string | null
+          id: string
+          page_views: number
+          unique_visitors: number
+          updated_at: string | null
+          visit_count: number
+          visit_date: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          page_views?: number
+          unique_visitors?: number
+          updated_at?: string | null
+          visit_count?: number
+          visit_date?: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          page_views?: number
+          unique_visitors?: number
+          updated_at?: string | null
+          visit_count?: number
+          visit_date?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -217,6 +247,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_visitor_count: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "user"
