@@ -128,24 +128,31 @@ serve(async (req) => {
       hasPhone: !!validatedData.phone
     });
 
-    // SECURITY: Check for duplicate bookings (same patient name + contact info on same date)
-    // This allows booking for multiple people (family members) but prevents duplicate bookings for the same person
+    // SECURITY: Check for duplicate bookings within the same week (7 days)
+    // This prevents the same patient from booking multiple appointments in a short time period
+    const appointmentDate = new Date(validatedData.date);
+    const weekStart = new Date(appointmentDate);
+    weekStart.setDate(appointmentDate.getDate() - appointmentDate.getDay()); // Start of week (Sunday)
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6); // End of week (Saturday)
+
     const { data: existingAppointments, error: duplicateCheckError } = await supabase
       .from('appointments')
       .select('id, appointment_date, appointment_time, patient_name')
       .eq('patient_name', validatedData.name)
       .or(`patient_email.eq.${validatedData.email},patient_phone.eq.${validatedData.phone}`)
-      .eq('appointment_date', validatedData.date)
+      .gte('appointment_date', weekStart.toISOString().split('T')[0])
+      .lte('appointment_date', weekEnd.toISOString().split('T')[0])
       .in('status', ['pending', 'pending_doctor', 'pending_patient', 'confirmed']);
 
     if (duplicateCheckError) {
       console.error('Duplicate check error:', duplicateCheckError.message);
     } else if (existingAppointments && existingAppointments.length > 0) {
-      console.warn(`Duplicate booking attempt blocked for patient: ${validatedData.name.substring(0, 3)}***`);
+      console.warn(`Weekly duplicate booking attempt blocked for patient: ${validatedData.name.substring(0, 3)}***`);
       return new Response(
         JSON.stringify({ 
-          error: 'This patient already has an appointment scheduled for this date.',
-          details: `An appointment for ${validatedData.name} is already booked for ${validatedData.date} at ${existingAppointments[0].appointment_time}. Please contact the clinic to modify the existing appointment.`
+          error: 'You already have an appointment scheduled this week.',
+          details: `An appointment for ${validatedData.name} is already booked on ${existingAppointments[0].appointment_date} at ${existingAppointments[0].appointment_time}. Patients can only book one appointment per week. Please contact the clinic if you need to reschedule.`
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },

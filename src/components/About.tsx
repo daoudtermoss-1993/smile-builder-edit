@@ -43,23 +43,23 @@ export const About = ({
               {description}
             </p>
             
-            <div className="grid grid-cols-3 gap-4 pt-6">
-              <div className="vibe-card text-center">
-                <Clock className="h-8 w-8 mx-auto mb-2 text-vibe-purple" />
-                <div className="text-2xl font-bold text-foreground">{stats.years}</div>
-                <div className="text-sm text-foreground/60">Years</div>
+            <div className="grid grid-cols-3 gap-3 md:gap-4 pt-6">
+              <div className="vibe-card text-center p-3 md:p-4">
+                <Clock className="h-6 w-6 md:h-8 md:w-8 mx-auto mb-2 text-vibe-purple" />
+                <div className="text-lg md:text-2xl font-bold text-foreground break-words">{stats.years}</div>
+                <div className="text-xs md:text-sm text-foreground/60">Years</div>
               </div>
               
-              <div className="vibe-card text-center">
-                <Users className="h-8 w-8 mx-auto mb-2 text-vibe-pink" />
-                <div className="text-2xl font-bold text-foreground">{stats.patients}</div>
-                <div className="text-sm text-foreground/60">Patients</div>
+              <div className="vibe-card text-center p-3 md:p-4">
+                <Users className="h-6 w-6 md:h-8 md:w-8 mx-auto mb-2 text-vibe-pink" />
+                <div className="text-lg md:text-2xl font-bold text-foreground break-words">{stats.patients}</div>
+                <div className="text-xs md:text-sm text-foreground/60">Patients</div>
               </div>
               
-              <div className="vibe-card text-center">
-                <Award className="h-8 w-8 mx-auto mb-2 text-vibe-blue" />
-                <div className="text-2xl font-bold text-foreground">{stats.treatments}</div>
-                <div className="text-sm text-foreground/60">Treatments</div>
+              <div className="vibe-card text-center p-3 md:p-4">
+                <Award className="h-6 w-6 md:h-8 md:w-8 mx-auto mb-2 text-vibe-blue" />
+                <div className="text-lg md:text-2xl font-bold text-foreground break-words">{stats.treatments}</div>
+                <div className="text-xs md:text-sm text-foreground/60">Treatments</div>
               </div>
             </div>
           </div>

@@ -65,9 +65,18 @@ export const ContactMap = ({ address, phone, email, hours }: ContactMapProps) =>
               <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
                 <Clock className="w-6 h-6 text-primary" />
               </div>
-              <div>
-                <h3 className="font-semibold text-lg mb-2 text-foreground">{t('hours')}</h3>
-                <p className="text-muted-foreground">{hours}</p>
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg mb-3 text-foreground">{t('hours')}</h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center py-1 border-b border-border/50">
+                    <span className="text-sm text-foreground/70">Monday - Friday</span>
+                    <span className="text-sm font-medium text-foreground">09:00 - 17:00</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-sm text-foreground/70">Saturday - Sunday</span>
+                    <span className="text-sm font-medium text-destructive">Closed</span>
+                  </div>
+                </div>
               </div>
             </div>
 
