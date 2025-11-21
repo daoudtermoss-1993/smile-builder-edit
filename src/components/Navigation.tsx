@@ -23,12 +23,12 @@ export const Navigation = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <a href="#home" className="flex items-center gap-3">
-              <div className="relative w-64 h-32 animate-fade-in">
+            <a href="#home" className="flex items-center">
+              <div className="relative w-96 h-24 animate-fade-in">
                 <img 
                   src={logo} 
                   alt="Dr. Yousif German" 
-                  className="w-full h-full object-contain transition-transform duration-300 hover:scale-110"
+                  className="w-full h-full object-contain transition-transform duration-300 hover:scale-105"
                 />
               </div>
             </a>
