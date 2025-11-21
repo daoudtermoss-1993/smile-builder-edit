@@ -29,9 +29,6 @@ export const Navigation = () => {
                   src={logo} 
                   alt="Dr. Yousif German" 
                   className="w-full h-full object-contain transition-transform duration-300 hover:scale-110"
-                  style={{ 
-                    filter: 'brightness(0) saturate(100%) invert(54%) sepia(89%) saturate(2718%) hue-rotate(145deg) brightness(91%) contrast(101%)'
-                  }}
                 />
               </div>
             </a>
