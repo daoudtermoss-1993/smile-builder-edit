@@ -90,11 +90,36 @@ export const Booking = () => {
       const { data, error } = await supabase.functions.invoke('send-booking-notification', {
         body: {
           ...formData,
-          date: format(selectedDate, 'yyyy-MM-dd')
+          date: format(selectedDate, 'yyyy-MM-dd'),
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Booking function error:', error);
+        const anyError = error as any;
+        const status =
+          anyError?.status ??
+          anyError?.context?.status ??
+          anyError?.context?.response?.status;
+        const message: string = (anyError?.message ?? '').toString().toLowerCase();
+
+        if (status === 409 || message.includes('already has an appointment')) {
+          toast.error(
+            "You already have an appointment booked for this date. Please contact the clinic to modify it.",
+          );
+          return;
+        }
+
+        if (status === 429 || message.includes('too many requests')) {
+          toast.error(
+            'Too many booking attempts in a short time. Please wait a few minutes and try again.',
+          );
+          return;
+        }
+
+        // Unknown error from the booking function – let the catch block handle it
+        throw error;
+      }
 
       toast.success("Appointment request sent! We'll contact you shortly via WhatsApp.");
       
@@ -110,8 +135,8 @@ export const Booking = () => {
       setSelectedDate(undefined);
       setAvailableSlots([]);
     } catch (error) {
-      console.error("Error submitting appointment:", error);
-      toast.error("Failed to submit appointment. Please try again or call us directly.");
+      console.error('Error submitting appointment:', error);
+      toast.error('Failed to submit appointment. Please try again or call us directly.');
     } finally {
       setIsSubmitting(false);
     }
