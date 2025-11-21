@@ -24,14 +24,13 @@ export const Navigation = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <a href="#home" className="flex items-center gap-3">
-              <div className="relative w-12 h-12">
+              <div className="relative w-32 h-12">
                 <img 
                   src={logo} 
                   alt="Dr. Yousif German" 
                   className="w-full h-full object-contain"
                   style={{ 
-                    filter: 'brightness(0) saturate(100%) invert(49%) sepia(73%) saturate(1842%) hue-rotate(145deg) brightness(95%) contrast(101%)',
-                    mixBlendMode: 'multiply'
+                    filter: 'brightness(0) saturate(100%) invert(54%) sepia(89%) saturate(2718%) hue-rotate(145deg) brightness(91%) contrast(101%)'
                   }}
                 />
               </div>
