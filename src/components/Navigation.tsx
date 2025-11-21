@@ -24,11 +24,11 @@ export const Navigation = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <a href="#home" className="flex items-center gap-3">
-              <div className="relative w-32 h-12">
+              <div className="relative w-32 h-12 animate-fade-in">
                 <img 
                   src={logo} 
                   alt="Dr. Yousif German" 
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-contain transition-transform duration-300 hover:scale-110"
                   style={{ 
                     filter: 'brightness(0) saturate(100%) invert(54%) sepia(89%) saturate(2718%) hue-rotate(145deg) brightness(91%) contrast(101%)'
                   }}
