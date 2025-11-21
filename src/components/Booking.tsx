@@ -105,7 +105,7 @@ export const Booking = () => {
 
         if (status === 409 || message.includes('already has an appointment')) {
           toast.error(
-            "You already have an appointment booked for this date. Please contact the clinic to modify it.",
+            "You already have an appointment booked this week. Patients can only book one appointment per week.",
           );
           return;
         }

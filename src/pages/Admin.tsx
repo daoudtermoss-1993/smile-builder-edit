@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths } from 'date-fns';
 import AnalyticsCard from '@/components/admin/AnalyticsCard';
+import { AdminBookingDialog } from '@/components/admin/AdminBookingDialog';
 
 interface Appointment {
   id: string;
@@ -407,6 +408,7 @@ export default function Admin() {
                 <SelectItem value="cancelled_by_patient">Cancelled by Patient</SelectItem>
               </SelectContent>
             </Select>
+            <AdminBookingDialog onSuccess={loadAppointments} />
           </div>
         </Card>
 

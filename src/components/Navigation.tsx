@@ -3,6 +3,7 @@ import { Menu, X, Globe, Shield } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
+import logo from "@/assets/logo.png";
 
 export const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,12 +23,14 @@ export const Navigation = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center shadow-sm">
-                <span className="text-white font-bold text-lg">YG</span>
-              </div>
-              <span className="font-display font-bold text-xl text-primary">Dr. Yousif German</span>
-            </div>
+            <a href="#home" className="flex items-center gap-3">
+              <img 
+                src={logo} 
+                alt="Dr. Yousif German" 
+                className="h-12 w-12 object-contain"
+                style={{ filter: 'brightness(0) saturate(100%) invert(49%) sepia(73%) saturate(1842%) hue-rotate(145deg) brightness(95%) contrast(101%)' }}
+              />
+            </a>
           </div>
 
           <div className="hidden md:flex items-center gap-8">
