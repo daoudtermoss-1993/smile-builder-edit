@@ -24,7 +24,7 @@ export const Navigation = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <a href="#home" className="flex items-center gap-3">
-              <div className="relative w-32 h-12 animate-fade-in">
+              <div className="relative w-40 h-16 animate-fade-in">
                 <img 
                   src={logo} 
                   alt="Dr. Yousif German" 
