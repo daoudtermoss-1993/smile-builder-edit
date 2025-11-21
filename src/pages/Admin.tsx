@@ -145,41 +145,18 @@ export default function Admin() {
 
   const confirmAppointmentByDoctor = async (appointment: Appointment) => {
     try {
-      // Change status to pending_patient
-      const { error: updateError } = await supabase
-        .from('appointments')
-        .update({ status: 'pending_patient' })
-        .eq('id', appointment.id);
-
-      if (updateError) throw updateError;
-
-      // Call n8n webhook to send WhatsApp message to patient
-      const n8nWebhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL;
-      
-      if (!n8nWebhookUrl) {
-        toast.error('n8n webhook URL not configured');
-        return;
-      }
-
-      const response = await fetch(n8nWebhookUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          appointment_id: appointment.id,
-          patient_name: appointment.patient_name,
-          patient_phone: appointment.patient_phone,
-          patient_email: appointment.patient_email,
-          appointment_date: appointment.appointment_date,
-          appointment_time: appointment.appointment_time,
-          service: appointment.service,
-          action: 'doctor_confirmed', // Signal to n8n that doctor confirmed
-        }),
+      const { data, error } = await supabase.functions.invoke('notify-patient-confirmation', {
+        body: { appointment_id: appointment.id },
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to send notification to n8n');
+      if (error) {
+        console.error('Error from notify-patient-confirmation:', error);
+        throw error;
+      }
+
+      // Optionally inspect data for warnings (e.g., webhook missing)
+      if (data?.warning) {
+        console.warn('notify-patient-confirmation warning:', data.warning);
       }
 
       toast.success('Appointment confirmed! WhatsApp message sent to patient');
