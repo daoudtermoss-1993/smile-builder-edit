@@ -136,7 +136,7 @@ serve(async (req) => {
       .eq('patient_name', validatedData.name)
       .or(`patient_email.eq.${validatedData.email},patient_phone.eq.${validatedData.phone}`)
       .eq('appointment_date', validatedData.date)
-      .in('status', ['pending', 'confirmed']);
+      .in('status', ['pending', 'pending_doctor', 'pending_patient', 'confirmed']);
 
     if (duplicateCheckError) {
       console.error('Duplicate check error:', duplicateCheckError.message);
@@ -166,7 +166,7 @@ serve(async (req) => {
       .eq('appointment_date', validatedData.date)
       .gte('appointment_time', timeSlotStart.toTimeString().substring(0, 8))
       .lte('appointment_time', timeSlotEnd.toTimeString().substring(0, 8))
-      .in('status', ['pending', 'confirmed']);
+      .in('status', ['pending', 'pending_doctor', 'pending_patient', 'confirmed']);
 
     if (slotCheckError) {
       console.error('Slot check error:', slotCheckError.message);
@@ -196,7 +196,7 @@ serve(async (req) => {
         appointment_time: validatedData.time,
         notes: validatedData.notes,
         source: 'booking_form',
-        status: 'pending'
+        status: 'pending_doctor'
       })
       .select()
       .single();

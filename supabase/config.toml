@@ -56,3 +56,6 @@ verify_jwt = false
 
 [functions.elevenlabs-session]
 verify_jwt = false
+
+[functions.handle-patient-confirmation]
+verify_jwt = false
