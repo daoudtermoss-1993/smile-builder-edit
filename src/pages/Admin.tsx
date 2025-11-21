@@ -143,6 +143,53 @@ export default function Admin() {
     }
   };
 
+  const confirmAppointmentByDoctor = async (appointment: Appointment) => {
+    try {
+      // Change status to pending_patient
+      const { error: updateError } = await supabase
+        .from('appointments')
+        .update({ status: 'pending_patient' })
+        .eq('id', appointment.id);
+
+      if (updateError) throw updateError;
+
+      // Call n8n webhook to send WhatsApp message to patient
+      const n8nWebhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL;
+      
+      if (!n8nWebhookUrl) {
+        toast.error('n8n webhook URL not configured');
+        return;
+      }
+
+      const response = await fetch(n8nWebhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          appointment_id: appointment.id,
+          patient_name: appointment.patient_name,
+          patient_phone: appointment.patient_phone,
+          patient_email: appointment.patient_email,
+          appointment_date: appointment.appointment_date,
+          appointment_time: appointment.appointment_time,
+          service: appointment.service,
+          action: 'doctor_confirmed', // Signal to n8n that doctor confirmed
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send notification to n8n');
+      }
+
+      toast.success('Appointment confirmed! WhatsApp message sent to patient');
+      loadAppointments();
+    } catch (error) {
+      console.error('Error confirming appointment:', error);
+      toast.error('Failed to confirm appointment');
+    }
+  };
+
   const deleteAppointment = async (id: string) => {
     if (!confirm('Are you sure you want to delete this appointment?')) return;
 
@@ -191,6 +238,14 @@ export default function Admin() {
     switch (status) {
       case 'confirmed':
         return <Badge className="bg-green-500/20 text-green-600"><CheckCircle className="w-3 h-3 mr-1" />Confirmed</Badge>;
+      case 'pending_doctor':
+        return <Badge className="bg-yellow-500/20 text-yellow-600"><Clock className="w-3 h-3 mr-1" />Pending Doctor</Badge>;
+      case 'pending_patient':
+        return <Badge className="bg-blue-500/20 text-blue-600"><Clock className="w-3 h-3 mr-1" />Pending Patient</Badge>;
+      case 'rejected_by_doctor':
+        return <Badge className="bg-red-500/20 text-red-600"><XCircle className="w-3 h-3 mr-1" />Rejected</Badge>;
+      case 'cancelled_by_patient':
+        return <Badge className="bg-orange-500/20 text-orange-600"><XCircle className="w-3 h-3 mr-1" />Patient Cancelled</Badge>;
       case 'pending':
         return <Badge className="bg-yellow-500/20 text-yellow-600"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
       case 'blocked':
@@ -216,7 +271,7 @@ export default function Admin() {
 
   const stats = {
     total: appointments.length,
-    pending: appointments.filter(a => a.status === 'pending').length,
+    pending: appointments.filter(a => ['pending', 'pending_doctor', 'pending_patient'].includes(a.status)).length,
     confirmed: appointments.filter(a => a.status === 'confirmed').length,
     blocked: appointments.filter(a => a.status === 'blocked').length,
   };
@@ -320,6 +375,8 @@ export default function Admin() {
                           key={apt.id}
                           className={`text-xs px-1 py-0.5 rounded truncate ${
                             apt.status === 'confirmed' ? 'bg-green-500/20 text-green-300' :
+                            apt.status === 'pending_doctor' ? 'bg-yellow-500/20 text-yellow-300' :
+                            apt.status === 'pending_patient' ? 'bg-blue-500/20 text-blue-300' :
                             apt.status === 'pending' ? 'bg-yellow-500/20 text-yellow-300' :
                             apt.status === 'blocked' ? 'bg-red-500/20 text-red-300' :
                             'bg-gray-500/20 text-gray-300'
@@ -364,10 +421,13 @@ export default function Admin() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="pending_doctor">Pending Doctor</SelectItem>
+                <SelectItem value="pending_patient">Pending Patient</SelectItem>
                 <SelectItem value="confirmed">Confirmed</SelectItem>
                 <SelectItem value="blocked">Blocked</SelectItem>
                 <SelectItem value="cancelled">Cancelled</SelectItem>
+                <SelectItem value="rejected_by_doctor">Rejected by Doctor</SelectItem>
+                <SelectItem value="cancelled_by_patient">Cancelled by Patient</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -428,17 +488,34 @@ export default function Admin() {
                   </div>
 
                   <div className="flex lg:flex-col gap-2">
-                    {appointment.status === 'pending' && (
-                      <Button
-                        size="sm"
-                        onClick={() => updateAppointmentStatus(appointment.id, 'confirmed')}
-                        className="flex-1 lg:flex-none"
-                      >
-                        <CheckCircle className="w-4 h-4 mr-1" />
-                        Confirm
-                      </Button>
+                    {appointment.status === 'pending_doctor' && (
+                      <>
+                        <Button
+                          size="sm"
+                          onClick={() => confirmAppointmentByDoctor(appointment)}
+                          className="flex-1 lg:flex-none"
+                        >
+                          <CheckCircle className="w-4 h-4 mr-1" />
+                          Confirm & Notify Patient
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => updateAppointmentStatus(appointment.id, 'rejected_by_doctor')}
+                          className="flex-1 lg:flex-none"
+                        >
+                          <XCircle className="w-4 h-4 mr-1" />
+                          Reject
+                        </Button>
+                      </>
                     )}
-                    {appointment.status !== 'cancelled' && (
+                    {appointment.status === 'pending_patient' && (
+                      <Badge className="bg-blue-500/20 text-blue-600 px-3 py-2">
+                        <Clock className="w-4 h-4 mr-1" />
+                        Waiting for patient response via WhatsApp
+                      </Badge>
+                    )}
+                    {!['cancelled', 'rejected_by_doctor', 'cancelled_by_patient'].includes(appointment.status) && appointment.status !== 'pending_doctor' && appointment.status !== 'pending_patient' && (
                       <Button
                         size="sm"
                         variant="outline"
