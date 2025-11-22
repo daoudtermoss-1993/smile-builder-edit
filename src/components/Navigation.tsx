@@ -21,10 +21,10 @@ export const Navigation = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-b border-border shadow-sm">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-36">
           <div className="flex items-center">
             <a href="#home" className="flex items-center">
-              <div className="relative w-96 h-24 animate-fade-in">
+              <div className="relative md:w-[576px] md:h-[144px] w-64 h-16 animate-fade-in">
                 <img 
                   src={logo} 
                   alt="Dr. Yousif German" 
