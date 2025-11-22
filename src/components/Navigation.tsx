@@ -24,11 +24,12 @@ export const Navigation = () => {
         <div className="flex items-center justify-between h-36">
           <div className="flex items-center">
             <a href="#home" className="flex items-center">
-              <div className="relative md:w-[576px] md:h-[144px] w-64 h-16 animate-fade-in">
+              <div className="relative md:w-[576px] md:h-[144px] w-64 h-16 animate-fade-in group">
                 <img 
                   src={logo} 
                   alt="Dr. Yousif German" 
-                  className="w-full h-full object-contain transition-transform duration-300 hover:scale-105"
+                  className="w-full h-full object-contain transition-all duration-300 hover:scale-105 drop-shadow-[0_4px_12px_rgba(0,179,179,0.3)] group-hover:drop-shadow-[0_6px_20px_rgba(0,179,179,0.5)] filter brightness-105"
+                  style={{ filter: 'drop-shadow(0 2px 8px rgba(0, 179, 179, 0.25)) brightness(1.05)' }}
                 />
               </div>
             </a>
