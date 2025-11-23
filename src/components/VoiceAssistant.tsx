@@ -35,7 +35,8 @@ export const VoiceAssistant = ({ onClose }: VoiceAssistantProps) => {
     // Client tools for booking appointments
     clientTools: {
       bookAppointment: async (parameters: { name: string; email: string; phone: string; date: string; time: string; service: string }) => {
-        console.log("Voice appointment booking initiated");
+        console.log("🎤 Voice Assistant: Appointment booking initiated");
+        console.log("📋 Parameters received:", JSON.stringify(parameters, null, 2));
         
         try {
           // SECURITY: Validate appointment data from voice AI
@@ -48,13 +49,16 @@ export const VoiceAssistant = ({ onClose }: VoiceAssistantProps) => {
 
           if (!validationResult.success) {
             const firstError = validationResult.error.errors[0];
-            console.error("Voice booking validation failed:", firstError.message);
+            console.error("❌ Voice booking validation failed:", firstError.message);
+            console.error("Validation errors:", validationResult.error.errors);
             return `Invalid booking information: ${firstError.message}. Please provide correct details.`;
           }
 
           const validatedData = validationResult.data;
+          console.log("✅ Validation successful:", validatedData);
 
           // Send to edge function which will handle rate limiting and database insertion
+          console.log("📤 Calling send-booking-notification edge function...");
           const { data, error } = await supabase.functions.invoke('send-booking-notification', {
             body: {
               name: validatedData.name,
@@ -63,17 +67,23 @@ export const VoiceAssistant = ({ onClose }: VoiceAssistantProps) => {
               service: validatedData.service,
               date: validatedData.date,
               time: validatedData.time,
-              notes: validatedData.notes || "Booked via voice assistant"
+              notes: validatedData.notes || "Booked via voice assistant",
+              source: "voice_assistant"
             }
           });
 
-          if (error) throw error;
+          if (error) {
+            console.error("❌ Edge function error:", error);
+            throw error;
+          }
 
+          console.log("✅ Appointment created successfully:", data);
           toast.success(t("appointmentBooked"));
-          return "Appointment booked successfully. We will contact you shortly via WhatsApp to confirm.";
+          return "Appointment booked successfully! Your reservation has been saved and the doctor will review it shortly. We will contact you via WhatsApp to confirm.";
         } catch (error) {
-          console.error("Error booking appointment:", error);
-          return "There was an error booking your appointment. Please try again or contact us directly.";
+          console.error("❌ Error booking appointment:", error);
+          const errorMessage = error instanceof Error ? error.message : "Unknown error";
+          return `There was an error booking your appointment: ${errorMessage}. Please try again or contact us directly at +96561112299.`;
         }
       }
     }
