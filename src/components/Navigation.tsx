@@ -3,7 +3,6 @@ import { Menu, X, Globe, Shield } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
-import logo from "@/assets/logo.png";
 
 export const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,15 +22,10 @@ export const Navigation = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-36">
           <div className="flex items-center">
-            <a href="#home" className="flex items-center">
-              <div className="relative md:w-[576px] md:h-[144px] w-64 h-16 animate-fade-in group">
-                <img 
-                  src={logo} 
-                  alt="Dr. Yousif German" 
-                  className="w-full h-full object-contain transition-all duration-300 hover:scale-105 drop-shadow-[0_4px_12px_rgba(0,179,179,0.3)] group-hover:drop-shadow-[0_6px_20px_rgba(0,179,179,0.5)] filter brightness-105"
-                  style={{ filter: 'drop-shadow(0 2px 8px rgba(0, 179, 179, 0.25)) brightness(1.05)' }}
-                />
-              </div>
+            <a href="#home" className="flex items-center group">
+              <span className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent drop-shadow-[0_2px_8px_rgba(0,179,179,0.3)] group-hover:drop-shadow-[0_4px_12px_rgba(0,179,179,0.5)] transition-all duration-300 group-hover:scale-105 animate-fade-in">
+                Dr. Yousif German
+              </span>
             </a>
           </div>
 

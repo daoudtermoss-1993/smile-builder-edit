@@ -104,10 +104,10 @@ serve(async (req) => {
       );
     }
 
-    // Update status to pending_patient so we know we're waiting for patient WhatsApp confirmation
+    // Update status directly to confirmed when doctor confirms
     const { data: updatedAppointment, error: updateError } = await supabaseClient
       .from("appointments")
-      .update({ status: "pending_patient" })
+      .update({ status: "confirmed" })
       .eq("id", appointment_id)
       .eq("status", "pending_doctor")
       .select()
@@ -126,7 +126,7 @@ serve(async (req) => {
 
     if (!updatedAppointment) {
       console.warn(
-        `Appointment ${appointment_id} could not be updated to pending_patient (possibly already processed)`,
+        `Appointment ${appointment_id} could not be updated to confirmed (possibly already processed)`,
       );
       return new Response(
         JSON.stringify({
@@ -142,12 +142,12 @@ serve(async (req) => {
     const n8nWebhook = Deno.env.get("N8N_WEBHOOK_URL");
 
     if (!n8nWebhook) {
-      console.warn("N8N_WEBHOOK_URL not configured. WhatsApp confirmation flow disabled.");
+      console.warn("N8N_WEBHOOK_URL not configured. WhatsApp notification disabled.");
       return new Response(
         JSON.stringify({
           success: true,
           warning: "N8N webhook not configured. Status updated but no WhatsApp message sent.",
-          status: "pending_patient",
+          status: "confirmed",
           appointment: updatedAppointment,
         }),
         {
@@ -164,9 +164,9 @@ serve(async (req) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          type: "doctor_confirmed",
+          type: "appointment_confirmed",
           appointment_id,
-          status: "pending_patient",
+          status: "confirmed",
           patient: {
             name: appointment.patient_name,
             email: appointment.patient_email,
@@ -203,7 +203,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        status: "pending_patient",
+        status: "confirmed",
         appointment: updatedAppointment,
       }),
       {
