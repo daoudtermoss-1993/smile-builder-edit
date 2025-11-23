@@ -57,7 +57,42 @@ export const VoiceAssistant = ({ onClose }: VoiceAssistantProps) => {
           const validatedData = validationResult.data;
           console.log("✅ Validation successful:", validatedData);
 
-          // Send to edge function which will handle rate limiting and database insertion
+          // STEP 1: Check real availability using the same logic as the web booking form
+          console.log("🕒 Checking real availability with get_available_slots RPC...");
+          const { data: slots, error: slotsError } = await supabase.rpc('get_available_slots', {
+            check_date: validatedData.date
+          });
+
+          if (slotsError) {
+            console.error("❌ Error loading available slots:", slotsError);
+            return "I could not verify the availability for this day. Please use the booking form on the website or try again later.";
+          }
+
+          console.log("📆 Slots for the day:", slots);
+
+          const requestedTime = validatedData.time.length === 5
+            ? `${validatedData.time}:00`
+            : validatedData.time;
+
+          const slotForTime = (slots as any[] | null)?.find((slot) => slot.slot_time === requestedTime);
+
+          if (!slotForTime || !slotForTime.is_available) {
+            const availableTimes = (slots as any[] | null)
+              ?.filter((slot) => slot.is_available)
+              .map((slot) => String(slot.slot_time).slice(0, 5));
+
+            console.warn("⚠️ Requested time not available:", requestedTime, "Available:", availableTimes);
+
+            if (!availableTimes || availableTimes.length === 0) {
+              return "There are no available slots on this day. Please choose another date.";
+            }
+
+            return `The time ${validatedData.time} is not available. Please choose one of these times: ${availableTimes.join(", ")}.`;
+          }
+
+          console.log("✅ Time slot is available, proceeding to create appointment...");
+
+          // STEP 2: Send to edge function which will handle rate limiting and database insertion
           console.log("📤 Calling send-booking-notification edge function...");
           const { data, error } = await supabase.functions.invoke('send-booking-notification', {
             body: {
