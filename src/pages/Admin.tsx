@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from 'sonner';
 import { 
   Calendar as CalendarIcon, 
@@ -21,7 +22,12 @@ import {
   Ban,
   Filter,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Trash2,
+  Calendar,
+  Activity,
+  Users as UsersIcon,
+  TrendingUp
 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths } from 'date-fns';
 import AnalyticsCard from '@/components/admin/AnalyticsCard';
@@ -271,31 +277,72 @@ export default function Admin() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
-        {/* Stats */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card className="p-6 bg-gradient-card backdrop-blur-xl border-primary/20">
-              <div className="text-sm text-muted-foreground mb-1">Total</div>
-              <div className="text-3xl font-bold text-foreground">{stats.total}</div>
-            </Card>
-            <Card className="p-6 bg-gradient-card backdrop-blur-xl border-primary/20">
-              <div className="text-sm text-muted-foreground mb-1">Pending</div>
-              <div className="text-3xl font-bold text-yellow-600">{stats.pending}</div>
-            </Card>
-            <Card className="p-6 bg-gradient-card backdrop-blur-xl border-primary/20">
-              <div className="text-sm text-muted-foreground mb-1">Confirmed</div>
-              <div className="text-3xl font-bold text-green-600">{stats.confirmed}</div>
-            </Card>
-            <Card className="p-6 bg-gradient-card backdrop-blur-xl border-primary/20">
-              <div className="text-sm text-muted-foreground mb-1">Blocked</div>
-              <div className="text-3xl font-bold text-red-600">{stats.blocked}</div>
-            </Card>
-          </div>
-          
-          {/* Analytics Card */}
-          <AnalyticsCard />
+      <main className="container mx-auto px-4 py-8 space-y-8">
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-primary/5 to-background border-primary/20 hover:border-primary/40 transition-all duration-300 group">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                  <Calendar className="w-6 h-6 text-primary" />
+                </div>
+                <TrendingUp className="w-5 h-5 text-primary/40" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">Total Appointments</p>
+                <p className="text-3xl font-bold">{stats.total}</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="relative overflow-hidden bg-gradient-to-br from-yellow-500/10 via-yellow-500/5 to-background border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-300 group">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 rounded-xl bg-yellow-500/10 group-hover:bg-yellow-500/20 transition-colors">
+                  <Clock className="w-6 h-6 text-yellow-600" />
+                </div>
+                <Activity className="w-5 h-5 text-yellow-500/40" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">Pending Review</p>
+                <p className="text-3xl font-bold text-yellow-600">{stats.pending}</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="relative overflow-hidden bg-gradient-to-br from-green-500/10 via-green-500/5 to-background border-green-500/20 hover:border-green-500/40 transition-all duration-300 group">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 rounded-xl bg-green-500/10 group-hover:bg-green-500/20 transition-colors">
+                  <CheckCircle className="w-6 h-6 text-green-600" />
+                </div>
+                <UsersIcon className="w-5 h-5 text-green-500/40" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">Confirmed</p>
+                <p className="text-3xl font-bold text-green-600">{stats.confirmed}</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="relative overflow-hidden bg-gradient-to-br from-red-500/10 via-red-500/5 to-background border-red-500/20 hover:border-red-500/40 transition-all duration-300 group">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 rounded-xl bg-red-500/10 group-hover:bg-red-500/20 transition-colors">
+                  <Ban className="w-6 h-6 text-red-600" />
+                </div>
+                <XCircle className="w-5 h-5 text-red-500/40" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">Blocked</p>
+                <p className="text-3xl font-bold text-red-600">{stats.blocked}</p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
+
+        {/* Analytics Card */}
+        <AnalyticsCard />
 
         {/* Monthly Calendar View */}
         <Card className="p-6 mb-8 bg-gradient-card backdrop-blur-xl border-primary/20">
@@ -412,113 +459,143 @@ export default function Admin() {
           </div>
         </Card>
 
-        {/* Appointments List */}
-        <div className="space-y-4">
-          {filteredAppointments.length === 0 ? (
-            <Card className="p-12 text-center bg-gradient-card backdrop-blur-xl border-primary/20">
-              <p className="text-muted-foreground">No appointments found</p>
-            </Card>
-          ) : (
-            filteredAppointments.map((appointment) => (
-              <Card key={appointment.id} className="p-6 bg-gradient-card backdrop-blur-xl border-primary/20 hover:border-primary/40 transition-colors">
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                  <div className="flex-1 space-y-3">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      {getStatusBadge(appointment.status)}
-                      <span className="text-xs text-muted-foreground">
-                        {format(new Date(appointment.created_at), 'MMM dd, yyyy')}
-                      </span>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div className="flex items-center gap-2 text-sm">
-                        <User className="w-4 h-4 text-primary" />
-                        <span className="font-medium">{appointment.patient_name}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Mail className="w-4 h-4 text-primary" />
-                        <span className="text-muted-foreground">{appointment.patient_email}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Phone className="w-4 h-4 text-primary" />
-                        <span className="text-muted-foreground">{appointment.patient_phone}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <CalendarIcon className="w-4 h-4 text-primary" />
-                        <span className="font-medium">
-                          {format(new Date(appointment.appointment_date), 'EEEE, MMM dd, yyyy')}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Clock className="w-4 h-4 text-primary" />
-                        <span className="font-medium">{appointment.appointment_time}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <span className="text-muted-foreground">Service:</span>
-                        <span className="font-medium">{appointment.service}</span>
-                      </div>
-                    </div>
-
-                    {appointment.notes && (
-                      <div className="text-sm text-muted-foreground bg-background/50 p-3 rounded-lg">
-                        <strong>Notes:</strong> {appointment.notes}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex lg:flex-col gap-2">
-                    {appointment.status === 'pending_doctor' && (
-                      <>
-                        <Button
-                          size="sm"
-                          onClick={() => confirmAppointmentByDoctor(appointment)}
-                          className="flex-1 lg:flex-none"
-                        >
-                          <CheckCircle className="w-4 h-4 mr-1" />
-                          Confirm & Notify Patient
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => updateAppointmentStatus(appointment.id, 'rejected_by_doctor')}
-                          className="flex-1 lg:flex-none"
-                        >
-                          <XCircle className="w-4 h-4 mr-1" />
-                          Reject
-                        </Button>
-                      </>
-                    )}
-                    {appointment.status === 'pending_patient' && (
-                      <Badge className="bg-blue-500/20 text-blue-600 px-3 py-2">
-                        <Clock className="w-4 h-4 mr-1" />
-                        Waiting for patient response via WhatsApp
-                      </Badge>
-                    )}
-                    {!['cancelled', 'rejected_by_doctor', 'cancelled_by_patient'].includes(appointment.status) && appointment.status !== 'pending_doctor' && appointment.status !== 'pending_patient' && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => updateAppointmentStatus(appointment.id, 'cancelled')}
-                        className="flex-1 lg:flex-none"
+        {/* Appointments Table */}
+        <Card className="bg-gradient-card backdrop-blur-xl border-primary/20">
+          <CardHeader>
+            <CardTitle className="text-xl bg-gradient-vibe bg-clip-text text-transparent">
+              Appointments Management
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {filteredAppointments.length === 0 ? (
+              <div className="text-center py-12">
+                <Calendar className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
+                <p className="text-muted-foreground">No appointments found</p>
+              </div>
+            ) : (
+              <div className="rounded-lg border border-primary/20 overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-primary/5 hover:bg-primary/5">
+                      <TableHead className="font-semibold">Patient</TableHead>
+                      <TableHead className="font-semibold">Contact</TableHead>
+                      <TableHead className="font-semibold">Appointment</TableHead>
+                      <TableHead className="font-semibold">Service</TableHead>
+                      <TableHead className="font-semibold">Status</TableHead>
+                      <TableHead className="font-semibold text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredAppointments.map((appointment) => (
+                      <TableRow 
+                        key={appointment.id} 
+                        className="hover:bg-primary/5 transition-colors"
                       >
-                        <XCircle className="w-4 h-4 mr-1" />
-                        Cancel
-                      </Button>
-                    )}
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => deleteAppointment(appointment.id)}
-                      className="flex-1 lg:flex-none"
-                    >
-                      Delete
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            ))
-          )}
-        </div>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <User className="w-4 h-4 text-primary" />
+                              <span className="font-medium">{appointment.patient_name}</span>
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              Created: {format(new Date(appointment.created_at), 'MMM dd, yyyy')}
+                            </div>
+                          </div>
+                        </TableCell>
+                        
+                        <TableCell>
+                          <div className="space-y-1 text-sm">
+                            <div className="flex items-center gap-2">
+                              <Mail className="w-3 h-3 text-muted-foreground" />
+                              <span className="text-muted-foreground">{appointment.patient_email}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Phone className="w-3 h-3 text-muted-foreground" />
+                              <span className="text-muted-foreground">{appointment.patient_phone}</span>
+                            </div>
+                          </div>
+                        </TableCell>
+                        
+                        <TableCell>
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2 text-sm">
+                              <CalendarIcon className="w-4 h-4 text-primary" />
+                              <span className="font-medium">
+                                {format(new Date(appointment.appointment_date), 'MMM dd, yyyy')}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm">
+                              <Clock className="w-4 h-4 text-muted-foreground" />
+                              <span className="text-muted-foreground">{appointment.appointment_time}</span>
+                            </div>
+                          </div>
+                        </TableCell>
+                        
+                        <TableCell>
+                          <span className="text-sm font-medium">{appointment.service}</span>
+                          {appointment.notes && (
+                            <p className="text-xs text-muted-foreground mt-1 max-w-[200px] truncate">
+                              {appointment.notes}
+                            </p>
+                          )}
+                        </TableCell>
+                        
+                        <TableCell>
+                          {getStatusBadge(appointment.status)}
+                        </TableCell>
+                        
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            {appointment.status === 'pending_doctor' && (
+                              <>
+                                <Button
+                                  onClick={() => confirmAppointmentByDoctor(appointment)}
+                                  size="sm"
+                                  className="bg-green-600 hover:bg-green-700 h-8"
+                                >
+                                  <CheckCircle className="w-3 h-3 mr-1" />
+                                  Confirm
+                                </Button>
+                                <Button
+                                  onClick={() => updateAppointmentStatus(appointment.id, 'rejected_by_doctor')}
+                                  size="sm"
+                                  variant="destructive"
+                                  className="h-8"
+                                >
+                                  <XCircle className="w-3 h-3 mr-1" />
+                                  Reject
+                                </Button>
+                              </>
+                            )}
+                            {(appointment.status === 'pending_patient' || appointment.status === 'confirmed') && (
+                              <Button
+                                onClick={() => updateAppointmentStatus(appointment.id, 'cancelled')}
+                                size="sm"
+                                variant="outline"
+                                className="h-8"
+                              >
+                                <Ban className="w-3 h-3 mr-1" />
+                                Cancel
+                              </Button>
+                            )}
+                            <Button
+                              onClick={() => deleteAppointment(appointment.id)}
+                              size="sm"
+                              variant="ghost"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-100 h-8"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </main>
     </div>
   );
