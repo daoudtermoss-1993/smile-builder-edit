@@ -8,6 +8,16 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import { 
   Calendar as CalendarIcon, 
@@ -56,6 +66,9 @@ export default function Admin() {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && (!user || !isAdmin)) {
@@ -144,9 +157,27 @@ export default function Admin() {
       
       toast.success(`Appointment ${status} successfully`);
       loadAppointments();
+      setCancelDialogOpen(false);
+      setSelectedAppointmentId(null);
     } catch (error) {
       console.error('Error updating appointment:', error);
       toast.error('Failed to update appointment');
+    }
+  };
+
+  const handleCancelClick = (id: string) => {
+    setSelectedAppointmentId(id);
+    setCancelDialogOpen(true);
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setSelectedAppointmentId(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmCancel = () => {
+    if (selectedAppointmentId) {
+      updateAppointmentStatus(selectedAppointmentId, 'cancelled');
     }
   };
 
@@ -174,19 +205,21 @@ export default function Admin() {
     }
   };
 
-  const deleteAppointment = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this appointment?')) return;
+  const confirmDelete = async () => {
+    if (!selectedAppointmentId) return;
 
     try {
       const { error } = await supabase
         .from('appointments')
         .delete()
-        .eq('id', id);
+        .eq('id', selectedAppointmentId);
 
       if (error) throw error;
       
       toast.success('Appointment deleted successfully');
       loadAppointments();
+      setDeleteDialogOpen(false);
+      setSelectedAppointmentId(null);
     } catch (error) {
       console.error('Error deleting appointment:', error);
       toast.error('Failed to delete appointment');
@@ -569,7 +602,7 @@ export default function Admin() {
                             )}
                             {(appointment.status === 'pending_patient' || appointment.status === 'confirmed') && (
                               <Button
-                                onClick={() => updateAppointmentStatus(appointment.id, 'cancelled')}
+                                onClick={() => handleCancelClick(appointment.id)}
                                 size="sm"
                                 variant="outline"
                                 className="h-8"
@@ -579,7 +612,7 @@ export default function Admin() {
                               </Button>
                             )}
                             <Button
-                              onClick={() => deleteAppointment(appointment.id)}
+                              onClick={() => handleDeleteClick(appointment.id)}
                               size="sm"
                               variant="ghost"
                               className="text-red-600 hover:text-red-700 hover:bg-red-100 h-8"
@@ -596,6 +629,44 @@ export default function Admin() {
             )}
           </CardContent>
         </Card>
+
+        {/* Cancel Confirmation Dialog */}
+        <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Cancel Appointment</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to cancel this appointment? This action cannot be undone.
+                The patient will need to book a new appointment.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>No, Keep It</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmCancel} className="bg-red-600 hover:bg-red-700">
+                Yes, Cancel Appointment
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Appointment</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to permanently delete this appointment? This action cannot be undone.
+                All appointment data will be lost forever.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>No, Keep It</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+                Yes, Delete Permanently
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </main>
     </div>
   );
