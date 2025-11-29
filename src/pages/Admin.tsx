@@ -42,6 +42,7 @@ import {
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths } from 'date-fns';
 import AnalyticsCard from '@/components/admin/AnalyticsCard';
 import { AdminBookingDialog } from '@/components/admin/AdminBookingDialog';
+import { MedicalKnowledge } from '@/components/admin/MedicalKnowledge';
 
 interface Appointment {
   id: string;
@@ -375,7 +376,10 @@ export default function Admin() {
         </div>
 
         {/* Analytics Card */}
-        <AnalyticsCard />
+          <AnalyticsCard />
+
+          {/* Medical Knowledge RAG Section */}
+          <MedicalKnowledge />
 
         {/* Monthly Calendar View */}
         <Card className="p-6 mb-8 bg-gradient-card backdrop-blur-xl border-primary/20">

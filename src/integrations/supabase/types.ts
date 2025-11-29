@@ -116,6 +116,45 @@ export type Database = {
         }
         Relationships: []
       }
+      medical_knowledge: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string | null
+          file_path: string | null
+          id: string
+          metadata: Json | null
+          source_type: string
+          source_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by?: string | null
+          file_path?: string | null
+          id?: string
+          metadata?: Json | null
+          source_type: string
+          source_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          file_path?: string | null
+          id?: string
+          metadata?: Json | null
+          source_type?: string
+          source_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -248,6 +287,17 @@ export type Database = {
         Returns: boolean
       }
       increment_visitor_count: { Args: never; Returns: undefined }
+      search_medical_knowledge: {
+        Args: { match_count?: number; search_query: string }
+        Returns: {
+          content: string
+          id: string
+          rank: number
+          source_type: string
+          source_url: string
+          title: string
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "user"
