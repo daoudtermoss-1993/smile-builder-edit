@@ -42,8 +42,8 @@ serve(async (req) => {
       throw new Error('PDF_CO_API_KEY is required. Please add your PDF.co API key in secrets.');
     }
 
-    // Parse PDF using PDF.co API
-    const pdfParseResponse = await fetch('https://api.pdf.co/v1/pdf/convert/to/text', {
+    // Step 1: Upload file to PDF.co temporary storage
+    const uploadResponse = await fetch('https://api.pdf.co/v1/file/upload/base64', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -51,6 +51,34 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         file: base64Pdf,
+        name: filePath,
+      }),
+    });
+
+    if (!uploadResponse.ok) {
+      const errorText = await uploadResponse.text();
+      console.error('PDF upload failed:', errorText);
+      throw new Error(`Failed to upload PDF to PDF.co: ${errorText}`);
+    }
+
+    const uploadData = await uploadResponse.json();
+    const uploadedFileUrl = uploadData.url;
+
+    if (!uploadedFileUrl) {
+      throw new Error('Failed to get uploaded file URL from PDF.co');
+    }
+
+    console.log('PDF uploaded successfully, URL:', uploadedFileUrl);
+
+    // Step 2: Convert PDF to text using the uploaded file URL
+    const pdfParseResponse = await fetch('https://api.pdf.co/v1/pdf/convert/to/text', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
+      body: JSON.stringify({
+        url: uploadedFileUrl,
         inline: true,
       }),
     });
