@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { encode as base64Encode } from "https://deno.land/std@0.224.0/encoding/base64.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -31,16 +32,22 @@ serve(async (req) => {
       throw new Error('Failed to download PDF file');
     }
 
-    // Convert to base64 for PDF parsing API
+    // Convert to base64 safely for large files
     const arrayBuffer = await fileData.arrayBuffer();
-    const base64Pdf = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+    const uint8Array = new Uint8Array(arrayBuffer);
+    const base64Pdf = base64Encode(uint8Array);
 
-    // Parse PDF using a free PDF parsing service (pdf.co or similar)
+    const apiKey = Deno.env.get('PDF_CO_API_KEY');
+    if (!apiKey) {
+      throw new Error('PDF_CO_API_KEY is required. Please add your PDF.co API key in secrets.');
+    }
+
+    // Parse PDF using PDF.co API
     const pdfParseResponse = await fetch('https://api.pdf.co/v1/pdf/convert/to/text', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': Deno.env.get('PDF_CO_API_KEY') || 'demo', // Free tier available
+        'x-api-key': apiKey,
       },
       body: JSON.stringify({
         file: base64Pdf,
@@ -49,14 +56,15 @@ serve(async (req) => {
     });
 
     if (!pdfParseResponse.ok) {
-      console.error('PDF parsing failed:', await pdfParseResponse.text());
-      throw new Error('Failed to parse PDF content');
+      const errorText = await pdfParseResponse.text();
+      console.error('PDF parsing failed:', errorText);
+      throw new Error(`Failed to parse PDF content: ${errorText}`);
     }
 
     const pdfData = await pdfParseResponse.json();
     const content = pdfData.text || pdfData.body || '';
 
-    if (!content) {
+    if (!content || !content.trim()) {
       throw new Error('No content extracted from PDF');
     }
 
