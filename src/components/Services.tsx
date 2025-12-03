@@ -1,65 +1,86 @@
 import { Smile, Sparkles, Braces, Activity, Shield, AlertCircle } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-const services = [
+const servicesData = [
   {
     icon: Smile,
-    title: "Dental Implants",
-    description: "Permanent tooth replacement solutions with natural-looking results"
+    titleEn: "Dental Implants",
+    titleAr: "زراعة الأسنان",
+    descriptionEn: "Permanent tooth replacement solutions with natural-looking results",
+    descriptionAr: "حلول دائمة لاستبدال الأسنان بنتائج طبيعية المظهر"
   },
   {
     icon: Sparkles,
-    title: "Cosmetic Dentistry",
-    description: "Veneers, whitening, and Hollywood smile transformations"
+    titleEn: "Cosmetic Dentistry",
+    titleAr: "طب الأسنان التجميلي",
+    descriptionEn: "Veneers, whitening, and Hollywood smile transformations",
+    descriptionAr: "الفينير والتبييض وتحويلات ابتسامة هوليوود"
   },
   {
     icon: Braces,
-    title: "Orthodontics",
-    description: "Braces and aligners for perfect smile alignment"
+    titleEn: "Orthodontics",
+    titleAr: "تقويم الأسنان",
+    descriptionEn: "Braces and aligners for perfect smile alignment",
+    descriptionAr: "التقويم والمحاذيات للحصول على ابتسامة مثالية"
   },
   {
     icon: Activity,
-    title: "Root Canal Treatment",
-    description: "Pain-free root canal procedures with advanced techniques"
+    titleEn: "Root Canal Treatment",
+    titleAr: "علاج قناة الجذر",
+    descriptionEn: "Pain-free root canal procedures with advanced techniques",
+    descriptionAr: "إجراءات علاج قناة الجذر بدون ألم بتقنيات متقدمة"
   },
   {
     icon: Shield,
-    title: "Cleaning & Check-ups",
-    description: "Regular maintenance and preventive care"
+    titleEn: "Cleaning & Check-ups",
+    titleAr: "التنظيف والفحوصات",
+    descriptionEn: "Regular maintenance and preventive care",
+    descriptionAr: "الصيانة الدورية والرعاية الوقائية"
   },
   {
     icon: AlertCircle,
-    title: "Emergency Care",
-    description: "24/7 emergency dental services"
+    titleEn: "Emergency Care",
+    titleAr: "رعاية الطوارئ",
+    descriptionEn: "24/7 emergency dental services",
+    descriptionAr: "خدمات طوارئ الأسنان على مدار الساعة"
   }
 ];
 
 export const Services = () => {
+  const { language, t } = useLanguage();
+  
   return (
     <section className="vibe-section py-20">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <div className="inline-block px-6 py-2 bg-gradient-card backdrop-blur-xl rounded-full border border-primary/30 mb-6">
-            <span className="text-sm font-semibold bg-gradient-vibe bg-clip-text text-transparent">Our Services</span>
+            <span className="text-sm font-semibold bg-gradient-vibe bg-clip-text text-transparent">
+              {t('servicesTitle')}
+            </span>
           </div>
           <h2 className="text-4xl md:text-5xl font-display font-bold mb-4 bg-gradient-vibe bg-clip-text text-transparent">
-            Comprehensive Dental Care
+            {language === 'ar' ? 'رعاية شاملة للأسنان' : 'Comprehensive Dental Care'}
           </h2>
           <p className="text-lg text-foreground/80 max-w-2xl mx-auto">
-            We offer a wide range of dental services to meet all your oral health needs
+            {language === 'ar' 
+              ? 'نقدم مجموعة واسعة من خدمات طب الأسنان لتلبية جميع احتياجات صحة فمك'
+              : 'We offer a wide range of dental services to meet all your oral health needs'}
           </p>
         </div>
         
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((service, index) => {
+          {servicesData.map((service, index) => {
             const Icon = service.icon;
             return (
               <div key={index} className="vibe-card">
                 <div className="w-12 h-12 rounded-xl bg-gradient-vibe flex items-center justify-center mb-4">
                   <Icon className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="text-xl font-display font-semibold mb-3 text-foreground">{service.title}</h3>
+                <h3 className="text-xl font-display font-semibold mb-3 text-foreground">
+                  {language === 'ar' ? service.titleAr : service.titleEn}
+                </h3>
                 <p className="text-foreground/70">
-                  {service.description}
+                  {language === 'ar' ? service.descriptionAr : service.descriptionEn}
                 </p>
               </div>
             );

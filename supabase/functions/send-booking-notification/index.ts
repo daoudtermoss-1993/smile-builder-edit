@@ -203,7 +203,7 @@ serve(async (req) => {
         appointment_time: validatedData.time,
         notes: validatedData.notes,
         source: 'booking_form',
-        status: 'pending_doctor'
+        status: 'confirmed'
       })
       .select()
       .single();
