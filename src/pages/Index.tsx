@@ -10,6 +10,8 @@ import { Chatbot } from "@/components/Chatbot";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useVisitorTracking } from "@/hooks/useVisitorTracking";
 import AdminAccessButton from "@/components/AdminAccessButton";
+import { AdminEditToggle } from "@/components/admin/AdminEditToggle";
+import { AdminEditConfirmDialog } from "@/components/admin/AdminEditConfirmDialog";
 import heroImage from "@/assets/dr-yousif-hero.jpg";
 import doctorImage from "@/assets/dr-yousif-hero.jpg";
 
@@ -21,6 +23,8 @@ const Index = () => {
     <div className="min-h-screen">
       <Navigation />
       <AdminAccessButton />
+      <AdminEditToggle />
+      <AdminEditConfirmDialog />
       
       <div id="home">
         <Hero

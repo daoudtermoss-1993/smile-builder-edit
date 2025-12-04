@@ -3,6 +3,7 @@ import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { VoiceAssistant } from "@/components/VoiceAssistant";
+import { EditableText } from "@/components/admin/EditableText";
 
 interface ContactMapProps {
   address: string;
@@ -19,9 +20,21 @@ export const ContactMap = ({ address, phone, email, hours }: ContactMapProps) =>
     <section id="contact" className="vibe-section bg-secondary/30">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">{t('contactTitle')}</h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
+            <EditableText 
+              sectionKey="contact" 
+              field="title" 
+              defaultValue={t('contactTitle')}
+              as="span"
+            />
+          </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            {t('contactSubtitle')}
+            <EditableText 
+              sectionKey="contact" 
+              field="subtitle" 
+              defaultValue={t('contactSubtitle')}
+              as="span"
+            />
           </p>
         </div>
 
