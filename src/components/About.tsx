@@ -1,4 +1,5 @@
 import { Award, Users, Clock } from "lucide-react";
+import { EditableText } from "@/components/admin/EditableText";
 
 interface AboutProps {
   doctorImage?: string;
@@ -32,33 +33,54 @@ export const About = ({
           
           <div className="space-y-6">
             <div className="inline-block px-6 py-2 bg-gradient-card backdrop-blur-xl rounded-full border border-primary/30">
-              <span className="text-sm font-semibold bg-gradient-vibe bg-clip-text text-transparent">About Our Clinic</span>
+              <EditableText 
+                sectionKey="about" 
+                field="badge" 
+                defaultValue="About Our Clinic"
+                className="text-sm font-semibold bg-gradient-vibe bg-clip-text text-transparent"
+              />
             </div>
             
             <h2 className="text-4xl md:text-5xl font-display font-bold bg-gradient-vibe bg-clip-text text-transparent">
-              Meet {doctorName}
+              <EditableText 
+                sectionKey="about" 
+                field="title" 
+                defaultValue={`Meet ${doctorName}`}
+                as="span"
+              />
             </h2>
             
             <p className="text-lg text-foreground/80 leading-relaxed">
-              {description}
+              <EditableText 
+                sectionKey="about" 
+                field="description" 
+                defaultValue={description}
+                as="span"
+              />
             </p>
             
             <div className="grid grid-cols-3 gap-3 md:gap-4 pt-6">
               <div className="vibe-card text-center p-3 md:p-4">
                 <Clock className="h-6 w-6 md:h-8 md:w-8 mx-auto mb-2 text-vibe-purple" />
-                <div className="text-lg md:text-2xl font-bold text-foreground break-words">{stats.years}</div>
+                <div className="text-lg md:text-2xl font-bold text-foreground break-words">
+                  <EditableText sectionKey="about" field="years" defaultValue={stats.years} />
+                </div>
                 <div className="text-xs md:text-sm text-foreground/60">Years</div>
               </div>
               
               <div className="vibe-card text-center p-3 md:p-4">
                 <Users className="h-6 w-6 md:h-8 md:w-8 mx-auto mb-2 text-vibe-pink" />
-                <div className="text-lg md:text-2xl font-bold text-foreground break-words">{stats.patients}</div>
+                <div className="text-lg md:text-2xl font-bold text-foreground break-words">
+                  <EditableText sectionKey="about" field="patients" defaultValue={stats.patients} />
+                </div>
                 <div className="text-xs md:text-sm text-foreground/60">Patients</div>
               </div>
               
               <div className="vibe-card text-center p-3 md:p-4">
                 <Award className="h-6 w-6 md:h-8 md:w-8 mx-auto mb-2 text-vibe-blue" />
-                <div className="text-lg md:text-2xl font-bold text-foreground break-words">{stats.treatments}</div>
+                <div className="text-lg md:text-2xl font-bold text-foreground break-words">
+                  <EditableText sectionKey="about" field="treatments" defaultValue={stats.treatments} />
+                </div>
                 <div className="text-xs md:text-sm text-foreground/60">Treatments</div>
               </div>
             </div>

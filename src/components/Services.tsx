@@ -1,5 +1,6 @@
 import { Smile, Sparkles, Braces, Activity, Shield, AlertCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { EditableText } from "@/components/admin/EditableText";
 
 const servicesData = [
   {
@@ -54,17 +55,30 @@ export const Services = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <div className="inline-block px-6 py-2 bg-gradient-card backdrop-blur-xl rounded-full border border-primary/30 mb-6">
-            <span className="text-sm font-semibold bg-gradient-vibe bg-clip-text text-transparent">
-              {t('servicesTitle')}
-            </span>
+            <EditableText 
+              sectionKey="services" 
+              field="badge" 
+              defaultValue={t('servicesTitle')}
+              className="text-sm font-semibold bg-gradient-vibe bg-clip-text text-transparent"
+            />
           </div>
           <h2 className="text-4xl md:text-5xl font-display font-bold mb-4 bg-gradient-vibe bg-clip-text text-transparent">
-            {language === 'ar' ? 'رعاية شاملة للأسنان' : 'Comprehensive Dental Care'}
+            <EditableText 
+              sectionKey="services" 
+              field="title" 
+              defaultValue={language === 'ar' ? 'رعاية شاملة للأسنان' : 'Comprehensive Dental Care'}
+              as="span"
+            />
           </h2>
           <p className="text-lg text-foreground/80 max-w-2xl mx-auto">
-            {language === 'ar' 
-              ? 'نقدم مجموعة واسعة من خدمات طب الأسنان لتلبية جميع احتياجات صحة فمك'
-              : 'We offer a wide range of dental services to meet all your oral health needs'}
+            <EditableText 
+              sectionKey="services" 
+              field="subtitle" 
+              defaultValue={language === 'ar' 
+                ? 'نقدم مجموعة واسعة من خدمات طب الأسنان لتلبية جميع احتياجات صحة فمك'
+                : 'We offer a wide range of dental services to meet all your oral health needs'}
+              as="span"
+            />
           </p>
         </div>
         

@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { format } from "date-fns";
+import { EditableText } from "@/components/admin/EditableText";
 
 export const Booking = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -147,10 +148,20 @@ export const Booking = () => {
       <div className="container mx-auto px-4 max-w-4xl">
         <div className="text-center mb-12">
           <div className="inline-block px-6 py-2 bg-gradient-card backdrop-blur-xl rounded-full border border-primary/30 mb-6">
-            <span className="text-sm font-semibold bg-gradient-vibe bg-clip-text text-transparent">Book Appointment</span>
+            <EditableText 
+              sectionKey="booking" 
+              field="badge" 
+              defaultValue="Book Appointment"
+              className="text-sm font-semibold bg-gradient-vibe bg-clip-text text-transparent"
+            />
           </div>
           <h2 className="text-4xl md:text-5xl font-display font-bold mb-4 bg-gradient-vibe bg-clip-text text-transparent">
-            Schedule Your Visit
+            <EditableText 
+              sectionKey="booking" 
+              field="title" 
+              defaultValue="Schedule Your Visit"
+              as="span"
+            />
           </h2>
         </div>
         

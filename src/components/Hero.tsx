@@ -1,5 +1,6 @@
 import { Calendar, Phone } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { EditableText } from "@/components/admin/EditableText";
 
 interface HeroProps {
   backgroundImage?: string;
@@ -49,15 +50,30 @@ export const Hero = ({
       
       <div className="relative z-10 container mx-auto px-4 text-center">
         <div className="inline-block mb-6 px-6 py-2 bg-white/80 backdrop-blur-xl rounded-full border border-primary/20 shadow-sm">
-          <span className="text-sm font-semibold text-primary">{t('dentist')}</span>
+          <EditableText 
+            sectionKey="hero" 
+            field="badge" 
+            defaultValue={t('dentist')}
+            className="text-sm font-semibold text-primary"
+          />
         </div>
         
         <h1 className="vibe-title mb-6 animate-in fade-in duration-1000">
-          {t('heroTitle')}
+          <EditableText 
+            sectionKey="hero" 
+            field="title" 
+            defaultValue={t('heroTitle')}
+            as="span"
+          />
         </h1>
         
         <p className="vibe-sub mb-12 max-w-2xl mx-auto animate-in fade-in duration-1000 delay-200">
-          {t('heroSubtitle')}
+          <EditableText 
+            sectionKey="hero" 
+            field="subtitle" 
+            defaultValue={t('heroSubtitle')}
+            as="span"
+          />
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center animate-in fade-in duration-1000 delay-300">

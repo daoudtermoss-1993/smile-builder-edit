@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ChevronLeft, ChevronRight, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { EditableText } from "@/components/admin/EditableText";
 
 interface BeforeAfterImage {
   before: string;
@@ -146,10 +147,20 @@ export const BeforeAfter = () => {
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-vibe-cyan bg-clip-text text-transparent">
-            {t("beforeAfterTitle")}
+            <EditableText 
+              sectionKey="gallery" 
+              field="title" 
+              defaultValue={t("beforeAfterTitle")}
+              as="span"
+            />
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            {t("beforeAfterSubtitle")}
+            <EditableText 
+              sectionKey="gallery" 
+              field="subtitle" 
+              defaultValue={t("beforeAfterSubtitle")}
+              as="span"
+            />
           </p>
         </div>
 
