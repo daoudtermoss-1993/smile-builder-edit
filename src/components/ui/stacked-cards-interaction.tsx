@@ -6,15 +6,18 @@ const Card = ({
   className,
   image,
   children,
+  onClick,
 }: {
   className?: string;
   image?: string;
   children?: React.ReactNode;
+  onClick?: () => void;
 }) => {
   return (
     <div
+      onClick={onClick}
       className={cn(
-        "w-[350px] cursor-pointer h-[400px] overflow-hidden bg-card rounded-2xl shadow-[0_0_10px_rgba(0,0,0,0.02)] border border-border",
+        "w-[350px] cursor-pointer h-[400px] overflow-hidden bg-card rounded-2xl shadow-[0_0_10px_rgba(0,0,0,0.02)] border border-border transition-all duration-300 hover:shadow-lg hover:border-primary/50",
         className
       )}
     >
@@ -23,7 +26,7 @@ const Card = ({
           <img
             src={image}
             alt="card"
-            className="object-cover mt-0 w-full h-full"
+            className="object-cover mt-0 w-full h-full transition-transform duration-300 hover:scale-105"
           />
         </div>
       )}
@@ -38,6 +41,7 @@ interface CardData {
   image: string;
   title: string;
   description: string;
+  onClick?: () => void;
 }
 
 const StackedCardsInteraction = ({
@@ -102,6 +106,7 @@ const StackedCardsInteraction = ({
               <Card
                 className={isFirst ? "z-10 cursor-pointer" : "z-0"}
                 image={card.image}
+                onClick={card.onClick}
               >
                 <h2 className="font-semibold text-foreground">{card.title}</h2>
                 <p className="text-muted-foreground text-sm">{card.description}</p>
