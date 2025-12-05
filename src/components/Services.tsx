@@ -1,86 +1,25 @@
-import { Smile, Sparkles, Braces, Activity, Shield, AlertCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EditableText } from "@/components/admin/EditableText";
 import { StackedCardsInteraction } from "@/components/ui/stacked-cards-interaction";
-
-const servicesData = [
-  {
-    icon: Smile,
-    titleEn: "Dental Implants",
-    titleAr: "زراعة الأسنان",
-    descriptionEn: "Permanent tooth replacement solutions with natural-looking results",
-    descriptionAr: "حلول دائمة لاستبدال الأسنان بنتائج طبيعية المظهر"
-  },
-  {
-    icon: Sparkles,
-    titleEn: "Cosmetic Dentistry",
-    titleAr: "طب الأسنان التجميلي",
-    descriptionEn: "Veneers, whitening, and Hollywood smile transformations",
-    descriptionAr: "الفينير والتبييض وتحويلات ابتسامة هوليوود"
-  },
-  {
-    icon: Braces,
-    titleEn: "Orthodontics",
-    titleAr: "تقويم الأسنان",
-    descriptionEn: "Braces and aligners for perfect smile alignment",
-    descriptionAr: "التقويم والمحاذيات للحصول على ابتسامة مثالية"
-  },
-  {
-    icon: Activity,
-    titleEn: "Root Canal Treatment",
-    titleAr: "علاج قناة الجذر",
-    descriptionEn: "Pain-free root canal procedures with advanced techniques",
-    descriptionAr: "إجراءات علاج قناة الجذر بدون ألم بتقنيات متقدمة"
-  },
-  {
-    icon: Shield,
-    titleEn: "Cleaning & Check-ups",
-    titleAr: "التنظيف والفحوصات",
-    descriptionEn: "Regular maintenance and preventive care",
-    descriptionAr: "الصيانة الدورية والرعاية الوقائية"
-  },
-  {
-    icon: AlertCircle,
-    titleEn: "Emergency Care",
-    titleAr: "رعاية الطوارئ",
-    descriptionEn: "24/7 emergency dental services",
-    descriptionAr: "خدمات طوارئ الأسنان على مدار الساعة"
-  }
-];
+import { servicesData } from "@/data/servicesData";
+import { Link } from "react-router-dom";
+import { ArrowRight, ArrowLeft } from "lucide-react";
 
 export const Services = () => {
   const { language, t } = useLanguage();
+  const isRTL = language === 'ar';
 
-  const scrollToBooking = () => {
-    const bookingSection = document.getElementById('booking');
-    if (bookingSection) {
-      bookingSection.scrollIntoView({ behavior: 'smooth' });
+  const stackedCards = servicesData.slice(0, 3).map(service => ({
+    image: service.image,
+    title: language === 'ar' ? service.titleAr : service.titleEn,
+    description: language === 'ar' ? 'انقر لمعرفة المزيد' : 'Click to learn more',
+    onClick: () => {
+      window.location.href = `/services/${service.id}`;
     }
-  };
-
-  const stackedCards = [
-    {
-      image: "https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=800&auto=format&fit=crop&q=60",
-      title: language === 'ar' ? "زراعة الأسنان" : "Dental Implants",
-      description: language === 'ar' ? "انقر للحجز" : "Click to book now",
-      onClick: scrollToBooking
-    },
-    {
-      image: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=800&auto=format&fit=crop&q=60",
-      title: language === 'ar' ? "ابتسامة هوليوود" : "Hollywood Smile",
-      description: language === 'ar' ? "انقر للحجز" : "Click to book now",
-      onClick: scrollToBooking
-    },
-    {
-      image: "https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=800&auto=format&fit=crop&q=60",
-      title: language === 'ar' ? "تقويم الأسنان" : "Orthodontics",
-      description: language === 'ar' ? "انقر للحجز" : "Click to book now",
-      onClick: scrollToBooking
-    }
-  ];
+  }));
   
   return (
-    <section className="vibe-section py-20">
+    <section id="services" className="vibe-section py-20">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <div className="inline-block px-6 py-2 bg-gradient-card backdrop-blur-xl rounded-full border border-primary/30 mb-6">
@@ -124,17 +63,27 @@ export const Services = () => {
           {servicesData.map((service, index) => {
             const Icon = service.icon;
             return (
-              <div key={index} className="vibe-card">
-                <div className="w-12 h-12 rounded-xl bg-gradient-vibe flex items-center justify-center mb-4">
-                  <Icon className="h-6 w-6 text-white" />
+              <Link 
+                key={index} 
+                to={`/services/${service.id}`}
+                className="group"
+              >
+                <div className="vibe-card h-full transition-all duration-300 hover:border-primary/50 hover:shadow-lg">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-vibe flex items-center justify-center mb-4">
+                    <Icon className="h-6 w-6 text-white" />
+                  </div>
+                  <h3 className="text-xl font-display font-semibold mb-3 text-foreground group-hover:text-primary transition-colors">
+                    {language === 'ar' ? service.titleAr : service.titleEn}
+                  </h3>
+                  <p className="text-foreground/70 mb-4">
+                    {language === 'ar' ? service.descriptionAr : service.descriptionEn}
+                  </p>
+                  <div className="flex items-center gap-2 text-primary text-sm font-medium">
+                    {language === 'ar' ? 'اعرف المزيد' : 'Learn more'}
+                    {isRTL ? <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" /> : <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />}
+                  </div>
                 </div>
-                <h3 className="text-xl font-display font-semibold mb-3 text-foreground">
-                  {language === 'ar' ? service.titleAr : service.titleEn}
-                </h3>
-                <p className="text-foreground/70">
-                  {language === 'ar' ? service.descriptionAr : service.descriptionEn}
-                </p>
-              </div>
+              </Link>
             );
           })}
         </div>
