@@ -51,21 +51,31 @@ const servicesData = [
 export const Services = () => {
   const { language, t } = useLanguage();
 
+  const scrollToBooking = () => {
+    const bookingSection = document.getElementById('booking');
+    if (bookingSection) {
+      bookingSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   const stackedCards = [
     {
       image: "https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=800&auto=format&fit=crop&q=60",
       title: language === 'ar' ? "زراعة الأسنان" : "Dental Implants",
-      description: language === 'ar' ? "حلول دائمة لابتسامة مثالية" : "Permanent solutions for a perfect smile"
+      description: language === 'ar' ? "انقر للحجز" : "Click to book now",
+      onClick: scrollToBooking
     },
     {
       image: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=800&auto=format&fit=crop&q=60",
       title: language === 'ar' ? "ابتسامة هوليوود" : "Hollywood Smile",
-      description: language === 'ar' ? "تحويل ابتسامتك بالكامل" : "Transform your smile completely"
+      description: language === 'ar' ? "انقر للحجز" : "Click to book now",
+      onClick: scrollToBooking
     },
     {
       image: "https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=800&auto=format&fit=crop&q=60",
       title: language === 'ar' ? "تقويم الأسنان" : "Orthodontics",
-      description: language === 'ar' ? "محاذاة مثالية للأسنان" : "Perfect teeth alignment"
+      description: language === 'ar' ? "انقر للحجز" : "Click to book now",
+      onClick: scrollToBooking
     }
   ];
   
