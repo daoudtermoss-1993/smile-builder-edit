@@ -1,6 +1,7 @@
 import { Smile, Sparkles, Braces, Activity, Shield, AlertCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EditableText } from "@/components/admin/EditableText";
+import { StackedCardsInteraction } from "@/components/ui/stacked-cards-interaction";
 
 const servicesData = [
   {
@@ -49,6 +50,24 @@ const servicesData = [
 
 export const Services = () => {
   const { language, t } = useLanguage();
+
+  const stackedCards = [
+    {
+      image: "https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=800&auto=format&fit=crop&q=60",
+      title: language === 'ar' ? "زراعة الأسنان" : "Dental Implants",
+      description: language === 'ar' ? "حلول دائمة لابتسامة مثالية" : "Permanent solutions for a perfect smile"
+    },
+    {
+      image: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=800&auto=format&fit=crop&q=60",
+      title: language === 'ar' ? "ابتسامة هوليوود" : "Hollywood Smile",
+      description: language === 'ar' ? "تحويل ابتسامتك بالكامل" : "Transform your smile completely"
+    },
+    {
+      image: "https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=800&auto=format&fit=crop&q=60",
+      title: language === 'ar' ? "تقويم الأسنان" : "Orthodontics",
+      description: language === 'ar' ? "محاذاة مثالية للأسنان" : "Perfect teeth alignment"
+    }
+  ];
   
   return (
     <section className="vibe-section py-20">
@@ -80,6 +99,15 @@ export const Services = () => {
               as="span"
             />
           </p>
+        </div>
+
+        {/* Stacked Cards Feature */}
+        <div className="flex justify-center mb-16 min-h-[450px]">
+          <StackedCardsInteraction 
+            cards={stackedCards}
+            spreadDistance={50}
+            rotationAngle={6}
+          />
         </div>
         
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
