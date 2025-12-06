@@ -62,7 +62,7 @@ export const About = ({
               <EditableText 
                 sectionKey="about" 
                 field="badge" 
-                defaultValue="About Our Clinic"
+                defaultValue={language === 'ar' ? 'عن عيادتنا' : 'About Our Clinic'}
                 className="text-sm font-semibold text-primary"
               />
             </motion.div>
@@ -71,7 +71,7 @@ export const About = ({
               <EditableText 
                 sectionKey="about" 
                 field="title" 
-                defaultValue={`Meet ${doctorName}`}
+                defaultValue={language === 'ar' ? `تعرف على ${doctorName}` : `Meet ${doctorName}`}
                 as="span"
               />
             </h2>
