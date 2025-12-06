@@ -32,17 +32,17 @@ export const DentalBackground3D = () => {
     const particles: Particle[] = []
     const particleCount = 80
 
-    // Create particles with teal theme colors
+    // Create particles with teal theme colors - more subtle
     for (let i = 0; i < particleCount; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
         z: Math.random() * 1000,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-        vz: (Math.random() - 0.5) * 2,
-        size: Math.random() * 3 + 1,
-        color: `rgba(0, 179, 179, ${Math.random() * 0.5 + 0.3})`, // Teal color
+        vx: (Math.random() - 0.5) * 0.3, // Slower movement
+        vy: (Math.random() - 0.5) * 0.3,
+        vz: (Math.random() - 0.5) * 1.5,
+        size: Math.random() * 2 + 0.5, // Smaller particles
+        color: `rgba(0, 179, 179, ${Math.random() * 0.25 + 0.1})`, // Lower opacity
       })
     }
 
@@ -87,8 +87,8 @@ export const DentalBackground3D = () => {
             ctx.beginPath()
             ctx.moveTo(x2d, y2d)
             ctx.lineTo(ox2d, oy2d)
-            ctx.strokeStyle = `rgba(0, 179, 179, ${0.2 * (1 - distance / 150)})` // Teal color
-            ctx.lineWidth = 0.5
+            ctx.strokeStyle = `rgba(0, 179, 179, ${0.08 * (1 - distance / 150)})` // More subtle connections
+            ctx.lineWidth = 0.3
             ctx.stroke()
           }
         })
@@ -143,7 +143,7 @@ export const FloatingTooth = ({ delay = 0, className = '' }: { delay?: number; c
         viewBox="0 0 60 60"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="opacity-20"
+        className="opacity-10"
       >
         <path
           d="M30 10C20 10 15 15 15 25C15 35 15 45 20 50C25 55 35 55 40 50C45 45 45 35 45 25C45 15 40 10 30 10Z"
