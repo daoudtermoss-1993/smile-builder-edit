@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ChevronLeft, ChevronRight, Quote } from "lucide-react";
+import { ChevronLeft, ChevronRight, Quote, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EditableText } from "@/components/admin/EditableText";
 import { motion } from "framer-motion";
@@ -18,6 +18,8 @@ interface Testimonial {
   name: string;
   text: string;
   treatment: string;
+  avatar: string;
+  rating: number;
 }
 
 const ImageComparisonSlider = ({ before, after, title, language }: { before: string; after: string; title: string; language: string }) => {
@@ -91,6 +93,7 @@ const ImageComparisonSlider = ({ before, after, title, language }: { before: str
 export const BeforeAfter = () => {
   const { t, language } = useLanguage();
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   const beforeAfterImages: BeforeAfterImage[] = [
     {
@@ -117,17 +120,44 @@ export const BeforeAfter = () => {
     {
       name: t("testimonial1Name"),
       text: t("testimonial1Text"),
-      treatment: t("teethWhitening")
+      treatment: t("teethWhitening"),
+      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
+      rating: 5
     },
     {
       name: t("testimonial2Name"),
       text: t("testimonial2Text"),
-      treatment: t("dentalImplants")
+      treatment: t("dentalImplants"),
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
+      rating: 5
     },
     {
       name: t("testimonial3Name"),
       text: t("testimonial3Text"),
-      treatment: t("veneers")
+      treatment: t("veneers"),
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
+      rating: 5
+    },
+    {
+      name: language === 'ar' ? "نورة الصباح" : "Noura Al-Sabah",
+      text: language === 'ar' ? "تجربة رائعة! الدكتور يوسف محترف جداً والنتيجة أفضل مما توقعت." : "Amazing experience! Dr. Yousif is very professional and the result exceeded my expectations.",
+      treatment: language === 'ar' ? "تقويم الأسنان" : "Orthodontics",
+      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face",
+      rating: 5
+    },
+    {
+      name: language === 'ar' ? "عبدالله المطيري" : "Abdullah Al-Mutairi",
+      text: language === 'ar' ? "أفضل عيادة أسنان في الكويت. العناية والاهتمام بالتفاصيل لا مثيل لهما." : "Best dental clinic in Kuwait. The care and attention to detail is unmatched.",
+      treatment: language === 'ar' ? "زراعة الأسنان" : "Dental Implants",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
+      rating: 5
+    },
+    {
+      name: language === 'ar' ? "مريم الفهد" : "Mariam Al-Fahad",
+      text: language === 'ar' ? "ابتسامتي الجديدة غيرت حياتي! شكراً دكتور يوسف على العمل الرائع." : "My new smile changed my life! Thank you Dr. Yousif for the amazing work.",
+      treatment: language === 'ar' ? "تبييض الأسنان" : "Teeth Whitening",
+      avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=face",
+      rating: 5
     }
   ];
 
@@ -138,6 +168,44 @@ export const BeforeAfter = () => {
   const prevTestimonial = () => {
     setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
   };
+
+  const renderStars = (rating: number) => {
+    return Array.from({ length: 5 }).map((_, i) => (
+      <Star
+        key={i}
+        className={`w-4 h-4 ${i < rating ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground/30'}`}
+      />
+    ));
+  };
+
+  const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => (
+    <Card 
+      className="inline-block w-[350px] md:w-[400px] border-primary/20 bg-card/50 backdrop-blur-sm shrink-0 transition-transform duration-300 hover:scale-105"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
+      <CardContent className="p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <img 
+            src={testimonial.avatar} 
+            alt={testimonial.name}
+            className="w-12 h-12 rounded-full object-cover border-2 border-primary/30"
+          />
+          <div className="flex-1">
+            <p className="font-semibold text-base normal-case tracking-normal">{testimonial.name}</p>
+            <div className="flex gap-0.5">{renderStars(testimonial.rating)}</div>
+          </div>
+          <Quote className="w-8 h-8 text-primary/30" />
+        </div>
+        <p className="text-sm md:text-base text-foreground mb-4 leading-relaxed normal-case tracking-normal whitespace-normal">
+          "{testimonial.text}"
+        </p>
+        <div className="border-t border-border/50 pt-3">
+          <p className="text-xs text-muted-foreground normal-case tracking-normal">{testimonial.treatment}</p>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   return (
     <section className="py-16 overflow-hidden">
@@ -218,43 +286,15 @@ export const BeforeAfter = () => {
           
           {/* Scrolling Testimonials */}
           <div className="space-y-6">
-            <ScrollVelocity velocity={2} className="py-4">
+            <ScrollVelocity velocity={2} paused={isPaused} className="py-4">
               {[...testimonials, ...testimonials].map((testimonial, index) => (
-                <Card 
-                  key={index} 
-                  className="inline-block w-[350px] md:w-[400px] border-primary/20 bg-card/50 backdrop-blur-sm shrink-0"
-                >
-                  <CardContent className="p-6">
-                    <Quote className="w-8 h-8 text-primary/30 mb-4" />
-                    <p className="text-sm md:text-base text-foreground mb-4 leading-relaxed normal-case tracking-normal whitespace-normal">
-                      "{testimonial.text}"
-                    </p>
-                    <div className="border-t border-border/50 pt-4">
-                      <p className="font-semibold text-base normal-case tracking-normal">{testimonial.name}</p>
-                      <p className="text-xs text-muted-foreground normal-case tracking-normal">{testimonial.treatment}</p>
-                    </div>
-                  </CardContent>
-                </Card>
+                <TestimonialCard key={index} testimonial={testimonial} />
               ))}
             </ScrollVelocity>
             
-            <ScrollVelocity velocity={-2} className="py-4">
+            <ScrollVelocity velocity={-2} paused={isPaused} className="py-4">
               {[...testimonials, ...testimonials].reverse().map((testimonial, index) => (
-                <Card 
-                  key={index} 
-                  className="inline-block w-[350px] md:w-[400px] border-primary/20 bg-card/50 backdrop-blur-sm shrink-0"
-                >
-                  <CardContent className="p-6">
-                    <Quote className="w-8 h-8 text-primary/30 mb-4" />
-                    <p className="text-sm md:text-base text-foreground mb-4 leading-relaxed normal-case tracking-normal whitespace-normal">
-                      "{testimonial.text}"
-                    </p>
-                    <div className="border-t border-border/50 pt-4">
-                      <p className="font-semibold text-base normal-case tracking-normal">{testimonial.name}</p>
-                      <p className="text-xs text-muted-foreground normal-case tracking-normal">{testimonial.treatment}</p>
-                    </div>
-                  </CardContent>
-                </Card>
+                <TestimonialCard key={index} testimonial={testimonial} />
               ))}
             </ScrollVelocity>
           </div>
