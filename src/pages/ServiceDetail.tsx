@@ -1,10 +1,11 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { servicesData, getServiceById } from "@/data/servicesData";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, ArrowRight, Clock, DollarSign, CheckCircle, Calendar } from "lucide-react";
+import { InteractiveImageAccordion, type AccordionItemData } from "@/components/ui/interactive-image-accordion";
 import { Footer } from "@/components/Footer";
 
 const ServiceDetail = () => {
@@ -37,6 +38,15 @@ const ServiceDetail = () => {
 
   const Icon = service.icon;
   const otherServices = servicesData.filter(s => s.id !== serviceId);
+
+  // Create accordion items from other services
+  const accordionItems: AccordionItemData[] = useMemo(() => {
+    return servicesData.map((s, index) => ({
+      id: index + 1,
+      title: language === 'ar' ? s.titleAr : s.titleEn,
+      imageUrl: s.image
+    }));
+  }, [language]);
 
   const scrollToBooking = () => {
     navigate('/#booking');
@@ -188,6 +198,22 @@ const ServiceDetail = () => {
           </div>
         </section>
       )}
+
+      {/* Services Accordion Section */}
+      <section className="py-20">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-display font-bold mb-4 text-center">
+            {language === 'ar' ? 'خدماتنا' : 'Our Services'}
+          </h2>
+          <p className="text-muted-foreground text-center mb-8">
+            {language === 'ar' ? 'استكشف جميع خدماتنا' : 'Explore all our dental services'}
+          </p>
+          <InteractiveImageAccordion 
+            items={accordionItems} 
+            defaultActiveIndex={servicesData.findIndex(s => s.id === serviceId)}
+          />
+        </div>
+      </section>
 
       {/* Other Services Section */}
       <section className="py-20 bg-white/50 backdrop-blur-sm">
