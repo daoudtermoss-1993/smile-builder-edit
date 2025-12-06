@@ -4,6 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { ChevronLeft, ChevronRight, Quote, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EditableText } from "@/components/admin/EditableText";
+import { EditableImage } from "@/components/admin/EditableImage";
 import { motion } from "framer-motion";
 import { ScrollVelocity } from "@/components/ui/scroll-velocity";
 
@@ -22,7 +23,19 @@ interface Testimonial {
   rating: number;
 }
 
-const ImageComparisonSlider = ({ before, after, title, language }: { before: string; after: string; title: string; language: string }) => {
+const ImageComparisonSlider = ({ 
+  before, 
+  after, 
+  title, 
+  language,
+  index 
+}: { 
+  before: string; 
+  after: string; 
+  title: string; 
+  language: string;
+  index: number;
+}) => {
   const [sliderPosition, setSliderPosition] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -51,25 +64,29 @@ const ImageComparisonSlider = ({ before, after, title, language }: { before: str
         onTouchMove={handleMove}
         onClick={handleMove}
       >
-        <img
-          src={after}
+        <EditableImage
+          sectionKey="gallery"
+          field={`after_${index}`}
+          defaultSrc={after}
           alt={`${title} - After`}
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0"
         />
         
         <div
           className="absolute inset-0 w-full h-full overflow-hidden"
           style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
         >
-          <img
-            src={before}
+          <EditableImage
+            sectionKey="gallery"
+            field={`before_${index}`}
+            defaultSrc={before}
             alt={`${title} - Before`}
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0"
           />
         </div>
 
         <div
-          className="absolute top-0 bottom-0 w-1 bg-primary cursor-col-resize"
+          className="absolute top-0 bottom-0 w-1 bg-primary cursor-col-resize z-10"
           style={{ left: `${sliderPosition}%` }}
         >
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-glow">
@@ -78,10 +95,10 @@ const ImageComparisonSlider = ({ before, after, title, language }: { before: str
           </div>
         </div>
 
-        <div className="absolute top-4 left-4 bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium">
+        <div className="absolute top-4 left-4 bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium z-10">
           {language === 'ar' ? 'قبل' : 'Before'}
         </div>
-        <div className="absolute top-4 right-4 bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium">
+        <div className="absolute top-4 right-4 bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium z-10">
           {language === 'ar' ? 'بعد' : 'After'}
         </div>
       </div>
@@ -178,7 +195,7 @@ export const BeforeAfter = () => {
     ));
   };
 
-  const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => (
+  const TestimonialCard = ({ testimonial, cardIndex }: { testimonial: Testimonial; cardIndex: number }) => (
     <Card 
       className="inline-block w-[350px] md:w-[400px] border-primary/20 bg-card/50 backdrop-blur-sm shrink-0 transition-transform duration-300 hover:scale-105"
       onMouseEnter={() => setIsPaused(true)}
@@ -186,11 +203,15 @@ export const BeforeAfter = () => {
     >
       <CardContent className="p-6">
         <div className="flex items-center gap-3 mb-4">
-          <img 
-            src={testimonial.avatar} 
-            alt={testimonial.name}
-            className="w-12 h-12 rounded-full object-cover border-2 border-primary/30"
-          />
+          <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary/30">
+            <EditableImage
+              sectionKey="testimonials"
+              field={`avatar_${cardIndex}`}
+              defaultSrc={testimonial.avatar}
+              alt={testimonial.name}
+              className="rounded-full"
+            />
+          </div>
           <div className="flex-1">
             <p className="font-semibold text-base normal-case tracking-normal">{testimonial.name}</p>
             <div className="flex gap-0.5">{renderStars(testimonial.rating)}</div>
@@ -266,6 +287,7 @@ export const BeforeAfter = () => {
                 after={item.after}
                 title={item.title}
                 language={language}
+                index={index}
               />
               <p className="text-sm text-muted-foreground text-center mt-2">{item.description}</p>
             </motion.div>
@@ -288,13 +310,13 @@ export const BeforeAfter = () => {
           <div className="space-y-6">
             <ScrollVelocity velocity={2} paused={isPaused} className="py-4">
               {[...testimonials, ...testimonials].map((testimonial, index) => (
-                <TestimonialCard key={index} testimonial={testimonial} />
+                <TestimonialCard key={index} testimonial={testimonial} cardIndex={index % testimonials.length} />
               ))}
             </ScrollVelocity>
             
             <ScrollVelocity velocity={-2} paused={isPaused} className="py-4">
               {[...testimonials, ...testimonials].reverse().map((testimonial, index) => (
-                <TestimonialCard key={index} testimonial={testimonial} />
+                <TestimonialCard key={index} testimonial={testimonial} cardIndex={index % testimonials.length} />
               ))}
             </ScrollVelocity>
           </div>
