@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { MessageCircle, X, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -209,23 +210,19 @@ export const Chatbot = () => {
     }
   };
 
-  return (
-    <>
+  const chatbotContent = (
+    <div style={{ position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: 9999 }}>
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 w-16 h-16 rounded-full bg-primary shadow-glow flex items-center justify-center hover:scale-110 transition-transform z-[60]"
-          style={{ right: '1.5rem', left: 'auto' }}
+          className="w-16 h-16 rounded-full bg-primary shadow-glow flex items-center justify-center hover:scale-110 transition-transform"
         >
           <MessageCircle className="w-8 h-8 text-white" />
         </button>
       )}
 
       {isOpen && (
-        <div 
-          className="fixed bottom-6 w-96 max-w-[calc(100vw-2rem)] h-[500px] vibe-card flex flex-col z-[60] animate-scale-in"
-          style={{ right: '1.5rem', left: 'auto' }}
-        >
+        <div className="w-96 max-w-[calc(100vw-2rem)] h-[500px] vibe-card flex flex-col animate-scale-in">
           <div className="flex items-center justify-between p-4 border-b border-border">
             <div className="flex items-center gap-2">
               <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
@@ -271,6 +268,8 @@ export const Chatbot = () => {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
+
+  return createPortal(chatbotContent, document.body);
 };
