@@ -19,26 +19,22 @@ export const Footer = () => {
             <h4 className="font-semibold text-lg mb-4 text-foreground">{t('quickLinks')}</h4>
             <ul className="space-y-2">
               <li>
-                <a href="#about" className="text-muted-foreground hover:text-primary transition-all duration-300 relative group inline-flex items-center">
-                  <span className="absolute -left-4 opacity-0 group-hover:opacity-100 group-hover:-left-2 transition-all duration-300 text-primary">→</span>
+                <a href="#about" className="text-muted-foreground hover:text-primary transition-all duration-300">
                   {t('about')}
                 </a>
               </li>
               <li>
-                <a href="#services" className="text-muted-foreground hover:text-primary transition-all duration-300 relative group inline-flex items-center">
-                  <span className="absolute -left-4 opacity-0 group-hover:opacity-100 group-hover:-left-2 transition-all duration-300 text-primary">→</span>
+                <a href="#services" className="text-muted-foreground hover:text-primary transition-all duration-300">
                   {t('services')}
                 </a>
               </li>
               <li>
-                <a href="#booking" className="text-muted-foreground hover:text-primary transition-all duration-300 relative group inline-flex items-center">
-                  <span className="absolute -left-4 opacity-0 group-hover:opacity-100 group-hover:-left-2 transition-all duration-300 text-primary">→</span>
+                <a href="#booking" className="text-muted-foreground hover:text-primary transition-all duration-300">
                   {t('booking')}
                 </a>
               </li>
               <li>
-                <a href="#contact" className="text-muted-foreground hover:text-primary transition-all duration-300 relative group inline-flex items-center">
-                  <span className="absolute -left-4 opacity-0 group-hover:opacity-100 group-hover:-left-2 transition-all duration-300 text-primary">→</span>
+                <a href="#contact" className="text-muted-foreground hover:text-primary transition-all duration-300">
                   {t('contact')}
                 </a>
               </li>
