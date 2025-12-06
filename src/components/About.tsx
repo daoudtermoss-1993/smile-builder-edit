@@ -1,5 +1,6 @@
 import { Award, Users, Clock } from "lucide-react";
 import { EditableText } from "@/components/admin/EditableText";
+import { EditableImage } from "@/components/admin/EditableImage";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -35,10 +36,12 @@ export const About = ({
           >
             <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl blur-3xl -z-10" />
             <div className="relative overflow-hidden rounded-3xl shadow-elevated border border-primary/10 group">
-              <motion.img
-                src={doctorImage}
+              <EditableImage
+                sectionKey="about"
+                field="doctorImage"
+                defaultSrc={doctorImage}
                 alt={doctorName}
-                className="object-cover w-full aspect-square transition-transform duration-700 group-hover:scale-105"
+                className="aspect-square transition-transform duration-700 group-hover:scale-105"
               />
               {/* Overlay on hover */}
               <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />

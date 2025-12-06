@@ -1,6 +1,7 @@
 import { Calendar, Phone } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EditableText } from "@/components/admin/EditableText";
+import { EditableImage } from "@/components/admin/EditableImage";
 import { motion } from "framer-motion";
 
 interface HeroProps {
@@ -85,10 +86,12 @@ export const Hero = ({
           animate={{ scale: 1, opacity: 0.15 }}
           transition={{ duration: 1.5, ease: "easeOut" }}
         >
-          <img
-            src={backgroundImage}
+          <EditableImage
+            sectionKey="hero"
+            field="backgroundImage"
+            defaultSrc={backgroundImage}
             alt="Dental Clinic"
-            className="w-full h-full object-cover"
+            className="w-full h-full"
           />
         </motion.div>
       ) : null}
