@@ -146,28 +146,26 @@ export const EditableImage = ({
           <TabsContent value="upload" className="space-y-4 pt-4">
             <div className="flex flex-col items-center justify-center border-2 border-dashed border-border rounded-lg p-6 hover:border-primary/50 transition-colors">
               <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-              <p className="text-sm text-muted-foreground mb-4">Glissez une image ou cliquez pour sélectionner</p>
-              <label className="cursor-pointer">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                />
-                <span className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-sm font-medium">
-                  {isUploading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Téléchargement...
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="h-4 w-4" />
-                      Choisir une image
-                    </>
-                  )}
-                </span>
-              </label>
+              <p className="text-sm text-muted-foreground mb-4">Sélectionnez une image</p>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                disabled={isUploading}
+                className="block w-full text-sm text-muted-foreground
+                  file:mr-4 file:py-2 file:px-4
+                  file:rounded-md file:border-0
+                  file:text-sm file:font-medium
+                  file:bg-primary file:text-primary-foreground
+                  hover:file:bg-primary/90
+                  file:cursor-pointer cursor-pointer"
+              />
+              {isUploading && (
+                <div className="flex items-center gap-2 mt-3 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Téléchargement en cours...
+                </div>
+              )}
             </div>
           </TabsContent>
 
