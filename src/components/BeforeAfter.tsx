@@ -296,13 +296,16 @@ export const BeforeAfter = () => {
 
   const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => (
     <Card 
-      className="relative inline-block w-[280px] sm:w-[350px] md:w-[400px] min-h-[200px] border-primary/20 bg-card/50 backdrop-blur-sm shrink-0 overflow-hidden"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
+      className="relative inline-block w-[280px] sm:w-[350px] md:w-[400px] min-h-[200px] border-primary/20 bg-card/50 backdrop-blur-sm shrink-0 overflow-visible"
+      onMouseEnter={() => !isEditMode && setIsPaused(true)}
+      onMouseLeave={() => !isEditMode && setIsPaused(false)}
     >
       {isEditMode && (
-        <div className="absolute -top-2 -right-2 z-20">
-          <DeleteContentButton onConfirm={() => handleDeleteTestimonial(testimonial.id)} itemName="ce témoignage" />
+        <div className="absolute top-2 right-2 z-50">
+          <DeleteContentButton 
+            onConfirm={() => handleDeleteTestimonial(testimonial.id)} 
+            itemName="ce témoignage" 
+          />
         </div>
       )}
       <CardContent className="p-4 sm:p-6 h-full">
