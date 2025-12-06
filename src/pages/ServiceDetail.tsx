@@ -1,10 +1,10 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { servicesData, getServiceById } from "@/data/servicesData";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, ArrowRight, Clock, DollarSign, CheckCircle, Calendar } from "lucide-react";
-import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 
 const ServiceDetail = () => {
@@ -14,6 +14,11 @@ const ServiceDetail = () => {
   const isRTL = language === 'ar';
 
   const service = getServiceById(serviceId || '');
+
+  // Scroll to top when service changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [serviceId]);
 
   if (!service) {
     return (
@@ -67,8 +72,6 @@ const ServiceDetail = () => {
       <div className="fixed top-0 right-0 w-[800px] h-[800px] rounded-full bg-primary/[0.03] blur-[100px] -z-10 pointer-events-none" />
       <div className="fixed bottom-0 left-0 w-[600px] h-[600px] rounded-full bg-accent/[0.03] blur-[100px] -z-10 pointer-events-none" />
       <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] rounded-full bg-primary/[0.02] blur-[120px] -z-10 pointer-events-none" />
-      
-      <Navigation />
       
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 overflow-hidden">
