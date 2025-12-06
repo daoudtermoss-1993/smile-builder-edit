@@ -1,22 +1,25 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EditableText } from "@/components/admin/EditableText";
-import { StackedCardsInteraction } from "@/components/ui/stacked-cards-interaction";
+import { MorphingCardStack, type CardData } from "@/components/ui/morphing-card-stack";
 import { servicesData } from "@/data/servicesData";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 
 export const Services = () => {
   const { language, t } = useLanguage();
   const isRTL = language === 'ar';
+  const navigate = useNavigate();
 
-  const stackedCards = servicesData.slice(0, 3).map(service => ({
-    image: service.image,
-    title: language === 'ar' ? service.titleAr : service.titleEn,
-    description: language === 'ar' ? 'انقر لمعرفة المزيد' : 'Click to learn more',
-    onClick: () => {
-      window.location.href = `/services/${service.id}`;
-    }
-  }));
+  const morphingCards: CardData[] = servicesData.slice(0, 6).map(service => {
+    const Icon = service.icon;
+    return {
+      id: service.id,
+      title: language === 'ar' ? service.titleAr : service.titleEn,
+      description: language === 'ar' ? service.descriptionAr : service.descriptionEn,
+      icon: <Icon className="h-5 w-5" />,
+      onClick: () => navigate(`/services/${service.id}`)
+    };
+  });
   
   return (
     <section id="services" className="vibe-section py-20">
@@ -50,12 +53,12 @@ export const Services = () => {
           </p>
         </div>
 
-        {/* Stacked Cards Feature */}
-        <div className="flex justify-center mb-16 min-h-[450px]">
-          <StackedCardsInteraction 
-            cards={stackedCards}
-            spreadDistance={50}
-            rotationAngle={6}
+        {/* Morphing Card Stack Feature */}
+        <div className="flex justify-center mb-16">
+          <MorphingCardStack 
+            cards={morphingCards}
+            defaultLayout="stack"
+            className="w-full max-w-md"
           />
         </div>
         
