@@ -46,6 +46,9 @@ export const useDynamicContent = <T extends DynamicContentItem>(
 
   // Save content to database
   const saveContent = async (newItems: T[]) => {
+    // Update local state immediately for responsive UI
+    setItems(newItems);
+    
     try {
       // First, get existing content
       const { data: existingData } = await supabase
@@ -67,12 +70,19 @@ export const useDynamicContent = <T extends DynamicContentItem>(
           onConflict: "section_key"
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error saving dynamic content:", error);
+        // Revert to previous state on error
+        await loadContent();
+        toast.error("Erreur lors de la sauvegarde - vérifiez que vous êtes connecté en tant qu'admin");
+        return;
+      }
       
-      setItems(newItems);
       toast.success("Contenu mis à jour");
     } catch (error) {
       console.error("Error saving dynamic content:", error);
+      // Revert to previous state on error
+      await loadContent();
       toast.error("Erreur lors de la sauvegarde");
     }
   };
