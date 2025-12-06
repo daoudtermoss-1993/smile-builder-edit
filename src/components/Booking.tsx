@@ -183,7 +183,7 @@ export const Booking = () => {
           transition={{ duration: 0.8, delay: 0.2 }}
         >
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 gap-4 md:gap-6">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">{language === 'ar' ? 'الاسم الكامل *' : 'Full Name *'}</label>
                 <Input 
@@ -236,10 +236,10 @@ export const Booking = () => {
               </Select>
             </div>
             
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 gap-4 md:gap-6">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">{language === 'ar' ? 'اختر التاريخ *' : 'Select Date *'}</label>
-                <div className="flex justify-center">
+                <div className="flex justify-center overflow-x-auto">
                   <Calendar
                     mode="single"
                     selected={selectedDate}
@@ -248,7 +248,7 @@ export const Booking = () => {
                       const day = date.getDay();
                       return day === 0 || day === 6 || date < new Date();
                     }}
-                    className="rounded-md border border-primary/20 bg-background/50"
+                    className="rounded-md border border-primary/20 bg-background/50 w-full max-w-[300px]"
                   />
                 </div>
               </div>
