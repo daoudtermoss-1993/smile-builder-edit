@@ -80,7 +80,7 @@ export const About = ({
               <EditableText 
                 sectionKey="about" 
                 field="description" 
-                defaultValue={description}
+                defaultValue={language === 'ar' ? 'مع سنوات من الخبرة في طب الأسنان التجميلي والترميمي، الدكتور يوسف جيرمان ملتزم بتقديم رعاية أسنان استثنائية في بيئة مريحة وترحيبية. تجمع عيادتنا بين أحدث التقنيات واللمسة الشخصية لضمان أفضل النتائج الممكنة لابتسامتك.' : description}
                 as="span"
               />
             </p>
