@@ -4,6 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { ChevronLeft, ChevronRight, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EditableText } from "@/components/admin/EditableText";
+import { motion } from "framer-motion";
 
 interface BeforeAfterImage {
   before: string;
@@ -47,14 +48,12 @@ const ImageComparisonSlider = ({ before, after, title }: { before: string; after
         onTouchMove={handleMove}
         onClick={handleMove}
       >
-        {/* After Image */}
         <img
           src={after}
           alt={`${title} - After`}
           className="absolute inset-0 w-full h-full object-cover"
         />
         
-        {/* Before Image with Clip */}
         <div
           className="absolute inset-0 w-full h-full overflow-hidden"
           style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
@@ -66,7 +65,6 @@ const ImageComparisonSlider = ({ before, after, title }: { before: string; after
           />
         </div>
 
-        {/* Slider Line */}
         <div
           className="absolute top-0 bottom-0 w-1 bg-primary cursor-col-resize"
           style={{ left: `${sliderPosition}%` }}
@@ -77,7 +75,6 @@ const ImageComparisonSlider = ({ before, after, title }: { before: string; after
           </div>
         </div>
 
-        {/* Labels */}
         <div className="absolute top-4 left-4 bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium">
           Before
         </div>
@@ -142,11 +139,26 @@ export const BeforeAfter = () => {
   };
 
   return (
-    <section className="vibe-section py-20 px-4 bg-gradient-to-b from-background to-muted/20">
-      <div className="container mx-auto max-w-7xl">
+    <section className="py-24 overflow-hidden">
+      <div className="container mx-auto max-w-7xl px-4">
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-vibe-cyan bg-clip-text text-transparent">
+        <motion.div 
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8 }}
+        >
+          <motion.div 
+            className="inline-block px-6 py-2 glass-teal rounded-full mb-6"
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <span className="text-sm font-semibold text-primary">Results</span>
+          </motion.div>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
             <EditableText 
               sectionKey="gallery" 
               field="title" 
@@ -162,25 +174,43 @@ export const BeforeAfter = () => {
               as="span"
             />
           </p>
-        </div>
+        </motion.div>
 
         {/* Before/After Gallery */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.6 }}
+        >
           {beforeAfterImages.map((item, index) => (
-            <div key={index} className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+            <motion.div 
+              key={index}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: index * 0.15 }}
+            >
               <ImageComparisonSlider
                 before={item.before}
                 after={item.after}
                 title={item.title}
               />
               <p className="text-sm text-muted-foreground text-center mt-2">{item.description}</p>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {/* Testimonials Section */}
-        <div className="max-w-4xl mx-auto">
-          <h3 className="text-3xl font-bold text-center mb-12">
+        <motion.div 
+          className="max-w-4xl mx-auto"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
+          <h3 className="text-3xl font-bold text-center mb-12 text-foreground">
             {t("patientTestimonials")}
           </h3>
           
@@ -237,7 +267,7 @@ export const BeforeAfter = () => {
               </div>
             </CardContent>
           </Card>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

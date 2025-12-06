@@ -4,6 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { VoiceAssistant } from "@/components/VoiceAssistant";
 import { EditableText } from "@/components/admin/EditableText";
+import { motion } from "framer-motion";
 
 interface ContactMapProps {
   address: string;
@@ -15,11 +16,32 @@ interface ContactMapProps {
 export const ContactMap = ({ address, phone, email, hours }: ContactMapProps) => {
   const { t } = useLanguage();
   const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
+
+  const contactItems = [
+    { icon: MapPin, label: t('address'), value: address, isLink: false },
+    { icon: Phone, label: t('phone'), value: phone, isLink: true, href: `tel:${phone}` },
+    { icon: Mail, label: t('email'), value: email, isLink: true, href: `mailto:${email}` },
+  ];
   
   return (
-    <section id="contact" className="vibe-section bg-secondary/30">
+    <section id="contact" className="py-24 overflow-hidden">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
+        <motion.div 
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8 }}
+        >
+          <motion.div 
+            className="inline-block px-6 py-2 glass-teal rounded-full mb-6"
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <span className="text-sm font-semibold text-primary">Contact Us</span>
+          </motion.div>
           <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
             <EditableText 
               sectionKey="contact" 
@@ -36,45 +58,48 @@ export const ContactMap = ({ address, phone, email, hours }: ContactMapProps) =>
               as="span"
             />
           </p>
-        </div>
+        </motion.div>
 
         <div className="grid lg:grid-cols-2 gap-8">
-          <div className="vibe-card space-y-6">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                <MapPin className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-lg mb-2 text-foreground">{t('address')}</h3>
-                <p className="text-muted-foreground">{address}</p>
-              </div>
-            </div>
+          <motion.div 
+            className="vibe-card space-y-6"
+            initial={{ opacity: 0, x: -60 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8 }}
+          >
+            {contactItems.map((item, index) => (
+              <motion.div 
+                key={index}
+                className="flex items-start gap-4"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.1 * index }}
+              >
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                  <item.icon className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg mb-2 text-foreground">{item.label}</h3>
+                  {item.isLink ? (
+                    <a href={item.href} className="text-primary hover:underline link-underline">
+                      {item.value}
+                    </a>
+                  ) : (
+                    <p className="text-muted-foreground">{item.value}</p>
+                  )}
+                </div>
+              </motion.div>
+            ))}
 
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                <Phone className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-lg mb-2 text-foreground">{t('phone')}</h3>
-                <a href={`tel:${phone}`} className="text-primary hover:underline">
-                  {phone}
-                </a>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                <Mail className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-lg mb-2 text-foreground">{t('email')}</h3>
-                <a href={`mailto:${email}`} className="text-primary hover:underline">
-                  {email}
-                </a>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4">
+            <motion.div 
+              className="flex items-start gap-4"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
               <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
                 <Clock className="w-6 h-6 text-primary" />
               </div>
@@ -82,22 +107,28 @@ export const ContactMap = ({ address, phone, email, hours }: ContactMapProps) =>
                 <h3 className="font-semibold text-lg mb-3 text-foreground">{t('hours')}</h3>
                 <div className="space-y-2">
                   <div className="flex justify-between items-center py-1 border-b border-border/50">
-                    <span className="text-sm text-foreground/70">Monday - Friday</span>
+                    <span className="text-sm text-muted-foreground">Monday - Friday</span>
                     <span className="text-sm font-medium text-foreground">09:00 - 17:00</span>
                   </div>
                   <div className="flex justify-between items-center py-1">
-                    <span className="text-sm text-foreground/70">Saturday - Sunday</span>
+                    <span className="text-sm text-muted-foreground">Saturday - Sunday</span>
                     <span className="text-sm font-medium text-destructive">Closed</span>
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="pt-4 border-t border-border">
+            <motion.div 
+              className="pt-4 border-t border-border"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+            >
               <Button 
                 onClick={() => setShowVoiceAssistant(true)}
                 size="lg"
-                className="w-full bg-primary hover:bg-primary/90 text-white"
+                className="w-full bg-primary hover:bg-primary/90 text-white vibe-glow"
               >
                 <Phone className="w-5 h-5 mr-2" />
                 {t('callAIAssistant')}
@@ -105,10 +136,16 @@ export const ContactMap = ({ address, phone, email, hours }: ContactMapProps) =>
               <p className="text-sm text-muted-foreground mt-2 text-center">
                 {t('speakWithAI')}
               </p>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
-          <div className="vibe-card p-0 overflow-hidden h-[500px]">
+          <motion.div 
+            className="vibe-card p-0 overflow-hidden h-[500px]"
+            initial={{ opacity: 0, x: 60 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8 }}
+          >
             <iframe
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d221097.42527267428!2d47.825309!3d29.378586!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3fcf9c5e7b7e2e9d%3A0x4b7b7b7b7b7b7b7b!2sKuwait%20City%2C%20Kuwait!5e0!3m2!1sen!2s!4v1234567890123!5m2!1sen!2s"
               width="100%"
@@ -119,7 +156,7 @@ export const ContactMap = ({ address, phone, email, hours }: ContactMapProps) =>
               referrerPolicy="no-referrer-when-downgrade"
               title="Kuwait Location"
             />
-          </div>
+          </motion.div>
         </div>
       </div>
 
