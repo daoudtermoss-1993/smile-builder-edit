@@ -10,6 +10,7 @@ export interface ServiceDetail {
   fullDescriptionEn: string;
   fullDescriptionAr: string;
   priceRange: string;
+  priceRangeAr: string;
   duration: string;
   durationAr: string;
   benefits: { en: string; ar: string }[];
@@ -33,6 +34,7 @@ export const servicesData: ServiceDetail[] = [
     fullDescriptionEn: "Dental implants are the gold standard for replacing missing teeth. Our advanced implant procedures use titanium posts that fuse with your jawbone, creating a strong foundation for custom-made crowns that look, feel, and function like natural teeth. Dr. Yousif German uses state-of-the-art 3D imaging and guided surgery techniques for precise placement and optimal results.",
     fullDescriptionAr: "زراعة الأسنان هي المعيار الذهبي لاستبدال الأسنان المفقودة. تستخدم إجراءات الزراعة المتقدمة لدينا أعمدة التيتانيوم التي تندمج مع عظم الفك، مما يخلق أساسًا قويًا للتيجان المصنوعة خصيصًا والتي تبدو وتشعر وتعمل مثل الأسنان الطبيعية.",
     priceRange: "800 - 2,500 KWD",
+    priceRangeAr: "800 - 2,500 د.ك",
     duration: "3-6 months",
     durationAr: "3-6 أشهر",
     benefits: [
@@ -61,6 +63,7 @@ export const servicesData: ServiceDetail[] = [
     fullDescriptionEn: "Transform your smile with our comprehensive cosmetic dentistry services. From professional teeth whitening to porcelain veneers and complete Hollywood smile makeovers, we use the latest techniques and materials to create stunning, natural-looking results. Our digital smile design technology allows you to preview your new smile before treatment begins.",
     fullDescriptionAr: "حوّل ابتسامتك مع خدمات طب الأسنان التجميلي الشاملة لدينا. من تبييض الأسنان الاحترافي إلى قشور البورسلين وتحولات ابتسامة هوليوود الكاملة، نستخدم أحدث التقنيات والمواد لإنشاء نتائج مذهلة وطبيعية المظهر.",
     priceRange: "200 - 3,000 KWD",
+    priceRangeAr: "200 - 3,000 د.ك",
     duration: "1-4 weeks",
     durationAr: "1-4 أسابيع",
     benefits: [
@@ -89,6 +92,7 @@ export const servicesData: ServiceDetail[] = [
     fullDescriptionEn: "Achieve the perfectly aligned smile you've always wanted with our orthodontic treatments. We offer traditional braces, ceramic braces, and clear aligners like Invisalign. Our treatment plans are customized using 3D scanning technology to ensure precise, predictable results with maximum comfort.",
     fullDescriptionAr: "احصل على الابتسامة المتناسقة تمامًا التي طالما أردتها مع علاجات تقويم الأسنان لدينا. نقدم التقويم التقليدي والتقويم الخزفي والمحاذيات الشفافة مثل إنفزلاين.",
     priceRange: "500 - 2,000 KWD",
+    priceRangeAr: "500 - 2,000 د.ك",
     duration: "6-24 months",
     durationAr: "6-24 شهر",
     benefits: [
@@ -117,6 +121,7 @@ export const servicesData: ServiceDetail[] = [
     fullDescriptionEn: "Our advanced root canal treatments save teeth that would otherwise need to be extracted. Using modern rotary instruments and apex locators, we ensure thorough cleaning and shaping of the root canal system. With our gentle techniques and effective anesthesia, most patients experience little to no discomfort.",
     fullDescriptionAr: "تنقذ علاجات قناة الجذر المتقدمة لدينا الأسنان التي كانت ستحتاج إلى الخلع. باستخدام الأدوات الدوارة الحديثة ومحددات القمة، نضمن التنظيف والتشكيل الشامل لنظام قناة الجذر.",
     priceRange: "150 - 400 KWD",
+    priceRangeAr: "150 - 400 د.ك",
     duration: "1-2 visits",
     durationAr: "1-2 زيارة",
     benefits: [
@@ -138,6 +143,7 @@ export const servicesData: ServiceDetail[] = [
     fullDescriptionEn: "Prevention is the best medicine. Our comprehensive dental check-ups include thorough cleaning, digital X-rays, oral cancer screening, and personalized hygiene recommendations. Regular visits help catch problems early when they're easier and less expensive to treat.",
     fullDescriptionAr: "الوقاية خير من العلاج. تشمل فحوصاتنا الشاملة للأسنان التنظيف الشامل والأشعة السينية الرقمية وفحص سرطان الفم وتوصيات النظافة الشخصية.",
     priceRange: "30 - 80 KWD",
+    priceRangeAr: "30 - 80 د.ك",
     duration: "30-60 minutes",
     durationAr: "30-60 دقيقة",
     benefits: [
@@ -159,6 +165,7 @@ export const servicesData: ServiceDetail[] = [
     fullDescriptionEn: "Dental emergencies don't wait for convenient hours. Our emergency dental services are available around the clock to handle severe tooth pain, knocked-out teeth, broken restorations, and other urgent dental issues. We prioritize emergency patients to provide rapid relief and treatment.",
     fullDescriptionAr: "حالات الطوارئ لا تنتظر ساعات مناسبة. خدمات طوارئ الأسنان لدينا متاحة على مدار الساعة للتعامل مع آلام الأسنان الشديدة والأسنان المخلوعة والترميمات المكسورة وغيرها من مشاكل الأسنان العاجلة.",
     priceRange: "50 - 300 KWD",
+    priceRangeAr: "50 - 300 د.ك",
     duration: "Same day",
     durationAr: "نفس اليوم",
     benefits: [

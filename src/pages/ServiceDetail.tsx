@@ -99,7 +99,7 @@ const ServiceDetail = () => {
               <div className="flex flex-wrap gap-4 mb-8">
                 <div className="flex items-center gap-2 bg-card/50 backdrop-blur px-4 py-2 rounded-full border border-border">
                   <DollarSign className="h-5 w-5 text-primary" />
-                  <span className="font-semibold">{service.priceRange}</span>
+                  <span className="font-semibold">{language === 'ar' ? service.priceRangeAr : service.priceRange}</span>
                 </div>
                 <div className="flex items-center gap-2 bg-card/50 backdrop-blur px-4 py-2 rounded-full border border-border">
                   <Clock className="h-5 w-5 text-primary" />
