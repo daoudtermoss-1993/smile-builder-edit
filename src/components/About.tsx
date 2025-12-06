@@ -23,7 +23,7 @@ export const About = ({
   const { language } = useLanguage();
   
   return (
-    <section className="py-24 overflow-hidden">
+    <section className="py-16 overflow-hidden">
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-2 gap-16 items-center">
           <motion.div 
