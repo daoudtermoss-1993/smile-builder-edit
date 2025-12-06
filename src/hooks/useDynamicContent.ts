@@ -46,6 +46,7 @@ export const useDynamicContent = <T extends DynamicContentItem>(
 
   // Save content to database
   const saveContent = async (newItems: T[]) => {
+    console.log("saveContent called with:", newItems.length, "items");
     // Update local state immediately for responsive UI
     setItems(newItems);
     
@@ -72,15 +73,18 @@ export const useDynamicContent = <T extends DynamicContentItem>(
 
       if (error) {
         console.error("Error saving dynamic content:", error);
+        console.log("Error details:", JSON.stringify(error));
         // Revert to previous state on error
         await loadContent();
         toast.error("Erreur lors de la sauvegarde - vérifiez que vous êtes connecté en tant qu'admin");
         return;
       }
       
+      console.log("Save successful!");
       toast.success("Contenu mis à jour");
     } catch (error) {
       console.error("Error saving dynamic content:", error);
+      console.log("Catch error details:", JSON.stringify(error));
       // Revert to previous state on error
       await loadContent();
       toast.error("Erreur lors de la sauvegarde");
@@ -104,7 +108,11 @@ export const useDynamicContent = <T extends DynamicContentItem>(
 
   // Delete an item
   const deleteItem = (id: string) => {
+    console.log("deleteItem called with id:", id);
+    console.log("Current items:", items);
     const newItems = items.filter(item => item.id !== id);
+    console.log("New items after filter:", newItems);
+    console.log("Items count before:", items.length, "after:", newItems.length);
     saveContent(newItems);
   };
 
