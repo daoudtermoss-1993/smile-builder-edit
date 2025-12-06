@@ -180,7 +180,7 @@ export const Hero = ({
           </button>
           <button 
             onClick={() => scrollToSection('contact')}
-            className="vibe-btn inline-flex items-center justify-center gap-2 bg-white text-primary border border-primary/20 hover:bg-secondary hover:border-primary/40"
+            className="vibe-btn-secondary inline-flex items-center justify-center gap-2"
           >
             <Phone className="h-5 w-5" />
             {t('contactClinic')}
