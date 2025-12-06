@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EditableText } from "@/components/admin/EditableText";
 import { motion } from "framer-motion";
+import { ScrollVelocity } from "@/components/ui/scroll-velocity";
 
 interface BeforeAfterImage {
   before: string;
@@ -203,9 +204,9 @@ export const BeforeAfter = () => {
           ))}
         </motion.div>
 
-        {/* Testimonials Section */}
+        {/* Testimonials Section with Scroll Velocity */}
         <motion.div 
-          className="max-w-4xl mx-auto"
+          className="mt-16"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-50px" }}
@@ -215,59 +216,48 @@ export const BeforeAfter = () => {
             {t("patientTestimonials")}
           </h3>
           
-          <Card className="relative overflow-hidden border-primary/20 bg-card/50 backdrop-blur-sm">
-            <CardContent className="p-8 md:p-12">
-              <Quote className="w-12 h-12 text-primary/20 mb-6" />
-              
-              <div className="min-h-[200px] flex flex-col justify-center">
-                <p className="text-lg md:text-xl text-foreground mb-6 leading-relaxed">
-                  "{testimonials[currentTestimonial].text}"
-                </p>
-                
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-semibold text-lg">{testimonials[currentTestimonial].name}</p>
-                    <p className="text-sm text-muted-foreground">{testimonials[currentTestimonial].treatment}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Navigation Buttons */}
-              <div className="flex items-center justify-center gap-4 mt-8">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={prevTestimonial}
-                  className="rounded-full"
+          {/* Scrolling Testimonials */}
+          <div className="space-y-6">
+            <ScrollVelocity velocity={2} className="py-4">
+              {[...testimonials, ...testimonials].map((testimonial, index) => (
+                <Card 
+                  key={index} 
+                  className="inline-block w-[350px] md:w-[400px] border-primary/20 bg-card/50 backdrop-blur-sm shrink-0"
                 >
-                  <ChevronLeft className="w-5 h-5" />
-                </Button>
-                
-                <div className="flex gap-2">
-                  {testimonials.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentTestimonial(index)}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        index === currentTestimonial
-                          ? "bg-primary w-8"
-                          : "bg-muted-foreground/30"
-                      }`}
-                    />
-                  ))}
-                </div>
-                
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={nextTestimonial}
-                  className="rounded-full"
+                  <CardContent className="p-6">
+                    <Quote className="w-8 h-8 text-primary/30 mb-4" />
+                    <p className="text-sm md:text-base text-foreground mb-4 leading-relaxed normal-case tracking-normal whitespace-normal">
+                      "{testimonial.text}"
+                    </p>
+                    <div className="border-t border-border/50 pt-4">
+                      <p className="font-semibold text-base normal-case tracking-normal">{testimonial.name}</p>
+                      <p className="text-xs text-muted-foreground normal-case tracking-normal">{testimonial.treatment}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </ScrollVelocity>
+            
+            <ScrollVelocity velocity={-2} className="py-4">
+              {[...testimonials, ...testimonials].reverse().map((testimonial, index) => (
+                <Card 
+                  key={index} 
+                  className="inline-block w-[350px] md:w-[400px] border-primary/20 bg-card/50 backdrop-blur-sm shrink-0"
                 >
-                  <ChevronRight className="w-5 h-5" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+                  <CardContent className="p-6">
+                    <Quote className="w-8 h-8 text-primary/30 mb-4" />
+                    <p className="text-sm md:text-base text-foreground mb-4 leading-relaxed normal-case tracking-normal whitespace-normal">
+                      "{testimonial.text}"
+                    </p>
+                    <div className="border-t border-border/50 pt-4">
+                      <p className="font-semibold text-base normal-case tracking-normal">{testimonial.name}</p>
+                      <p className="text-xs text-muted-foreground normal-case tracking-normal">{testimonial.treatment}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </ScrollVelocity>
+          </div>
         </motion.div>
       </div>
     </section>
