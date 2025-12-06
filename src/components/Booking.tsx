@@ -9,8 +9,10 @@ import { Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { EditableText } from "@/components/admin/EditableText";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const Booking = () => {
+  const { language } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [availableSlots, setAvailableSlots] = useState<{ slot_time: string; is_available: boolean }[]>([]);
@@ -159,7 +161,7 @@ export const Booking = () => {
             <EditableText 
               sectionKey="booking" 
               field="badge" 
-              defaultValue="Book Appointment"
+              defaultValue={language === 'ar' ? 'حجز موعد' : 'Book Appointment'}
               className="text-sm font-semibold text-primary"
             />
           </motion.div>
@@ -167,7 +169,7 @@ export const Booking = () => {
             <EditableText 
               sectionKey="booking" 
               field="title" 
-              defaultValue="Schedule Your Visit"
+              defaultValue={language === 'ar' ? 'حدد موعد زيارتك' : 'Schedule Your Visit'}
               as="span"
             />
           </h2>
@@ -183,9 +185,9 @@ export const Booking = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Full Name *</label>
+                <label className="text-sm font-medium text-foreground">{language === 'ar' ? 'الاسم الكامل *' : 'Full Name *'}</label>
                 <Input 
-                  placeholder="Enter your full name" 
+                  placeholder={language === 'ar' ? 'أدخل اسمك الكامل' : 'Enter your full name'}
                   className="bg-background/50 border-primary/20"
                   value={formData.name}
                   onChange={(e) => handleChange("name", e.target.value)}
@@ -194,7 +196,7 @@ export const Booking = () => {
               </div>
               
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Phone Number *</label>
+                <label className="text-sm font-medium text-foreground">{language === 'ar' ? 'رقم الهاتف *' : 'Phone Number *'}</label>
                 <Input 
                   placeholder="+965 XXXX XXXX" 
                   className="bg-background/50 border-primary/20"
@@ -206,10 +208,10 @@ export const Booking = () => {
             </div>
             
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Email *</label>
+              <label className="text-sm font-medium text-foreground">{language === 'ar' ? 'البريد الإلكتروني *' : 'Email *'}</label>
               <Input 
                 type="email" 
-                placeholder="Enter your email" 
+                placeholder={language === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email'}
                 className="bg-background/50 border-primary/20"
                 value={formData.email}
                 onChange={(e) => handleChange("email", e.target.value)}
@@ -218,25 +220,25 @@ export const Booking = () => {
             </div>
             
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Service Needed *</label>
+              <label className="text-sm font-medium text-foreground">{language === 'ar' ? 'الخدمة المطلوبة *' : 'Service Needed *'}</label>
               <Select value={formData.service} onValueChange={(value) => handleChange("service", value)} required>
                 <SelectTrigger className="bg-background/50 border-primary/20">
-                  <SelectValue placeholder="Select a service" />
+                  <SelectValue placeholder={language === 'ar' ? 'اختر خدمة' : 'Select a service'} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="implants">Dental Implants</SelectItem>
-                  <SelectItem value="cosmetic">Cosmetic Dentistry</SelectItem>
-                  <SelectItem value="orthodontics">Orthodontics</SelectItem>
-                  <SelectItem value="root-canal">Root Canal Treatment</SelectItem>
-                  <SelectItem value="cleaning">Cleaning & Check-ups</SelectItem>
-                  <SelectItem value="emergency">Emergency Care</SelectItem>
+                  <SelectItem value="implants">{language === 'ar' ? 'زراعة الأسنان' : 'Dental Implants'}</SelectItem>
+                  <SelectItem value="cosmetic">{language === 'ar' ? 'تجميل الأسنان' : 'Cosmetic Dentistry'}</SelectItem>
+                  <SelectItem value="orthodontics">{language === 'ar' ? 'تقويم الأسنان' : 'Orthodontics'}</SelectItem>
+                  <SelectItem value="root-canal">{language === 'ar' ? 'علاج قناة الجذر' : 'Root Canal Treatment'}</SelectItem>
+                  <SelectItem value="cleaning">{language === 'ar' ? 'تنظيف وفحص' : 'Cleaning & Check-ups'}</SelectItem>
+                  <SelectItem value="emergency">{language === 'ar' ? 'رعاية طوارئ' : 'Emergency Care'}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Select Date *</label>
+                <label className="text-sm font-medium text-foreground">{language === 'ar' ? 'اختر التاريخ *' : 'Select Date *'}</label>
                 <div className="flex justify-center">
                   <Calendar
                     mode="single"
@@ -252,20 +254,20 @@ export const Booking = () => {
               </div>
                 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Select Time *</label>
+                <label className="text-sm font-medium text-foreground">{language === 'ar' ? 'اختر الوقت *' : 'Select Time *'}</label>
                 {!selectedDate ? (
-                  <p className="text-sm text-muted-foreground">Please select a date first</p>
+                  <p className="text-sm text-muted-foreground">{language === 'ar' ? 'يرجى اختيار التاريخ أولاً' : 'Please select a date first'}</p>
                 ) : isLoadingSlots ? (
                   <div className="flex items-center justify-center py-4">
                     <Loader2 className="w-5 h-5 animate-spin" />
                   </div>
                 ) : availableSlots.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No available slots for this date</p>
+                  <p className="text-sm text-muted-foreground">{language === 'ar' ? 'لا توجد مواعيد متاحة لهذا التاريخ' : 'No available slots for this date'}</p>
                 ) : (
                   <>
                     <Select value={formData.time} onValueChange={(value) => handleChange("time", value)}>
                       <SelectTrigger className="bg-background/50 border-primary/20">
-                        <SelectValue placeholder="Choose a time slot" />
+                        <SelectValue placeholder={language === 'ar' ? 'اختر موعداً' : 'Choose a time slot'} />
                       </SelectTrigger>
                       <SelectContent>
                         {availableSlots.map((slot) => (
@@ -279,11 +281,11 @@ export const Booking = () => {
                               <span>{slot.slot_time}</span>
                               {!slot.is_available ? (
                                 <span className="text-xs px-2 py-0.5 rounded-full bg-destructive/20 text-destructive">
-                                  Réservé
+                                  {language === 'ar' ? 'محجوز' : 'Réservé'}
                                 </span>
                               ) : (
                                 <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-600">
-                                  Disponible
+                                  {language === 'ar' ? 'متاح' : 'Disponible'}
                                 </span>
                               )}
                             </span>
@@ -293,7 +295,7 @@ export const Booking = () => {
                     </Select>
                     {availableSlots.every(slot => !slot.is_available) && (
                       <p className="text-sm text-destructive mt-2">
-                        ⚠️ All time slots are fully booked for this date. Please select another date.
+                        ⚠️ {language === 'ar' ? 'جميع المواعيد محجوزة لهذا التاريخ. يرجى اختيار تاريخ آخر.' : 'All time slots are fully booked for this date. Please select another date.'}
                       </p>
                     )}
                   </>
@@ -302,9 +304,9 @@ export const Booking = () => {
             </div>
             
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Additional Notes</label>
+              <label className="text-sm font-medium text-foreground">{language === 'ar' ? 'ملاحظات إضافية' : 'Additional Notes'}</label>
               <Textarea 
-                placeholder="Any additional information or special requirements" 
+                placeholder={language === 'ar' ? 'أي معلومات إضافية أو متطلبات خاصة' : 'Any additional information or special requirements'}
                 rows={4}
                 className="bg-background/50 border-primary/20"
                 value={formData.notes}
@@ -316,10 +318,10 @@ export const Booking = () => {
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Sending...
+                  {language === 'ar' ? 'جاري الإرسال...' : 'Sending...'}
                 </>
               ) : (
-                "Book Appointment"
+                language === 'ar' ? 'حجز موعد' : 'Book Appointment'
               )}
             </button>
           </form>
