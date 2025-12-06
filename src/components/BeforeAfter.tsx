@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ChevronLeft, ChevronRight, Quote, Star } from "lucide-react";
@@ -6,12 +6,14 @@ import { EditableText } from "@/components/admin/EditableText";
 import { EditableImage } from "@/components/admin/EditableImage";
 import { AddContentButton } from "@/components/admin/AddContentButton";
 import { DeleteContentButton } from "@/components/admin/DeleteContentButton";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { useEditable } from "@/contexts/EditableContext";
 import { useDynamicContent, DynamicContentItem } from "@/hooks/useDynamicContent";
 import { motion } from "framer-motion";
 import { ScrollVelocity } from "@/components/ui/scroll-velocity";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -437,7 +439,7 @@ export const BeforeAfter = () => {
 
       {/* Add Image Dialog */}
       <Dialog open={showAddImageDialog} onOpenChange={setShowAddImageDialog}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Ajouter une comparaison</DialogTitle>
           </DialogHeader>
@@ -462,24 +464,28 @@ export const BeforeAfter = () => {
               value={newImage.descriptionAr}
               onChange={(e) => setNewImage({ ...newImage, descriptionAr: e.target.value })}
             />
-            <Input
-              placeholder="URL image Before"
+            <ImageUploadField
+              label="Image Before (Avant)"
               value={newImage.before}
-              onChange={(e) => setNewImage({ ...newImage, before: e.target.value })}
+              onChange={(url) => setNewImage({ ...newImage, before: url })}
+              placeholder="Téléchargez l'image avant"
             />
-            <Input
-              placeholder="URL image After"
+            <ImageUploadField
+              label="Image After (Après)"
               value={newImage.after}
-              onChange={(e) => setNewImage({ ...newImage, after: e.target.value })}
+              onChange={(url) => setNewImage({ ...newImage, after: url })}
+              placeholder="Téléchargez l'image après"
             />
-            <Button onClick={handleAddImage} className="w-full">Ajouter</Button>
+            <Button onClick={handleAddImage} className="w-full" disabled={!newImage.title || !newImage.before || !newImage.after}>
+              Ajouter
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* Add Testimonial Dialog */}
       <Dialog open={showAddTestimonialDialog} onOpenChange={setShowAddTestimonialDialog}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Ajouter un témoignage</DialogTitle>
           </DialogHeader>
@@ -514,12 +520,15 @@ export const BeforeAfter = () => {
               value={newTestimonial.treatmentAr}
               onChange={(e) => setNewTestimonial({ ...newTestimonial, treatmentAr: e.target.value })}
             />
-            <Input
-              placeholder="URL avatar"
+            <ImageUploadField
+              label="Photo du patient"
               value={newTestimonial.avatar}
-              onChange={(e) => setNewTestimonial({ ...newTestimonial, avatar: e.target.value })}
+              onChange={(url) => setNewTestimonial({ ...newTestimonial, avatar: url })}
+              placeholder="Téléchargez une photo"
             />
-            <Button onClick={handleAddTestimonial} className="w-full">Ajouter</Button>
+            <Button onClick={handleAddTestimonial} className="w-full" disabled={!newTestimonial.name || !newTestimonial.text}>
+              Ajouter
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
