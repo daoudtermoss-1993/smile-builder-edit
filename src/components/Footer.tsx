@@ -69,14 +69,6 @@ export const Footer = () => {
         
         <div className="border-t border-border pt-8 text-center text-muted-foreground">
           <p>&copy; 2024 {doctorName}. {t('allRightsReserved')}</p>
-          <div className="mt-4">
-            <a 
-              href="/auth" 
-              className="text-xs text-muted-foreground/60 hover:text-primary transition-all duration-300 link-underline"
-            >
-              {t('adminLogin')}
-            </a>
-          </div>
         </div>
       </div>
     </footer>
