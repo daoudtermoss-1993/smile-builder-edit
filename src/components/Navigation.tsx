@@ -150,7 +150,7 @@ export const Navigation = () => {
               </svg>
             </motion.div>
             <span className="text-lg font-bold bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent hidden sm:block">
-              Dr. Yousif German
+              {language === 'ar' ? 'د. يوسف جيرمان' : 'Dr. Yousif German'}
             </span>
           </motion.a>
 

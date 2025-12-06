@@ -14,10 +14,14 @@ import { AdminEditToggle } from "@/components/admin/AdminEditToggle";
 import { AdminEditConfirmDialog } from "@/components/admin/AdminEditConfirmDialog";
 import heroImage from "@/assets/dr-yousif-hero.jpg";
 import doctorImage from "@/assets/dr-yousif-hero.jpg";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Index = () => {
+  const { language } = useLanguage();
   useScrollAnimation();
   useVisitorTracking();
+  
+  const doctorName = language === 'ar' ? 'د. يوسف جيرمان' : 'Dr. Yousif German';
   
   return (
     <div className="min-h-screen relative">
@@ -52,17 +56,19 @@ const Index = () => {
       <div id="home">
         <Hero
           backgroundImage={heroImage}
-          title="Dr. Yousif German"
-          subtitle="Advanced dental care with precision and comfort."
-          badge="Dentist"
+          title={doctorName}
+          subtitle={language === 'ar' ? 'رعاية أسنان متقدمة بدقة وراحة.' : 'Advanced dental care with precision and comfort.'}
+          badge={language === 'ar' ? 'طبيب أسنان' : 'Dentist'}
         />
       </div>
       
       <div id="about">
         <About
           doctorImage={doctorImage}
-          doctorName="Dr. Yousif German"
-          description="With years of experience in advanced dentistry, Dr. Yousif German provides comprehensive dental care using the latest technology and techniques. Our clinic in Kuwait is equipped with state-of-the-art facilities to ensure your comfort and safety."
+          doctorName={doctorName}
+          description={language === 'ar' 
+            ? 'مع سنوات من الخبرة في طب الأسنان المتقدم، يوفر د. يوسف جيرمان رعاية شاملة للأسنان باستخدام أحدث التقنيات. عيادتنا في الكويت مجهزة بأحدث المرافق لضمان راحتك وسلامتك.'
+            : 'With years of experience in advanced dentistry, Dr. Yousif German provides comprehensive dental care using the latest technology and techniques. Our clinic in Kuwait is equipped with state-of-the-art facilities to ensure your comfort and safety.'}
           stats={{
             years: "15+",
             patients: "5000+",

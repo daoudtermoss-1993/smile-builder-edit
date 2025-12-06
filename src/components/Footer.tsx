@@ -2,14 +2,15 @@ import { Instagram } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export const Footer = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const doctorName = language === 'ar' ? 'د. يوسف جيرمان' : 'Dr. Yousif German';
   
   return (
     <footer className="bg-secondary/50 border-t border-border py-12">
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-3 gap-8 mb-8">
           <div>
-            <h3 className="text-2xl font-display font-bold mb-4 text-primary">Dr. Yousif German</h3>
+            <h3 className="text-2xl font-display font-bold mb-4 text-primary">{doctorName}</h3>
             <p className="text-muted-foreground">
               {t('footerDescription')}
             </p>
@@ -67,7 +68,7 @@ export const Footer = () => {
         </div>
         
         <div className="border-t border-border pt-8 text-center text-muted-foreground">
-          <p>&copy; 2024 Dr. Yousif German. {t('allRightsReserved')}</p>
+          <p>&copy; 2024 {doctorName}. {t('allRightsReserved')}</p>
           <div className="mt-4">
             <a 
               href="/auth" 

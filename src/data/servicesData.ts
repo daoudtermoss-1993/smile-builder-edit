@@ -32,7 +32,7 @@ export const servicesData: ServiceDetail[] = [
     descriptionEn: "Permanent tooth replacement solutions with natural-looking results",
     descriptionAr: "حلول دائمة لاستبدال الأسنان بنتائج طبيعية المظهر",
     fullDescriptionEn: "Dental implants are the gold standard for replacing missing teeth. Our advanced implant procedures use titanium posts that fuse with your jawbone, creating a strong foundation for custom-made crowns that look, feel, and function like natural teeth. Dr. Yousif German uses state-of-the-art 3D imaging and guided surgery techniques for precise placement and optimal results.",
-    fullDescriptionAr: "زراعة الأسنان هي المعيار الذهبي لاستبدال الأسنان المفقودة. تستخدم إجراءات الزراعة المتقدمة لدينا أعمدة التيتانيوم التي تندمج مع عظم الفك، مما يخلق أساسًا قويًا للتيجان المصنوعة خصيصًا والتي تبدو وتشعر وتعمل مثل الأسنان الطبيعية.",
+    fullDescriptionAr: "زراعة الأسنان هي المعيار الذهبي لاستبدال الأسنان المفقودة. تستخدم إجراءات الزراعة المتقدمة لدينا أعمدة التيتانيوم التي تندمج مع عظم الفك، مما يخلق أساسًا قويًا للتيجان المصنوعة خصيصًا والتي تبدو وتشعر وتعمل مثل الأسنان الطبيعية. يستخدم د. يوسف جيرمان أحدث تقنيات التصوير ثلاثي الأبعاد وتقنيات الجراحة الموجهة للتوضع الدقيق والنتائج المثلى.",
     priceRange: "800 - 2,500 KWD",
     priceRangeAr: "800 - 2,500 د.ك",
     duration: "3-6 months",
