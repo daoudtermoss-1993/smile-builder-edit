@@ -100,41 +100,6 @@ export const Services = () => {
           />
         </motion.div>
         
-        <motion.div 
-          className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-        >
-          {servicesData.map((service, index) => {
-            const Icon = service.icon;
-            return (
-              <motion.div key={index} variants={cardVariants}>
-                <Link 
-                  to={`/services/${service.id}`}
-                  className="group block h-full"
-                >
-                  <div className="vibe-card h-full transition-all duration-300 hover:border-primary/50">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                      <Icon className="h-6 w-6 text-white" />
-                    </div>
-                    <h3 className="text-xl font-display font-semibold mb-3 text-foreground group-hover:text-primary transition-colors">
-                      {language === 'ar' ? service.titleAr : service.titleEn}
-                    </h3>
-                    <p className="text-muted-foreground mb-4">
-                      {language === 'ar' ? service.descriptionAr : service.descriptionEn}
-                    </p>
-                    <div className="flex items-center gap-2 text-primary text-sm font-medium">
-                      {language === 'ar' ? 'اعرف المزيد' : 'Learn more'}
-                      {isRTL ? <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" /> : <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />}
-                    </div>
-                  </div>
-                </Link>
-              </motion.div>
-            );
-          })}
-        </motion.div>
       </div>
     </section>
   );
