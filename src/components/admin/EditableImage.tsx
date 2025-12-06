@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useEditable } from "@/contexts/EditableContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -30,7 +30,7 @@ export const EditableImage = ({
   const [isUploading, setIsUploading] = useState(false);
   const [urlInput, setUrlInput] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  
 
   useEffect(() => {
     loadSectionContent(sectionKey);
@@ -143,32 +143,32 @@ export const EditableImage = ({
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="upload" className="space-y-4">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleFileSelect}
-              className="hidden"
-            />
-            <Button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
-              className="w-full"
-              variant="outline"
-            >
-              {isUploading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Téléchargement...
-                </>
-              ) : (
-                <>
-                  <Upload className="h-4 w-4 mr-2" />
-                  Choisir une image
-                </>
-              )}
-            </Button>
+          <TabsContent value="upload" className="space-y-4 pt-4">
+            <div className="flex flex-col items-center justify-center border-2 border-dashed border-border rounded-lg p-6 hover:border-primary/50 transition-colors">
+              <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+              <p className="text-sm text-muted-foreground mb-4">Glissez une image ou cliquez pour sélectionner</p>
+              <label className="cursor-pointer">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+                <span className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-sm font-medium">
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Téléchargement...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-4 w-4" />
+                      Choisir une image
+                    </>
+                  )}
+                </span>
+              </label>
+            </div>
           </TabsContent>
 
           <TabsContent value="url" className="space-y-4">
