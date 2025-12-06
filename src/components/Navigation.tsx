@@ -4,6 +4,7 @@ import { Menu, X, Globe, Shield } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
+import clinicLogo from "@/assets/clinic-logo.png";
 
 const transition = {
   type: "spring" as const,
@@ -104,54 +105,17 @@ export const Navigation = () => {
           {/* Logo */}
           <motion.a
             href="#home"
-            className="flex items-center gap-3"
-            initial={{ scale: 0.8 }}
-            animate={{ scale: 1 }}
-            whileHover={{ scale: 1.05 }}
+            className="flex items-center"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            whileHover={{ scale: 1.03 }}
             transition={{ duration: 0.3 }}
           >
-            <motion.div
-              className="relative"
-              animate={{ rotateY: [0, 360] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-              style={{ transformStyle: "preserve-3d" }}
-            >
-              <svg
-                width="44"
-                height="44"
-                viewBox="0 0 40 40"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <defs>
-                  <linearGradient id="teal-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="hsl(180, 100%, 35%)" />
-                    <stop offset="100%" stopColor="hsl(180, 100%, 45%)" />
-                  </linearGradient>
-                </defs>
-                <circle cx="20" cy="20" r="18" fill="url(#teal-gradient)" />
-                <path
-                  d="M14 12 C14 12 16 18 20 18 C24 18 26 12 26 12"
-                  stroke="white"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  fill="none"
-                />
-                <path
-                  d="M12 20 C12 20 15 28 20 28 C25 28 28 20 28 20"
-                  stroke="white"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  fill="none"
-                  opacity="0.8"
-                />
-                <circle cx="16" cy="15" r="1.5" fill="white" opacity="0.9" />
-                <circle cx="24" cy="15" r="1.5" fill="white" opacity="0.9" />
-              </svg>
-            </motion.div>
-            <span className="text-lg font-bold bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent hidden sm:block">
-              {language === 'ar' ? 'د. يوسف جيرمان' : 'Dr. Yousif German'}
-            </span>
+            <img
+              src={clinicLogo}
+              alt={language === 'ar' ? 'د. يوسف جيرمان - عيادة أسنان' : 'Dr. Yousif German - Dental Clinic'}
+              className="h-12 sm:h-14 w-auto object-contain drop-shadow-md"
+            />
           </motion.a>
 
           {/* Desktop Navigation */}
