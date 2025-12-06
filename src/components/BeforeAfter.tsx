@@ -213,16 +213,32 @@ export const BeforeAfter = () => {
             />
           </div>
           <div className="flex-1">
-            <p className="font-semibold text-base normal-case tracking-normal">{testimonial.name}</p>
+            <EditableText
+              sectionKey="testimonials"
+              field={`name_${cardIndex}`}
+              defaultValue={testimonial.name}
+              as="p"
+              className="font-semibold text-base normal-case tracking-normal"
+            />
             <div className="flex gap-0.5">{renderStars(testimonial.rating)}</div>
           </div>
           <Quote className="w-8 h-8 text-primary/30" />
         </div>
-        <p className="text-sm md:text-base text-foreground mb-4 leading-relaxed normal-case tracking-normal whitespace-normal">
-          "{testimonial.text}"
-        </p>
+        <EditableText
+          sectionKey="testimonials"
+          field={`text_${cardIndex}`}
+          defaultValue={`"${testimonial.text}"`}
+          as="p"
+          className="text-sm md:text-base text-foreground mb-4 leading-relaxed normal-case tracking-normal whitespace-normal"
+        />
         <div className="border-t border-border/50 pt-3">
-          <p className="text-xs text-muted-foreground normal-case tracking-normal">{testimonial.treatment}</p>
+          <EditableText
+            sectionKey="testimonials"
+            field={`treatment_${cardIndex}`}
+            defaultValue={testimonial.treatment}
+            as="p"
+            className="text-xs text-muted-foreground normal-case tracking-normal"
+          />
         </div>
       </CardContent>
     </Card>

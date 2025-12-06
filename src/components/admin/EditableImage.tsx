@@ -147,7 +147,7 @@ export const EditableImage = ({
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md z-[9999]">
           <DialogHeader>
             <DialogTitle>Modifier l'image</DialogTitle>
           </DialogHeader>

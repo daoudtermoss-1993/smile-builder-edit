@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, ArrowRight, Clock, DollarSign, CheckCircle, Calendar } from "lucide-react";
 import { InteractiveImageAccordion, type AccordionItemData } from "@/components/ui/interactive-image-accordion";
-
+import { EditableText } from "@/components/admin/EditableText";
+import { EditableImage } from "@/components/admin/EditableImage";
 const ServiceDetail = () => {
   const { serviceId } = useParams<{ serviceId: string }>();
   const { language } = useLanguage();
@@ -99,20 +100,41 @@ const ServiceDetail = () => {
                 <Icon className="h-8 w-8 text-white" />
               </div>
               <h1 className="text-4xl md:text-5xl font-display font-bold mb-4 bg-gradient-vibe bg-clip-text text-transparent">
-                {language === 'ar' ? service.titleAr : service.titleEn}
+                <EditableText
+                  sectionKey={`service-${serviceId}`}
+                  field="title"
+                  defaultValue={language === 'ar' ? service.titleAr : service.titleEn}
+                  as="span"
+                />
               </h1>
               <p className="text-xl text-foreground/80 mb-8">
-                {language === 'ar' ? service.fullDescriptionAr : service.fullDescriptionEn}
+                <EditableText
+                  sectionKey={`service-${serviceId}`}
+                  field="description"
+                  defaultValue={language === 'ar' ? service.fullDescriptionAr : service.fullDescriptionEn}
+                  as="span"
+                />
               </p>
               
               <div className="flex flex-wrap gap-4 mb-8">
                 <div className="flex items-center gap-2 bg-card/50 backdrop-blur px-4 py-2 rounded-full border border-border">
                   <DollarSign className="h-5 w-5 text-primary" />
-                  <span className="font-semibold">{language === 'ar' ? service.priceRangeAr : service.priceRange}</span>
+                  <EditableText
+                    sectionKey={`service-${serviceId}`}
+                    field="price"
+                    defaultValue={language === 'ar' ? service.priceRangeAr : service.priceRange}
+                    as="span"
+                    className="font-semibold"
+                  />
                 </div>
                 <div className="flex items-center gap-2 bg-card/50 backdrop-blur px-4 py-2 rounded-full border border-border">
                   <Clock className="h-5 w-5 text-primary" />
-                  <span>{language === 'ar' ? service.durationAr : service.duration}</span>
+                  <EditableText
+                    sectionKey={`service-${serviceId}`}
+                    field="duration"
+                    defaultValue={language === 'ar' ? service.durationAr : service.duration}
+                    as="span"
+                  />
                 </div>
               </div>
 
@@ -128,10 +150,11 @@ const ServiceDetail = () => {
 
             <div className="relative">
               <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl">
-                <img 
-                  src={service.image} 
+                <EditableImage
+                  sectionKey={`service-${serviceId}`}
+                  field="image"
+                  defaultSrc={service.image}
                   alt={language === 'ar' ? service.titleAr : service.titleEn}
-                  className="w-full h-full object-cover"
                 />
               </div>
               <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-gradient-vibe rounded-2xl opacity-20 blur-2xl" />
@@ -145,16 +168,25 @@ const ServiceDetail = () => {
       <section className="py-20 bg-white/50 backdrop-blur-sm">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-display font-bold mb-12 text-center">
-            {language === 'ar' ? 'فوائد العلاج' : 'Treatment Benefits'}
+            <EditableText
+              sectionKey={`service-${serviceId}`}
+              field="benefits_title"
+              defaultValue={language === 'ar' ? 'فوائد العلاج' : 'Treatment Benefits'}
+              as="span"
+            />
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {service.benefits.map((benefit, index) => (
               <Card key={index} className="bg-card/50 backdrop-blur border-border hover:border-primary/50 transition-colors">
                 <CardContent className="p-6 flex items-start gap-4">
                   <CheckCircle className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-                  <span className="text-foreground">
-                    {language === 'ar' ? benefit.ar : benefit.en}
-                  </span>
+                  <EditableText
+                    sectionKey={`service-${serviceId}`}
+                    field={`benefit_${index}`}
+                    defaultValue={language === 'ar' ? benefit.ar : benefit.en}
+                    as="span"
+                    className="text-foreground"
+                  />
                 </CardContent>
               </Card>
             ))}
@@ -167,29 +199,48 @@ const ServiceDetail = () => {
         <section className="py-20">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-display font-bold mb-12 text-center">
-              {language === 'ar' ? 'قبل وبعد' : 'Before & After'}
+              <EditableText
+                sectionKey={`service-${serviceId}`}
+                field="beforeafter_title"
+                defaultValue={language === 'ar' ? 'قبل وبعد' : 'Before & After'}
+                as="span"
+              />
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {service.beforeAfterImages.map((item, index) => (
                 <Card key={index} className="overflow-hidden">
                   <div className="grid grid-cols-2">
-                    <div className="relative">
-                      <img src={item.before} alt="Before" className="w-full h-48 object-cover" />
-                      <span className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                    <div className="relative h-48">
+                      <EditableImage
+                        sectionKey={`service-${serviceId}`}
+                        field={`before_${index}`}
+                        defaultSrc={item.before}
+                        alt="Before"
+                      />
+                      <span className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded z-10">
                         {language === 'ar' ? 'قبل' : 'Before'}
                       </span>
                     </div>
-                    <div className="relative">
-                      <img src={item.after} alt="After" className="w-full h-48 object-cover" />
-                      <span className="absolute bottom-2 right-2 bg-primary text-white text-xs px-2 py-1 rounded">
+                    <div className="relative h-48">
+                      <EditableImage
+                        sectionKey={`service-${serviceId}`}
+                        field={`after_${index}`}
+                        defaultSrc={item.after}
+                        alt="After"
+                      />
+                      <span className="absolute bottom-2 right-2 bg-primary text-white text-xs px-2 py-1 rounded z-10">
                         {language === 'ar' ? 'بعد' : 'After'}
                       </span>
                     </div>
                   </div>
                   <CardContent className="p-4">
-                    <p className="text-sm text-muted-foreground text-center">
-                      {language === 'ar' ? item.captionAr : item.captionEn}
-                    </p>
+                    <EditableText
+                      sectionKey={`service-${serviceId}`}
+                      field={`caption_${index}`}
+                      defaultValue={language === 'ar' ? item.captionAr : item.captionEn}
+                      as="p"
+                      className="text-sm text-muted-foreground text-center"
+                    />
                   </CardContent>
                 </Card>
               ))}
@@ -218,12 +269,22 @@ const ServiceDetail = () => {
       <section className="py-20">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-display font-bold mb-4">
-            {language === 'ar' ? 'هل أنت مستعد للبدء؟' : 'Ready to Get Started?'}
+            <EditableText
+              sectionKey={`service-${serviceId}`}
+              field="cta_title"
+              defaultValue={language === 'ar' ? 'هل أنت مستعد للبدء؟' : 'Ready to Get Started?'}
+              as="span"
+            />
           </h2>
           <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-            {language === 'ar' 
-              ? 'احجز موعدك اليوم واحصل على استشارة مجانية مع الدكتور يوسف جيرمان'
-              : 'Book your appointment today and get a free consultation with Dr. Yousif German'}
+            <EditableText
+              sectionKey={`service-${serviceId}`}
+              field="cta_description"
+              defaultValue={language === 'ar' 
+                ? 'احجز موعدك اليوم واحصل على استشارة مجانية مع الدكتور يوسف جيرمان'
+                : 'Book your appointment today and get a free consultation with Dr. Yousif German'}
+              as="span"
+            />
           </p>
           <Button 
             onClick={scrollToBooking}
