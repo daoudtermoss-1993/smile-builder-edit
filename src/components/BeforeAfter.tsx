@@ -289,8 +289,9 @@ export const BeforeAfter = () => {
   };
 
   const handleDeleteTestimonial = (id: string) => {
+    console.log("handleDeleteTestimonial called with id:", id);
     deleteTestimonial(id);
-    toast.success("Témoignage supprimé", { duration: 4000 });
+    // Toast is now handled by useDynamicContent hook
   };
 
   const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => (
