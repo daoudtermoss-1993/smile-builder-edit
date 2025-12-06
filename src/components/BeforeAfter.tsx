@@ -425,20 +425,30 @@ export const BeforeAfter = () => {
             </div>
           )}
           
-          {/* Scrolling Testimonials */}
-          <div className="space-y-6">
-            <ScrollVelocity velocity={2} paused={isPaused} className="py-4">
-              {[...testimonials, ...testimonials].map((testimonial, index) => (
-                <TestimonialCard key={`${testimonial.id}-${index}`} testimonial={testimonial} />
+          {/* Testimonials Display - Grid in edit mode, Scrolling otherwise */}
+          {isEditMode ? (
+            /* Static Grid for Edit Mode - easier to click delete buttons */
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {testimonials.map((testimonial) => (
+                <TestimonialCard key={testimonial.id} testimonial={testimonial} />
               ))}
-            </ScrollVelocity>
-            
-            <ScrollVelocity velocity={-2} paused={isPaused} className="py-4">
-              {[...testimonials, ...testimonials].reverse().map((testimonial, index) => (
-                <TestimonialCard key={`${testimonial.id}-rev-${index}`} testimonial={testimonial} />
-              ))}
-            </ScrollVelocity>
-          </div>
+            </div>
+          ) : (
+            /* Scrolling Testimonials for normal view */
+            <div className="space-y-6">
+              <ScrollVelocity velocity={2} paused={isPaused} className="py-4">
+                {[...testimonials, ...testimonials].map((testimonial, index) => (
+                  <TestimonialCard key={`${testimonial.id}-${index}`} testimonial={testimonial} />
+                ))}
+              </ScrollVelocity>
+              
+              <ScrollVelocity velocity={-2} paused={isPaused} className="py-4">
+                {[...testimonials, ...testimonials].reverse().map((testimonial, index) => (
+                  <TestimonialCard key={`${testimonial.id}-rev-${index}`} testimonial={testimonial} />
+                ))}
+              </ScrollVelocity>
+            </div>
+          )}
         </motion.div>
       </div>
 
