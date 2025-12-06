@@ -34,25 +34,27 @@ export const Navigation = () => {
               <a
                 key={link.href}
                 href={link.href}
-                className="text-foreground hover:text-primary transition-colors font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all hover:after:w-full"
+                className="text-foreground hover:text-primary transition-all duration-300 font-medium relative group"
               >
-                {t(link.key)}
+                <span className="relative z-10">{t(link.key)}</span>
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-primary/50 transition-all duration-300 group-hover:w-full" />
+                <span className="absolute inset-0 bg-primary/5 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300 -z-10" />
               </a>
             ))}
             {isAdmin && (
               <Link
                 to="/admin"
-                className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors font-medium"
+                className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 hover:scale-105 hover:shadow-lg transition-all duration-300 font-medium group"
               >
-                <Shield className="w-4 h-4" />
+                <Shield className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300" />
                 Admin
               </Link>
             )}
             <button 
               onClick={toggleLanguage}
-              className="flex items-center gap-2 px-4 py-2 bg-secondary rounded-full border border-border hover:bg-muted transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-secondary rounded-full border border-border hover:bg-muted hover:border-primary/30 hover:scale-105 transition-all duration-300 group"
             >
-              <Globe className="w-4 h-4 text-primary" />
+              <Globe className="w-4 h-4 text-primary group-hover:rotate-180 transition-transform duration-500" />
               <span className="text-sm text-foreground font-medium">
                 {language === 'en' ? 'العربية' : 'English'}
               </span>
