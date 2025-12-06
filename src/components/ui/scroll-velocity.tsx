@@ -9,10 +9,11 @@ interface ScrollVelocityProps extends React.HTMLAttributes<HTMLDivElement> {
   velocity: number
   movable?: boolean
   clamp?: boolean
+  paused?: boolean
 }
 
 const ScrollVelocity = React.forwardRef<HTMLDivElement, ScrollVelocityProps>(
-  ({ children, velocity = 5, movable = true, clamp = false, className, ...props }, ref) => {
+  ({ children, velocity = 5, movable = true, clamp = false, paused = false, className, ...props }, ref) => {
     const baseX = useMotionValue(0)
     const { scrollY } = useScroll()
     const scrollVelocity = useVelocity(scrollY)
@@ -30,6 +31,7 @@ const ScrollVelocity = React.forwardRef<HTMLDivElement, ScrollVelocityProps>(
     const scrollThreshold = React.useRef<number>(5)
 
     useAnimationFrame((t, delta) => {
+      if (paused) return
       if (movable) {
         move(delta)
       } else {
