@@ -2,52 +2,134 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ChevronLeft, ChevronRight, Quote, Star } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { EditableText } from "@/components/admin/EditableText";
 import { EditableImage } from "@/components/admin/EditableImage";
+import { AddContentButton } from "@/components/admin/AddContentButton";
+import { DeleteContentButton } from "@/components/admin/DeleteContentButton";
 import { useEditable } from "@/contexts/EditableContext";
+import { useDynamicContent, DynamicContentItem } from "@/hooks/useDynamicContent";
 import { motion } from "framer-motion";
 import { ScrollVelocity } from "@/components/ui/scroll-velocity";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
-interface BeforeAfterImage {
+interface BeforeAfterImage extends DynamicContentItem {
   before: string;
   after: string;
   title: string;
+  titleAr: string;
   description: string;
+  descriptionAr: string;
 }
 
-interface Testimonial {
+interface Testimonial extends DynamicContentItem {
   name: string;
+  nameAr: string;
   text: string;
+  textAr: string;
   treatment: string;
+  treatmentAr: string;
   avatar: string;
   rating: number;
 }
 
+const defaultBeforeAfterImages: BeforeAfterImage[] = [
+  {
+    id: "1",
+    before: "https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=800&auto=format&fit=crop",
+    after: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=800&auto=format&fit=crop",
+    title: "Teeth Whitening",
+    titleAr: "تبييض الأسنان",
+    description: "Professional whitening treatment",
+    descriptionAr: "علاج تبييض احترافي"
+  },
+  {
+    id: "2",
+    before: "https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=800&auto=format&fit=crop",
+    after: "https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=800&auto=format&fit=crop",
+    title: "Dental Implants",
+    titleAr: "زراعة الأسنان",
+    description: "Complete dental restoration",
+    descriptionAr: "ترميم الأسنان الكامل"
+  },
+  {
+    id: "3",
+    before: "https://images.unsplash.com/photo-1598256989800-fe5f95da9787?w=800&auto=format&fit=crop",
+    after: "https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=800&auto=format&fit=crop",
+    title: "Veneers",
+    titleAr: "قشور الأسنان",
+    description: "Porcelain veneer transformation",
+    descriptionAr: "تحول قشور البورسلين"
+  }
+];
+
+const defaultTestimonials: Testimonial[] = [
+  {
+    id: "1",
+    name: "Sarah Ahmed",
+    nameAr: "سارة أحمد",
+    text: "Dr. Yousif transformed my smile completely. The results are amazing!",
+    textAr: "غيّر الدكتور يوسف ابتسامتي تماماً. النتائج مذهلة!",
+    treatment: "Teeth Whitening",
+    treatmentAr: "تبييض الأسنان",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
+    rating: 5
+  },
+  {
+    id: "2",
+    name: "Mohammed Ali",
+    nameAr: "محمد علي",
+    text: "Professional service and excellent results. Highly recommended!",
+    textAr: "خدمة احترافية ونتائج ممتازة. أنصح به بشدة!",
+    treatment: "Dental Implants",
+    treatmentAr: "زراعة الأسنان",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
+    rating: 5
+  },
+  {
+    id: "3",
+    name: "Fatima Hassan",
+    nameAr: "فاطمة حسن",
+    text: "The best dental experience I've ever had. Thank you Dr. Yousif!",
+    textAr: "أفضل تجربة طب أسنان مررت بها. شكراً دكتور يوسف!",
+    treatment: "Veneers",
+    treatmentAr: "قشور الأسنان",
+    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
+    rating: 5
+  },
+  {
+    id: "4",
+    name: "Noura Al-Sabah",
+    nameAr: "نورة الصباح",
+    text: "Amazing experience! Dr. Yousif is very professional.",
+    textAr: "تجربة رائعة! الدكتور يوسف محترف جداً.",
+    treatment: "Orthodontics",
+    treatmentAr: "تقويم الأسنان",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face",
+    rating: 5
+  }
+];
+
 const ImageComparisonSlider = ({ 
-  before, 
-  after, 
-  title, 
+  item,
   language,
-  index 
+  onDelete,
+  onUpdate
 }: { 
-  before: string; 
-  after: string; 
-  title: string; 
+  item: BeforeAfterImage;
   language: string;
-  index: number;
+  onDelete: () => void;
+  onUpdate: (updates: Partial<BeforeAfterImage>) => void;
 }) => {
   const [sliderPosition, setSliderPosition] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
-  const { isEditMode, getSectionContent, loadSectionContent } = useEditable();
-
-  useEffect(() => {
-    loadSectionContent("gallery");
-  }, [loadSectionContent]);
-
-  const sectionContent = getSectionContent("gallery");
-  const beforeSrc = sectionContent[`before_${index}`] || before;
-  const afterSrc = sectionContent[`after_${index}`] || after;
+  const { isEditMode } = useEditable();
 
   const handleMove = (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
     if (!isDragging && e.type !== 'click') return;
@@ -61,22 +143,32 @@ const ImageComparisonSlider = ({
     setSliderPosition(percentage);
   };
 
+  const title = language === 'ar' ? item.titleAr : item.title;
+  const description = language === 'ar' ? item.descriptionAr : item.description;
+
   return (
     <div className="relative">
-      {/* Editable Image Buttons - Outside slider */}
+      {/* Delete button */}
+      {isEditMode && (
+        <div className="absolute -top-2 -right-2 z-20">
+          <DeleteContentButton onConfirm={onDelete} itemName="cette comparaison" />
+        </div>
+      )}
+
+      {/* Editable Image Buttons */}
       {isEditMode && (
         <div className="flex justify-center gap-4 mb-3">
           <EditableImage
-            sectionKey="gallery"
-            field={`before_${index}`}
-            defaultSrc={before}
+            sectionKey={`gallery_${item.id}`}
+            field="before"
+            defaultSrc={item.before}
             alt={`${title} - Before`}
             label={language === 'ar' ? 'تعديل قبل' : 'Edit Before'}
           />
           <EditableImage
-            sectionKey="gallery"
-            field={`after_${index}`}
-            defaultSrc={after}
+            sectionKey={`gallery_${item.id}`}
+            field="after"
+            defaultSrc={item.after}
             alt={`${title} - After`}
             label={language === 'ar' ? 'تعديل بعد' : 'Edit After'}
           />
@@ -96,7 +188,7 @@ const ImageComparisonSlider = ({
       >
         {/* After image (background) */}
         <img
-          src={afterSrc}
+          src={item.after}
           alt={`${title} - After`}
           className="absolute inset-0 w-full h-full object-cover"
         />
@@ -107,7 +199,7 @@ const ImageComparisonSlider = ({
           style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
         >
           <img
-            src={beforeSrc}
+            src={item.before}
             alt={`${title} - Before`}
             className="absolute inset-0 w-full h-full object-cover"
           />
@@ -133,87 +225,56 @@ const ImageComparisonSlider = ({
         </div>
       </div>
       <h3 className="mt-4 text-lg font-semibold text-center">{title}</h3>
+      <p className="text-sm text-muted-foreground text-center mt-2">{description}</p>
     </div>
   );
 };
 
 export const BeforeAfter = () => {
   const { t, language } = useLanguage();
-  const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const { isEditMode } = useEditable();
   const [isPaused, setIsPaused] = useState(false);
+  const [showAddImageDialog, setShowAddImageDialog] = useState(false);
+  const [showAddTestimonialDialog, setShowAddTestimonialDialog] = useState(false);
+  const [newImage, setNewImage] = useState({ title: "", titleAr: "", description: "", descriptionAr: "", before: "", after: "" });
+  const [newTestimonial, setNewTestimonial] = useState({ name: "", nameAr: "", text: "", textAr: "", treatment: "", treatmentAr: "", avatar: "" });
 
-  const beforeAfterImages: BeforeAfterImage[] = [
-    {
-      before: "https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=800&auto=format&fit=crop",
-      after: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=800&auto=format&fit=crop",
-      title: t("teethWhitening"),
-      description: t("teethWhiteningDesc")
-    },
-    {
-      before: "https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=800&auto=format&fit=crop",
-      after: "https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=800&auto=format&fit=crop",
-      title: t("dentalImplants"),
-      description: t("dentalImplantsDesc")
-    },
-    {
-      before: "https://images.unsplash.com/photo-1598256989800-fe5f95da9787?w=800&auto=format&fit=crop",
-      after: "https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=800&auto=format&fit=crop",
-      title: t("veneers"),
-      description: t("veneersDesc")
+  const {
+    items: beforeAfterImages,
+    addItem: addImage,
+    updateItem: updateImage,
+    deleteItem: deleteImage,
+  } = useDynamicContent<BeforeAfterImage>("gallery", "images", defaultBeforeAfterImages);
+
+  const {
+    items: testimonials,
+    addItem: addTestimonial,
+    updateItem: updateTestimonial,
+    deleteItem: deleteTestimonial,
+  } = useDynamicContent<Testimonial>("testimonials", "items", defaultTestimonials);
+
+  const handleAddImage = () => {
+    if (newImage.title && newImage.before && newImage.after) {
+      addImage({
+        ...newImage,
+        before: newImage.before || "https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=800",
+        after: newImage.after || "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=800",
+      });
+      setNewImage({ title: "", titleAr: "", description: "", descriptionAr: "", before: "", after: "" });
+      setShowAddImageDialog(false);
     }
-  ];
-
-  const testimonials: Testimonial[] = [
-    {
-      name: t("testimonial1Name"),
-      text: t("testimonial1Text"),
-      treatment: t("teethWhitening"),
-      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
-      rating: 5
-    },
-    {
-      name: t("testimonial2Name"),
-      text: t("testimonial2Text"),
-      treatment: t("dentalImplants"),
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
-      rating: 5
-    },
-    {
-      name: t("testimonial3Name"),
-      text: t("testimonial3Text"),
-      treatment: t("veneers"),
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
-      rating: 5
-    },
-    {
-      name: language === 'ar' ? "نورة الصباح" : "Noura Al-Sabah",
-      text: language === 'ar' ? "تجربة رائعة! الدكتور يوسف محترف جداً والنتيجة أفضل مما توقعت." : "Amazing experience! Dr. Yousif is very professional and the result exceeded my expectations.",
-      treatment: language === 'ar' ? "تقويم الأسنان" : "Orthodontics",
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face",
-      rating: 5
-    },
-    {
-      name: language === 'ar' ? "عبدالله المطيري" : "Abdullah Al-Mutairi",
-      text: language === 'ar' ? "أفضل عيادة أسنان في الكويت. العناية والاهتمام بالتفاصيل لا مثيل لهما." : "Best dental clinic in Kuwait. The care and attention to detail is unmatched.",
-      treatment: language === 'ar' ? "زراعة الأسنان" : "Dental Implants",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-      rating: 5
-    },
-    {
-      name: language === 'ar' ? "مريم الفهد" : "Mariam Al-Fahad",
-      text: language === 'ar' ? "ابتسامتي الجديدة غيرت حياتي! شكراً دكتور يوسف على العمل الرائع." : "My new smile changed my life! Thank you Dr. Yousif for the amazing work.",
-      treatment: language === 'ar' ? "تبييض الأسنان" : "Teeth Whitening",
-      avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=face",
-      rating: 5
-    }
-  ];
-
-  const nextTestimonial = () => {
-    setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
   };
 
-  const prevTestimonial = () => {
-    setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  const handleAddTestimonial = () => {
+    if (newTestimonial.name && newTestimonial.text) {
+      addTestimonial({
+        ...newTestimonial,
+        avatar: newTestimonial.avatar || "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100",
+        rating: 5,
+      });
+      setNewTestimonial({ name: "", nameAr: "", text: "", textAr: "", treatment: "", treatmentAr: "", avatar: "" });
+      setShowAddTestimonialDialog(false);
+    }
   };
 
   const renderStars = (rating: number) => {
@@ -225,50 +286,37 @@ export const BeforeAfter = () => {
     ));
   };
 
-  const TestimonialCard = ({ testimonial, cardIndex }: { testimonial: Testimonial; cardIndex: number }) => (
+  const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => (
     <Card 
-      className="inline-block w-[350px] md:w-[400px] border-primary/20 bg-card/50 backdrop-blur-sm shrink-0 transition-transform duration-300 hover:scale-105"
+      className="relative inline-block w-[350px] md:w-[400px] border-primary/20 bg-card/50 backdrop-blur-sm shrink-0 transition-transform duration-300 hover:scale-105"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
+      {isEditMode && (
+        <div className="absolute -top-2 -right-2 z-20">
+          <DeleteContentButton onConfirm={() => deleteTestimonial(testimonial.id)} itemName="ce témoignage" />
+        </div>
+      )}
       <CardContent className="p-6">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary/30">
-            <EditableImage
-              sectionKey="testimonials"
-              field={`avatar_${cardIndex}`}
-              defaultSrc={testimonial.avatar}
-              alt={testimonial.name}
-              className="rounded-full"
-            />
+            <img src={testimonial.avatar} alt={testimonial.name} className="w-full h-full object-cover" />
           </div>
           <div className="flex-1">
-            <EditableText
-              sectionKey="testimonials"
-              field={`name_${cardIndex}`}
-              defaultValue={testimonial.name}
-              as="p"
-              className="font-semibold text-base normal-case tracking-normal"
-            />
+            <p className="font-semibold text-base">
+              {language === 'ar' ? testimonial.nameAr : testimonial.name}
+            </p>
             <div className="flex gap-0.5">{renderStars(testimonial.rating)}</div>
           </div>
           <Quote className="w-8 h-8 text-primary/30" />
         </div>
-        <EditableText
-          sectionKey="testimonials"
-          field={`text_${cardIndex}`}
-          defaultValue={`"${testimonial.text}"`}
-          as="p"
-          className="text-sm md:text-base text-foreground mb-4 leading-relaxed normal-case tracking-normal whitespace-normal"
-        />
+        <p className="text-sm md:text-base text-foreground mb-4 leading-relaxed">
+          "{language === 'ar' ? testimonial.textAr : testimonial.text}"
+        </p>
         <div className="border-t border-border/50 pt-3">
-          <EditableText
-            sectionKey="testimonials"
-            field={`treatment_${cardIndex}`}
-            defaultValue={testimonial.treatment}
-            as="p"
-            className="text-xs text-muted-foreground normal-case tracking-normal"
-          />
+          <p className="text-xs text-muted-foreground">
+            {language === 'ar' ? testimonial.treatmentAr : testimonial.treatment}
+          </p>
         </div>
       </CardContent>
     </Card>
@@ -314,7 +362,7 @@ export const BeforeAfter = () => {
 
         {/* Before/After Gallery */}
         <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true, margin: "-50px" }}
@@ -322,25 +370,33 @@ export const BeforeAfter = () => {
         >
           {beforeAfterImages.map((item, index) => (
             <motion.div 
-              key={index}
+              key={item.id}
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.15 }}
             >
               <ImageComparisonSlider
-                before={item.before}
-                after={item.after}
-                title={item.title}
+                item={item}
                 language={language}
-                index={index}
+                onDelete={() => deleteImage(item.id)}
+                onUpdate={(updates) => updateImage(item.id, updates)}
               />
-              <p className="text-sm text-muted-foreground text-center mt-2">{item.description}</p>
             </motion.div>
           ))}
         </motion.div>
 
-        {/* Testimonials Section with Scroll Velocity */}
+        {/* Add Image Button */}
+        {isEditMode && (
+          <div className="flex justify-center mb-20">
+            <AddContentButton 
+              onClick={() => setShowAddImageDialog(true)} 
+              label={language === 'ar' ? 'إضافة مقارنة جديدة' : 'Add New Comparison'}
+            />
+          </div>
+        )}
+
+        {/* Testimonials Section */}
         <motion.div 
           className="mt-16"
           initial={{ opacity: 0, y: 40 }}
@@ -352,22 +408,121 @@ export const BeforeAfter = () => {
             {t("patientTestimonials")}
           </h3>
           
+          {/* Add Testimonial Button */}
+          {isEditMode && (
+            <div className="flex justify-center mb-8">
+              <AddContentButton 
+                onClick={() => setShowAddTestimonialDialog(true)} 
+                label={language === 'ar' ? 'إضافة شهادة جديدة' : 'Add New Testimonial'}
+              />
+            </div>
+          )}
+          
           {/* Scrolling Testimonials */}
           <div className="space-y-6">
             <ScrollVelocity velocity={2} paused={isPaused} className="py-4">
               {[...testimonials, ...testimonials].map((testimonial, index) => (
-                <TestimonialCard key={index} testimonial={testimonial} cardIndex={index % testimonials.length} />
+                <TestimonialCard key={`${testimonial.id}-${index}`} testimonial={testimonial} />
               ))}
             </ScrollVelocity>
             
             <ScrollVelocity velocity={-2} paused={isPaused} className="py-4">
               {[...testimonials, ...testimonials].reverse().map((testimonial, index) => (
-                <TestimonialCard key={index} testimonial={testimonial} cardIndex={index % testimonials.length} />
+                <TestimonialCard key={`${testimonial.id}-rev-${index}`} testimonial={testimonial} />
               ))}
             </ScrollVelocity>
           </div>
         </motion.div>
       </div>
+
+      {/* Add Image Dialog */}
+      <Dialog open={showAddImageDialog} onOpenChange={setShowAddImageDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Ajouter une comparaison</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input
+              placeholder="Titre (EN)"
+              value={newImage.title}
+              onChange={(e) => setNewImage({ ...newImage, title: e.target.value })}
+            />
+            <Input
+              placeholder="Titre (AR)"
+              value={newImage.titleAr}
+              onChange={(e) => setNewImage({ ...newImage, titleAr: e.target.value })}
+            />
+            <Input
+              placeholder="Description (EN)"
+              value={newImage.description}
+              onChange={(e) => setNewImage({ ...newImage, description: e.target.value })}
+            />
+            <Input
+              placeholder="Description (AR)"
+              value={newImage.descriptionAr}
+              onChange={(e) => setNewImage({ ...newImage, descriptionAr: e.target.value })}
+            />
+            <Input
+              placeholder="URL image Before"
+              value={newImage.before}
+              onChange={(e) => setNewImage({ ...newImage, before: e.target.value })}
+            />
+            <Input
+              placeholder="URL image After"
+              value={newImage.after}
+              onChange={(e) => setNewImage({ ...newImage, after: e.target.value })}
+            />
+            <Button onClick={handleAddImage} className="w-full">Ajouter</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Testimonial Dialog */}
+      <Dialog open={showAddTestimonialDialog} onOpenChange={setShowAddTestimonialDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Ajouter un témoignage</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input
+              placeholder="Nom (EN)"
+              value={newTestimonial.name}
+              onChange={(e) => setNewTestimonial({ ...newTestimonial, name: e.target.value })}
+            />
+            <Input
+              placeholder="Nom (AR)"
+              value={newTestimonial.nameAr}
+              onChange={(e) => setNewTestimonial({ ...newTestimonial, nameAr: e.target.value })}
+            />
+            <Input
+              placeholder="Témoignage (EN)"
+              value={newTestimonial.text}
+              onChange={(e) => setNewTestimonial({ ...newTestimonial, text: e.target.value })}
+            />
+            <Input
+              placeholder="Témoignage (AR)"
+              value={newTestimonial.textAr}
+              onChange={(e) => setNewTestimonial({ ...newTestimonial, textAr: e.target.value })}
+            />
+            <Input
+              placeholder="Traitement (EN)"
+              value={newTestimonial.treatment}
+              onChange={(e) => setNewTestimonial({ ...newTestimonial, treatment: e.target.value })}
+            />
+            <Input
+              placeholder="Traitement (AR)"
+              value={newTestimonial.treatmentAr}
+              onChange={(e) => setNewTestimonial({ ...newTestimonial, treatmentAr: e.target.value })}
+            />
+            <Input
+              placeholder="URL avatar"
+              value={newTestimonial.avatar}
+              onChange={(e) => setNewTestimonial({ ...newTestimonial, avatar: e.target.value })}
+            />
+            <Button onClick={handleAddTestimonial} className="w-full">Ajouter</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };
