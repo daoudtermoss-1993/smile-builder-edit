@@ -288,35 +288,40 @@ export const BeforeAfter = () => {
     ));
   };
 
+  const handleDeleteTestimonial = (id: string) => {
+    deleteTestimonial(id);
+    toast.success("Témoignage supprimé", { duration: 4000 });
+  };
+
   const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => (
     <Card 
-      className="relative inline-block w-[350px] md:w-[400px] border-primary/20 bg-card/50 backdrop-blur-sm shrink-0 transition-transform duration-300 hover:scale-105"
+      className="relative inline-block w-[280px] sm:w-[350px] md:w-[400px] min-h-[200px] border-primary/20 bg-card/50 backdrop-blur-sm shrink-0 transition-transform duration-300 hover:scale-105 overflow-hidden"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
       {isEditMode && (
         <div className="absolute -top-2 -right-2 z-20">
-          <DeleteContentButton onConfirm={() => deleteTestimonial(testimonial.id)} itemName="ce témoignage" />
+          <DeleteContentButton onConfirm={() => handleDeleteTestimonial(testimonial.id)} itemName="ce témoignage" />
         </div>
       )}
-      <CardContent className="p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary/30">
+      <CardContent className="p-4 sm:p-6 h-full">
+        <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-primary/30 shrink-0">
             <img src={testimonial.avatar} alt={testimonial.name} className="w-full h-full object-cover" />
           </div>
-          <div className="flex-1">
-            <p className="font-semibold text-base">
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-sm sm:text-base truncate">
               {language === 'ar' ? testimonial.nameAr : testimonial.name}
             </p>
             <div className="flex gap-0.5">{renderStars(testimonial.rating)}</div>
           </div>
-          <Quote className="w-8 h-8 text-primary/30" />
+          <Quote className="w-6 h-6 sm:w-8 sm:h-8 text-primary/30 shrink-0" />
         </div>
-        <p className="text-sm md:text-base text-foreground mb-4 leading-relaxed">
+        <p className="text-xs sm:text-sm md:text-base text-foreground mb-3 sm:mb-4 leading-relaxed line-clamp-4 overflow-hidden">
           "{language === 'ar' ? testimonial.textAr : testimonial.text}"
         </p>
-        <div className="border-t border-border/50 pt-3">
-          <p className="text-xs text-muted-foreground">
+        <div className="border-t border-border/50 pt-2 sm:pt-3">
+          <p className="text-xs text-muted-foreground truncate">
             {language === 'ar' ? testimonial.treatmentAr : testimonial.treatment}
           </p>
         </div>
