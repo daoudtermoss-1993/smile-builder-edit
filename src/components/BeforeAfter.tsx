@@ -295,7 +295,7 @@ export const BeforeAfter = () => {
 
   const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => (
     <Card 
-      className="relative inline-block w-[280px] sm:w-[350px] md:w-[400px] min-h-[200px] border-primary/20 bg-card/50 backdrop-blur-sm shrink-0 transition-transform duration-300 hover:scale-105 overflow-hidden"
+      className="relative inline-block w-[280px] sm:w-[350px] md:w-[400px] min-h-[200px] border-primary/20 bg-card/50 backdrop-blur-sm shrink-0 overflow-hidden"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
