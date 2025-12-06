@@ -14,11 +14,11 @@ interface ContactMapProps {
 }
 
 export const ContactMap = ({ address, phone, email, hours }: ContactMapProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
 
   const contactItems = [
-    { icon: MapPin, label: t('address'), value: address, isLink: false },
+    { icon: MapPin, label: t('address'), value: language === 'ar' ? 'مدينة الكويت، الكويت' : address, isLink: false },
     { icon: Phone, label: t('phone'), value: phone, isLink: true, href: `tel:${phone}` },
     { icon: Mail, label: t('email'), value: email, isLink: true, href: `mailto:${email}` },
   ];
@@ -33,15 +33,6 @@ export const ContactMap = ({ address, phone, email, hours }: ContactMapProps) =>
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.8 }}
         >
-          <motion.div 
-            className="inline-block px-6 py-2 glass-teal rounded-full mb-6"
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <span className="text-sm font-semibold text-primary">Contact Us</span>
-          </motion.div>
           <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
             <EditableText 
               sectionKey="contact" 
@@ -104,15 +95,15 @@ export const ContactMap = ({ address, phone, email, hours }: ContactMapProps) =>
                 <Clock className="w-6 h-6 text-primary" />
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-lg mb-3 text-foreground">{t('hours')}</h3>
+                <h3 className="font-semibold text-lg mb-3 text-foreground">{language === 'ar' ? 'ساعات العمل' : t('hours')}</h3>
                 <div className="space-y-2">
                   <div className="flex justify-between items-center py-1 border-b border-border/50">
-                    <span className="text-sm text-muted-foreground">Monday - Friday</span>
+                    <span className="text-sm text-muted-foreground">{language === 'ar' ? 'الإثنين - الجمعة' : 'Monday - Friday'}</span>
                     <span className="text-sm font-medium text-foreground">09:00 - 17:00</span>
                   </div>
                   <div className="flex justify-between items-center py-1">
-                    <span className="text-sm text-muted-foreground">Saturday - Sunday</span>
-                    <span className="text-sm font-medium text-destructive">Closed</span>
+                    <span className="text-sm text-muted-foreground">{language === 'ar' ? 'السبت - الأحد' : 'Saturday - Sunday'}</span>
+                    <span className="text-sm font-medium text-destructive">{language === 'ar' ? 'مغلق' : 'Closed'}</span>
                   </div>
                 </div>
               </div>
