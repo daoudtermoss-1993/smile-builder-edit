@@ -101,35 +101,70 @@ export function MorphingCardStack({
 
   const displayCards = layout === "stack" ? getStackOrder() : cards.map((c, i) => ({ ...c, stackPosition: i }))
 
+  // Enhanced spring configs for different animations
+  const containerSpring = {
+    type: "spring" as const,
+    stiffness: 200,
+    damping: 30,
+    mass: 1,
+  }
+
+  const cardSpring = {
+    type: "spring" as const,
+    stiffness: 400,
+    damping: 35,
+    mass: 0.8,
+  }
+
+  const staggerDelay = 0.05
+
   return (
     <div className={cn("space-y-4", className)}>
-      {/* Layout Toggle */}
-      <div className="flex items-center justify-center gap-1 rounded-lg bg-secondary/50 p-1 w-fit mx-auto">
+      {/* Layout Toggle with animated indicator */}
+      <motion.div 
+        className="flex items-center justify-center gap-1 rounded-lg bg-secondary/50 p-1 w-fit mx-auto backdrop-blur-sm"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
         {(Object.keys(layoutIcons) as LayoutMode[]).map((mode) => {
           const Icon = layoutIcons[mode]
           return (
-            <button
+            <motion.button
               key={mode}
               onClick={() => setLayout(mode)}
               className={cn(
-                "rounded-md p-2 transition-all",
+                "relative rounded-md p-2 transition-colors",
                 layout === mode
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-secondary",
+                  ? "text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
               aria-label={`Switch to ${mode} layout`}
             >
-              <Icon className="h-4 w-4" />
-            </button>
+              {layout === mode && (
+                <motion.div
+                  layoutId="activeLayoutBg"
+                  className="absolute inset-0 bg-primary rounded-md"
+                  transition={containerSpring}
+                />
+              )}
+              <Icon className="h-4 w-4 relative z-10" />
+            </motion.button>
           )
         })}
-      </div>
+      </motion.div>
 
-      {/* Cards Container */}
+      {/* Cards Container with layout animation */}
       <LayoutGroup>
-        <motion.div layout className={cn(containerStyles[layout], "mx-auto")}>
+        <motion.div 
+          layout
+          transition={containerSpring}
+          className={cn(containerStyles[layout], "mx-auto")}
+        >
           <AnimatePresence mode="popLayout">
-            {displayCards.map((card) => {
+            {displayCards.map((card, index) => {
               const styles = getLayoutStyles(card.stackPosition)
               const isExpanded = expandedCard === card.id
               const isTopCard = layout === "stack" && card.stackPosition === 0
@@ -138,25 +173,35 @@ export function MorphingCardStack({
                 <motion.div
                   key={card.id}
                   layoutId={card.id}
-                  initial={{ opacity: 0, scale: 0.8 }}
+                  initial={{ opacity: 0, scale: 0.8, y: 20 }}
                   animate={{
                     opacity: 1,
                     scale: isExpanded ? 1.05 : 1,
+                    y: 0,
                     x: 0,
                     ...styles,
                   }}
-                  exit={{ opacity: 0, scale: 0.8, x: -200 }}
+                  exit={{ 
+                    opacity: 0, 
+                    scale: 0.8, 
+                    x: -100,
+                    transition: { duration: 0.2 }
+                  }}
                   transition={{
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 25,
+                    ...cardSpring,
+                    delay: layout !== "stack" ? index * staggerDelay : 0,
                   }}
                   drag={isTopCard ? "x" : false}
                   dragConstraints={{ left: 0, right: 0 }}
                   dragElastic={0.7}
                   onDragStart={() => setIsDragging(true)}
                   onDragEnd={handleDragEnd}
-                  whileDrag={{ scale: 1.02, cursor: "grabbing" }}
+                  whileHover={{ 
+                    scale: isExpanded ? 1.05 : 1.02,
+                    boxShadow: "0 10px 30px -10px hsl(var(--primary) / 0.3)",
+                    transition: { duration: 0.2 }
+                  }}
+                  whileDrag={{ scale: 1.05, cursor: "grabbing" }}
                   onClick={() => {
                     if (isDragging) return
                     setExpandedCard(isExpanded ? null : card.id)
@@ -164,27 +209,36 @@ export function MorphingCardStack({
                     onCardClick?.(card)
                   }}
                   className={cn(
-                    "cursor-pointer rounded-xl border border-border bg-card p-4",
+                    "cursor-pointer rounded-xl border border-border bg-card p-4 shadow-sm",
                     "hover:border-primary/50 transition-colors",
                     layout === "stack" && "absolute w-56 h-48",
                     layout === "stack" && isTopCard && "cursor-grab active:cursor-grabbing",
                     layout === "grid" && "w-full aspect-square",
                     layout === "list" && "w-full",
-                    isExpanded && "ring-2 ring-primary",
+                    isExpanded && "ring-2 ring-primary ring-offset-2 ring-offset-background",
                   )}
                   style={{
                     backgroundColor: card.color || undefined,
                   }}
                 >
-                  <div className="flex items-start gap-3">
+                  <motion.div 
+                    className="flex items-start gap-3"
+                    initial={false}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.1 }}
+                  >
                     {card.icon && (
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <motion.div 
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"
+                        whileHover={{ rotate: [0, -10, 10, 0], transition: { duration: 0.4 } }}
+                      >
                         {card.icon}
-                      </div>
+                      </motion.div>
                     )}
                     <div className="min-w-0 flex-1">
                       <h3 className="font-semibold text-card-foreground truncate">{card.title}</h3>
-                      <p
+                      <motion.p
+                        layout
                         className={cn(
                           "text-sm text-muted-foreground mt-1",
                           layout === "stack" && "line-clamp-3",
@@ -193,14 +247,19 @@ export function MorphingCardStack({
                         )}
                       >
                         {card.description}
-                      </p>
+                      </motion.p>
                     </div>
-                  </div>
+                  </motion.div>
 
                   {isTopCard && (
-                    <div className="absolute bottom-2 left-0 right-0 text-center">
+                    <motion.div 
+                      className="absolute bottom-2 left-0 right-0 text-center"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.3 }}
+                    >
                       <span className="text-xs text-muted-foreground/50">Swipe to navigate</span>
-                    </div>
+                    </motion.div>
                   )}
                 </motion.div>
               )
@@ -209,21 +268,36 @@ export function MorphingCardStack({
         </motion.div>
       </LayoutGroup>
 
-      {layout === "stack" && cards.length > 1 && (
-        <div className="flex justify-center gap-1.5">
-          {cards.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setActiveIndex(index)}
-              className={cn(
-                "h-1.5 rounded-full transition-all",
-                index === activeIndex ? "w-4 bg-primary" : "w-1.5 bg-muted-foreground/30 hover:bg-muted-foreground/50",
-              )}
-              aria-label={`Go to card ${index + 1}`}
-            />
-          ))}
-        </div>
-      )}
+      {/* Animated pagination dots */}
+      <AnimatePresence>
+        {layout === "stack" && cards.length > 1 && (
+          <motion.div 
+            className="flex justify-center gap-1.5"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.2 }}
+          >
+            {cards.map((_, index) => (
+              <motion.button
+                key={index}
+                onClick={() => setActiveIndex(index)}
+                className={cn(
+                  "h-1.5 rounded-full transition-colors",
+                  index === activeIndex ? "bg-primary" : "bg-muted-foreground/30 hover:bg-muted-foreground/50",
+                )}
+                animate={{ 
+                  width: index === activeIndex ? 16 : 6,
+                }}
+                whileHover={{ scale: 1.2 }}
+                whileTap={{ scale: 0.9 }}
+                transition={cardSpring}
+                aria-label={`Go to card ${index + 1}`}
+              />
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
