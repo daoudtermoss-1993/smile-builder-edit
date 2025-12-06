@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { EditableText } from "@/components/admin/EditableText";
+import { motion } from "framer-motion";
 
 export const Booking = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,13 +54,11 @@ export const Booking = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Basic validation
     if (!formData.name || !formData.phone || !formData.email || !formData.service || !selectedDate || !formData.time) {
       toast.error("Please fill in all required fields");
       return;
     }
 
-    // SECURITY: Validate input with zod schema
     try {
       const { appointmentSchema } = await import('@/lib/validation');
       const validationResult = appointmentSchema.safeParse({
@@ -78,7 +77,6 @@ export const Booking = () => {
       return;
     }
 
-    // Check if selected time slot is still available
     const selectedSlot = availableSlots.find(slot => slot.slot_time === formData.time);
     if (!selectedSlot || !selectedSlot.is_available) {
       toast.error("Sorry, this time slot is no longer available. Please select another time.");
@@ -118,13 +116,11 @@ export const Booking = () => {
           return;
         }
 
-        // Unknown error from the booking function – let the catch block handle it
         throw error;
       }
 
       toast.success("Appointment request sent! We'll contact you shortly via WhatsApp.");
       
-      // Reset form
       setFormData({
         name: "",
         phone: "",
@@ -144,18 +140,30 @@ export const Booking = () => {
   };
 
   return (
-    <section className="vibe-section py-20">
+    <section className="py-24 overflow-hidden">
       <div className="container mx-auto px-4 max-w-4xl">
-        <div className="text-center mb-12">
-          <div className="inline-block px-6 py-2 bg-gradient-card backdrop-blur-xl rounded-full border border-primary/30 mb-6">
+        <motion.div 
+          className="text-center mb-12"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8 }}
+        >
+          <motion.div 
+            className="inline-block px-6 py-2 glass-teal rounded-full mb-6"
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
             <EditableText 
               sectionKey="booking" 
               field="badge" 
               defaultValue="Book Appointment"
-              className="text-sm font-semibold bg-gradient-vibe bg-clip-text text-transparent"
+              className="text-sm font-semibold text-primary"
             />
-          </div>
-          <h2 className="text-4xl md:text-5xl font-display font-bold mb-4 bg-gradient-vibe bg-clip-text text-transparent">
+          </motion.div>
+          <h2 className="text-4xl md:text-5xl font-display font-bold mb-4 text-foreground">
             <EditableText 
               sectionKey="booking" 
               field="title" 
@@ -163,9 +171,15 @@ export const Booking = () => {
               as="span"
             />
           </h2>
-        </div>
+        </motion.div>
         
-        <div className="vibe-card">
+        <motion.div 
+          className="vibe-card"
+          initial={{ opacity: 0, y: 60 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
@@ -221,71 +235,70 @@ export const Booking = () => {
             </div>
             
             <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Select Date *</label>
-              <div className="flex justify-center">
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={setSelectedDate}
-                  disabled={(date) => {
-                    const day = date.getDay();
-                    // Disable Saturday (6) and Sunday (0) - closed days
-                    return day === 0 || day === 6 || date < new Date();
-                  }}
-                  className="rounded-md border border-primary/20 bg-background/50"
-                />
-              </div>
-            </div>
-              
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Select Time *</label>
-              {!selectedDate ? (
-                <p className="text-sm text-muted-foreground">Please select a date first</p>
-              ) : isLoadingSlots ? (
-                <div className="flex items-center justify-center py-4">
-                  <Loader2 className="w-5 h-5 animate-spin" />
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Select Date *</label>
+                <div className="flex justify-center">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    disabled={(date) => {
+                      const day = date.getDay();
+                      return day === 0 || day === 6 || date < new Date();
+                    }}
+                    className="rounded-md border border-primary/20 bg-background/50"
+                  />
                 </div>
-              ) : availableSlots.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No available slots for this date</p>
-              ) : (
-                <>
-                  <Select value={formData.time} onValueChange={(value) => handleChange("time", value)}>
-                    <SelectTrigger className="bg-background/50 border-primary/20">
-                      <SelectValue placeholder="Choose a time slot" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableSlots.map((slot) => (
-                        <SelectItem 
-                          key={slot.slot_time} 
-                          value={slot.slot_time}
-                          disabled={!slot.is_available}
-                          className={!slot.is_available ? "opacity-50" : ""}
-                        >
-                          <span className="flex items-center justify-between w-full gap-2">
-                            <span>{slot.slot_time}</span>
-                            {!slot.is_available ? (
-                              <span className="text-xs px-2 py-0.5 rounded-full bg-destructive/20 text-destructive">
-                                Réservé
-                              </span>
-                            ) : (
-                              <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-600">
-                                Disponible
-                              </span>
-                            )}
-                          </span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {availableSlots.every(slot => !slot.is_available) && (
-                    <p className="text-sm text-destructive mt-2">
-                      ⚠️ All time slots are fully booked for this date. Please select another date.
-                    </p>
-                  )}
-                </>
-              )}
-            </div>
+              </div>
+                
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Select Time *</label>
+                {!selectedDate ? (
+                  <p className="text-sm text-muted-foreground">Please select a date first</p>
+                ) : isLoadingSlots ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  </div>
+                ) : availableSlots.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No available slots for this date</p>
+                ) : (
+                  <>
+                    <Select value={formData.time} onValueChange={(value) => handleChange("time", value)}>
+                      <SelectTrigger className="bg-background/50 border-primary/20">
+                        <SelectValue placeholder="Choose a time slot" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableSlots.map((slot) => (
+                          <SelectItem 
+                            key={slot.slot_time} 
+                            value={slot.slot_time}
+                            disabled={!slot.is_available}
+                            className={!slot.is_available ? "opacity-50" : ""}
+                          >
+                            <span className="flex items-center justify-between w-full gap-2">
+                              <span>{slot.slot_time}</span>
+                              {!slot.is_available ? (
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-destructive/20 text-destructive">
+                                  Réservé
+                                </span>
+                              ) : (
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-600">
+                                  Disponible
+                                </span>
+                              )}
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {availableSlots.every(slot => !slot.is_available) && (
+                      <p className="text-sm text-destructive mt-2">
+                        ⚠️ All time slots are fully booked for this date. Please select another date.
+                      </p>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
             
             <div className="space-y-2">
@@ -299,7 +312,7 @@ export const Booking = () => {
               />
             </div>
             
-            <button type="submit" className="vibe-btn w-full" disabled={isSubmitting}>
+            <button type="submit" className="vibe-btn vibe-glow w-full" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -310,7 +323,7 @@ export const Booking = () => {
               )}
             </button>
           </form>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

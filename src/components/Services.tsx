@@ -4,6 +4,7 @@ import { MorphingCardStack, type CardData } from "@/components/ui/morphing-card-
 import { servicesData } from "@/data/servicesData";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, ArrowLeft } from "lucide-react";
+import { motion } from "framer-motion";
 
 export const Services = () => {
   const { language, t } = useLanguage();
@@ -20,20 +21,51 @@ export const Services = () => {
       onClick: () => navigate(`/services/${service.id}`)
     };
   });
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 40 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.6, ease: [0.4, 0, 0.2, 1] as const }
+    }
+  };
   
   return (
-    <section id="services" className="vibe-section py-20">
+    <section id="services" className="py-24 overflow-hidden">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <div className="inline-block px-6 py-2 bg-gradient-card backdrop-blur-xl rounded-full border border-primary/30 mb-6">
+        <motion.div 
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8 }}
+        >
+          <motion.div 
+            className="inline-block px-6 py-2 glass-teal rounded-full mb-6"
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
             <EditableText 
               sectionKey="services" 
               field="badge" 
               defaultValue={t('servicesTitle')}
-              className="text-sm font-semibold bg-gradient-vibe bg-clip-text text-transparent"
+              className="text-sm font-semibold text-primary"
             />
-          </div>
-          <h2 className="text-4xl md:text-5xl font-display font-bold mb-4 bg-gradient-vibe bg-clip-text text-transparent">
+          </motion.div>
+          <h2 className="text-4xl md:text-5xl font-display font-bold mb-4 text-foreground">
             <EditableText 
               sectionKey="services" 
               field="title" 
@@ -41,7 +73,7 @@ export const Services = () => {
               as="span"
             />
           </h2>
-          <p className="text-lg text-foreground/80 max-w-2xl mx-auto">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             <EditableText 
               sectionKey="services" 
               field="subtitle" 
@@ -51,45 +83,58 @@ export const Services = () => {
               as="span"
             />
           </p>
-        </div>
+        </motion.div>
 
         {/* Morphing Card Stack Feature */}
-        <div className="flex justify-center mb-16">
+        <motion.div 
+          className="flex justify-center mb-16"
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
           <MorphingCardStack 
             cards={morphingCards}
             defaultLayout="stack"
             className="w-full max-w-md"
           />
-        </div>
+        </motion.div>
         
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <motion.div 
+          className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+        >
           {servicesData.map((service, index) => {
             const Icon = service.icon;
             return (
-              <Link 
-                key={index} 
-                to={`/services/${service.id}`}
-                className="group"
-              >
-                <div className="vibe-card h-full transition-all duration-300 hover:border-primary/50 hover:shadow-lg">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-vibe flex items-center justify-center mb-4">
-                    <Icon className="h-6 w-6 text-white" />
+              <motion.div key={index} variants={cardVariants}>
+                <Link 
+                  to={`/services/${service.id}`}
+                  className="group block h-full"
+                >
+                  <div className="vibe-card h-full transition-all duration-300 hover:border-primary/50">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                      <Icon className="h-6 w-6 text-white" />
+                    </div>
+                    <h3 className="text-xl font-display font-semibold mb-3 text-foreground group-hover:text-primary transition-colors">
+                      {language === 'ar' ? service.titleAr : service.titleEn}
+                    </h3>
+                    <p className="text-muted-foreground mb-4">
+                      {language === 'ar' ? service.descriptionAr : service.descriptionEn}
+                    </p>
+                    <div className="flex items-center gap-2 text-primary text-sm font-medium">
+                      {language === 'ar' ? 'اعرف المزيد' : 'Learn more'}
+                      {isRTL ? <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" /> : <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />}
+                    </div>
                   </div>
-                  <h3 className="text-xl font-display font-semibold mb-3 text-foreground group-hover:text-primary transition-colors">
-                    {language === 'ar' ? service.titleAr : service.titleEn}
-                  </h3>
-                  <p className="text-foreground/70 mb-4">
-                    {language === 'ar' ? service.descriptionAr : service.descriptionEn}
-                  </p>
-                  <div className="flex items-center gap-2 text-primary text-sm font-medium">
-                    {language === 'ar' ? 'اعرف المزيد' : 'Learn more'}
-                    {isRTL ? <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" /> : <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />}
-                  </div>
-                </div>
-              </Link>
+                </Link>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
