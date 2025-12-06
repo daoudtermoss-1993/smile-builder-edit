@@ -1,11 +1,70 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// URL validation schema with SSRF protection
+const urlSchema = z.string().url().refine((urlString) => {
+  try {
+    const parsed = new URL(urlString);
+    
+    // Only allow HTTPS
+    if (parsed.protocol !== 'https:') {
+      return false;
+    }
+    
+    // Block localhost and common localhost aliases
+    const blockedHosts = [
+      'localhost',
+      '127.0.0.1',
+      '0.0.0.0',
+      '::1',
+      '[::1]',
+    ];
+    if (blockedHosts.includes(parsed.hostname.toLowerCase())) {
+      return false;
+    }
+    
+    // Block private IP ranges
+    const privateRanges = [
+      /^10\./,                          // 10.0.0.0/8
+      /^172\.(1[6-9]|2[0-9]|3[0-1])\./, // 172.16.0.0/12
+      /^192\.168\./,                    // 192.168.0.0/16
+      /^169\.254\./,                    // Link-local
+      /^100\.(6[4-9]|[7-9][0-9]|1[0-2][0-7])\./, // Carrier-grade NAT
+      /^fc[0-9a-f]{2}:/i,               // IPv6 unique local
+      /^fe80:/i,                        // IPv6 link-local
+    ];
+    if (privateRanges.some(regex => regex.test(parsed.hostname))) {
+      return false;
+    }
+    
+    // Block cloud metadata endpoints
+    const metadataHosts = [
+      '169.254.169.254',  // AWS/GCP/Azure metadata
+      'metadata.google.internal',
+      'metadata.google',
+    ];
+    if (metadataHosts.includes(parsed.hostname.toLowerCase())) {
+      return false;
+    }
+    
+    return true;
+  } catch {
+    return false;
+  }
+}, { message: 'Invalid URL or blocked for security reasons. Only HTTPS URLs to public hosts are allowed.' });
+
+const inputSchema = z.object({
+  url: urlSchema,
+  title: z.string().trim().max(500).optional(),
+  metadata: z.record(z.unknown()).optional(),
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -17,9 +76,27 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { url, title, metadata } = await req.json();
+    // Validate and sanitize input
+    const rawInput = await req.json();
+    const validationResult = inputSchema.safeParse(rawInput);
     
-    console.log('Processing URL document:', { url, title });
+    if (!validationResult.success) {
+      console.error('Validation failed:', validationResult.error.flatten());
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid input', 
+          details: validationResult.error.flatten().fieldErrors 
+        }),
+        { 
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+    
+    const { url, title, metadata } = validationResult.data;
+    
+    console.log('Processing URL document:', { url: url.substring(0, 100), title: title?.substring(0, 50) });
 
     // Fetch the web page content with realistic browser headers
     const pageResponse = await fetch(url, {
