@@ -51,9 +51,9 @@ export const ContactMap = ({ address, phone, email, hours }: ContactMapProps) =>
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="grid lg:grid-cols-2 gap-8 items-stretch">
           <motion.div 
-            className="vibe-card space-y-6"
+            className="vibe-card space-y-6 h-full flex flex-col"
             initial={{ opacity: 0, x: -60 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-100px" }}
@@ -110,7 +110,7 @@ export const ContactMap = ({ address, phone, email, hours }: ContactMapProps) =>
             </motion.div>
 
             <motion.div 
-              className="pt-4 border-t border-border"
+              className="pt-4 border-t border-border mt-auto"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -131,7 +131,7 @@ export const ContactMap = ({ address, phone, email, hours }: ContactMapProps) =>
           </motion.div>
 
           <motion.div 
-            className="vibe-card p-0 overflow-hidden h-[500px]"
+            className="vibe-card p-0 overflow-hidden h-full min-h-[400px]"
             initial={{ opacity: 0, x: 60 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-100px" }}
