@@ -562,3 +562,57 @@ html {
     }
   }
 }
+
+/* Mobile & Tablet Responsive Enhancements */
+@media (max-width: 768px) {
+  .vibe-card {
+    padding: 1.25rem;
+    border-radius: 1rem;
+  }
+  
+  .vibe-btn {
+    padding: 0.875rem 1.5rem;
+    font-size: 0.9rem;
+    width: 100%;
+  }
+  
+  .vibe-btn-secondary {
+    padding: 0.875rem 1.5rem;
+    font-size: 0.9rem;
+  }
+  
+  /* Calendar improvements for mobile */
+  .rdp {
+    --rdp-cell-size: 36px !important;
+    font-size: 0.875rem;
+  }
+  
+  .rdp-table {
+    max-width: 100%;
+  }
+  
+  /* Form elements */
+  input, select, textarea {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+  }
+  
+  /* Contact section grid */
+  .grid.lg\\:grid-cols-2 {
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .vibe-card {
+    padding: 1rem;
+  }
+  
+  .rdp {
+    --rdp-cell-size: 32px !important;
+  }
+  
+  /* Stack date and time on very small screens */
+  .grid.md\\:grid-cols-2 {
+    gap: 1rem;
+  }
+}
