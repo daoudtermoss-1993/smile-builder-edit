@@ -211,6 +211,7 @@ const ServiceDetail = () => {
           <InteractiveImageAccordion 
             items={accordionItems} 
             defaultActiveIndex={servicesData.findIndex(s => s.id === serviceId)}
+            onItemClick={(index) => navigate(`/services/${servicesData[index].id}`)}
           />
         </div>
       </section>

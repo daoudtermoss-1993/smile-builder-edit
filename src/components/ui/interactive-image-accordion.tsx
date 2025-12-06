@@ -11,9 +11,10 @@ interface AccordionItemProps {
   item: AccordionItemData;
   isActive: boolean;
   onMouseEnter: () => void;
+  onClick?: () => void;
 }
 
-const AccordionItem = ({ item, isActive, onMouseEnter }: AccordionItemProps) => {
+const AccordionItem = ({ item, isActive, onMouseEnter, onClick }: AccordionItemProps) => {
   return (
     <div
       className={cn(
@@ -22,6 +23,7 @@ const AccordionItem = ({ item, isActive, onMouseEnter }: AccordionItemProps) => 
         isActive ? "w-[280px] md:w-[400px]" : "w-[50px] md:w-[60px]"
       )}
       onMouseEnter={onMouseEnter}
+      onClick={onClick}
     >
       {/* Background Image */}
       <img
@@ -56,12 +58,14 @@ interface InteractiveImageAccordionProps {
   items: AccordionItemData[];
   defaultActiveIndex?: number;
   className?: string;
+  onItemClick?: (index: number, item: AccordionItemData) => void;
 }
 
 export function InteractiveImageAccordion({ 
   items, 
   defaultActiveIndex = 0,
-  className 
+  className,
+  onItemClick
 }: InteractiveImageAccordionProps) {
   const [activeIndex, setActiveIndex] = useState(defaultActiveIndex);
 
@@ -78,6 +82,7 @@ export function InteractiveImageAccordion({
             item={item}
             isActive={index === activeIndex}
             onMouseEnter={() => handleItemHover(index)}
+            onClick={() => onItemClick?.(index, item)}
           />
         ))}
       </div>
