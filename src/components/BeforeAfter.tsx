@@ -19,7 +19,7 @@ interface Testimonial {
   treatment: string;
 }
 
-const ImageComparisonSlider = ({ before, after, title }: { before: string; after: string; title: string }) => {
+const ImageComparisonSlider = ({ before, after, title, language }: { before: string; after: string; title: string; language: string }) => {
   const [sliderPosition, setSliderPosition] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -76,10 +76,10 @@ const ImageComparisonSlider = ({ before, after, title }: { before: string; after
         </div>
 
         <div className="absolute top-4 left-4 bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium">
-          Before
+          {language === 'ar' ? 'قبل' : 'Before'}
         </div>
         <div className="absolute top-4 right-4 bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium">
-          After
+          {language === 'ar' ? 'بعد' : 'After'}
         </div>
       </div>
       <h3 className="mt-4 text-lg font-semibold text-center">{title}</h3>
@@ -88,7 +88,7 @@ const ImageComparisonSlider = ({ before, after, title }: { before: string; after
 };
 
 export const BeforeAfter = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
 
   const beforeAfterImages: BeforeAfterImage[] = [
@@ -156,7 +156,7 @@ export const BeforeAfter = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <span className="text-sm font-semibold text-primary">Results</span>
+            <span className="text-sm font-semibold text-primary">{language === 'ar' ? 'النتائج' : 'Results'}</span>
           </motion.div>
           <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
             <EditableText 
@@ -196,6 +196,7 @@ export const BeforeAfter = () => {
                 before={item.before}
                 after={item.after}
                 title={item.title}
+                language={language}
               />
               <p className="text-sm text-muted-foreground text-center mt-2">{item.description}</p>
             </motion.div>
