@@ -44,12 +44,34 @@ const ServiceDetail = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen relative" dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Global gradient background - same as main page */}
+      <div 
+        className="fixed inset-0 -z-10 pointer-events-none"
+        style={{
+          background: `
+            linear-gradient(180deg, 
+              hsl(180 60% 97%) 0%, 
+              hsl(180 40% 98%) 15%,
+              hsl(0 0% 100%) 30%,
+              hsl(180 30% 98%) 50%,
+              hsl(0 0% 100%) 70%,
+              hsl(180 40% 97%) 85%,
+              hsl(180 50% 96%) 100%
+            )
+          `
+        }}
+      />
+      
+      {/* Decorative gradient orbs */}
+      <div className="fixed top-0 right-0 w-[800px] h-[800px] rounded-full bg-primary/[0.03] blur-[100px] -z-10 pointer-events-none" />
+      <div className="fixed bottom-0 left-0 w-[600px] h-[600px] rounded-full bg-accent/[0.03] blur-[100px] -z-10 pointer-events-none" />
+      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] rounded-full bg-primary/[0.02] blur-[120px] -z-10 pointer-events-none" />
+      
       <Navigation />
       
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-background" />
         <div className="container mx-auto px-4 relative z-10">
           <Link 
             to="/#services" 
@@ -108,7 +130,7 @@ const ServiceDetail = () => {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-20 bg-card/30">
+      <section className="py-20 bg-white/50 backdrop-blur-sm">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-display font-bold mb-12 text-center">
             {language === 'ar' ? 'فوائد العلاج' : 'Treatment Benefits'}
@@ -165,7 +187,7 @@ const ServiceDetail = () => {
       )}
 
       {/* Other Services Section */}
-      <section className="py-20 bg-card/30">
+      <section className="py-20 bg-white/50 backdrop-blur-sm">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-display font-bold mb-4 text-center">
             {language === 'ar' ? 'خدمات أخرى' : 'Other Services'}
