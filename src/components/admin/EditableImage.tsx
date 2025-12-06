@@ -247,21 +247,24 @@ export const EditableImage = ({
           className="w-full h-full object-cover"
         />
         {isEditMode && (
-          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-            <div className="bg-white rounded-full p-3 shadow-lg">
-              <Camera className="h-6 w-6 text-primary" />
+          <>
+            {/* Overlay visible on hover */}
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+              <div className="bg-white rounded-full p-3 shadow-lg">
+                <Camera className="h-6 w-6 text-primary" />
+              </div>
             </div>
-          </div>
-        )}
-        {isEditMode && (
-          <button
-            type="button"
-            onClick={handleImageClick}
-            className="absolute bottom-2 right-2 z-50 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full p-2 shadow-lg transition-all opacity-0 group-hover:opacity-100"
-            title="Modifier l'image"
-          >
-            <Upload className="h-4 w-4" />
-          </button>
+            {/* Edit button always visible in edit mode */}
+            <button
+              type="button"
+              onClick={handleImageClick}
+              className="absolute bottom-3 right-3 z-50 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg px-3 py-2 shadow-lg transition-all flex items-center gap-2 text-sm font-medium"
+              title="Modifier l'image"
+            >
+              <Upload className="h-4 w-4" />
+              Modifier
+            </button>
+          </>
         )}
       </div>
       {renderDialog()}
