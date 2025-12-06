@@ -139,7 +139,7 @@ export const BeforeAfter = () => {
   };
 
   return (
-    <section className="py-24 overflow-hidden">
+    <section className="py-16 overflow-hidden">
       <div className="container mx-auto max-w-7xl px-4">
         {/* Section Header */}
         <motion.div 
