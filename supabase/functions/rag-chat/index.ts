@@ -1,11 +1,21 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const ragChatSchema = z.object({
+  question: z.string().trim().min(1, 'Question is required').max(2000, 'Question too long'),
+  conversationHistory: z.array(z.object({
+    role: z.enum(['user', 'assistant']),
+    content: z.string().max(5000)
+  })).max(20).optional().default([])
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -15,12 +25,64 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    const { question, conversationHistory } = await req.json();
     
-    console.log('RAG Chat question:', question);
+    // Get the JWT token from the request
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ error: 'Authentication required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    // Create client with user's token to verify identity
+    const userSupabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+    
+    // Get the authenticated user
+    const { data: { user }, error: authError } = await userSupabase.auth.getUser();
+    if (authError || !user) {
+      console.error('Auth error:', authError);
+      return new Response(
+        JSON.stringify({ error: 'Invalid authentication token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    // Check if user has admin role using service role client
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    const { data: hasAdminRole, error: roleError } = await supabase
+      .rpc('has_role', { _user_id: user.id, _role: 'admin' });
+    
+    if (roleError || !hasAdminRole) {
+      console.error('Role check failed:', roleError);
+      return new Response(
+        JSON.stringify({ error: 'Admin access required' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate input
+    const rawInput = await req.json();
+    const validationResult = ragChatSchema.safeParse(rawInput);
+    
+    if (!validationResult.success) {
+      console.error('Validation failed:', validationResult.error.flatten());
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid input', 
+          details: validationResult.error.flatten().fieldErrors 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    const { question, conversationHistory } = validationResult.data;
+    
+    console.log('RAG Chat query (admin verified):', question.substring(0, 100));
 
     // Search for relevant documents using full-text search
     const { data: relevantDocs, error: searchError } = await supabase
@@ -60,7 +122,7 @@ INSTRUCTIONS IMPORTANTES:
 CONTEXTE MÉDICAL DISPONIBLE:
 ${context || "Aucun document pertinent trouvé dans la base de connaissances."}`,
       },
-      ...(conversationHistory || []),
+      ...conversationHistory,
       {
         role: 'user',
         content: question,

@@ -3,56 +3,31 @@ project_id = "gpsgswlrgpupmcjrwiec"
 [api]
 enabled = true
 port = 54321
-schemas = ["public", "graphql_public"]
-extra_search_path = ["public", "extensions"]
-max_rows = 1000
-
-[db]
-port = 54322
-shadow_port = 54320
-major_version = 15
-
-[db.pooler]
-enabled = false
-port = 54329
-pool_mode = "transaction"
-default_pool_size = 20
-max_client_conn = 100
-
-[realtime]
-enabled = true
-ip_version = "IPv4"
-port = 54323
-max_header_length = 4096
-
-[studio]
-enabled = true
-port = 54323
-api_url = "http://127.0.0.1"
-openai_api_key = "env(OPENAI_API_KEY)"
-
-[inbucket]
-enabled = true
-port = 54324
-smtp_port = 54325
-pop3_port = 54326
-
-[auth]
-enabled = true
-site_url = "http://127.0.0.1:3000"
-additional_redirect_urls = ["https://127.0.0.1:3000"]
-jwt_expiry = 3600
-enable_signup = true
-
-[edge_runtime]
-enabled = true
-port = 54321
-
-[analytics]
-enabled = false
 
 [functions.send-booking-notification]
 verify_jwt = false
+
+[functions.elevenlabs-session]
+verify_jwt = false
+
+[functions.submit-lead]
+verify_jwt = false
+
+[functions.handle-patient-confirmation]
+verify_jwt = false
+
+[functions.notify-patient-confirmation]
+verify_jwt = false
+
+# Admin-only functions - require JWT authentication
+[functions.process-pdf-document]
+verify_jwt = true
+
+[functions.process-url-document]
+verify_jwt = true
+
+[functions.rag-chat]
+verify_jwt = true
 
 [functions.elevenlabs-session]
 verify_jwt = false
