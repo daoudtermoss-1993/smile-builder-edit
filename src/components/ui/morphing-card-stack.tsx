@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, type ReactNode } from "react"
-import { motion, AnimatePresence, LayoutGroup, type PanInfo } from "framer-motion"
+import { useState, useRef, type ReactNode } from "react"
+import { motion, AnimatePresence, LayoutGroup, type PanInfo, useMotionValue, useSpring, useTransform } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { Grid3X3, Layers, LayoutList } from "lucide-react"
 
@@ -30,6 +30,73 @@ const layoutIcons = {
 }
 
 const SWIPE_THRESHOLD = 50
+
+// 3D Tilt Card wrapper component
+function TiltCard({ 
+  children, 
+  className, 
+  style,
+  ...props 
+}: { 
+  children: React.ReactNode
+  className?: string
+  style?: React.CSSProperties
+  [key: string]: any
+}) {
+  const cardRef = useRef<HTMLDivElement>(null)
+  
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+  
+  const mouseXSpring = useSpring(x, { stiffness: 300, damping: 30 })
+  const mouseYSpring = useSpring(y, { stiffness: 300, damping: 30 })
+  
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["12deg", "-12deg"])
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-12deg", "12deg"])
+  const brightness = useTransform(mouseYSpring, [-0.5, 0.5], [1.1, 0.95])
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return
+    
+    const rect = cardRef.current.getBoundingClientRect()
+    const width = rect.width
+    const height = rect.height
+    const mouseX = e.clientX - rect.left
+    const mouseY = e.clientY - rect.top
+    
+    const xPct = mouseX / width - 0.5
+    const yPct = mouseY / height - 0.5
+    
+    x.set(xPct)
+    y.set(yPct)
+  }
+
+  const handleMouseLeave = () => {
+    x.set(0)
+    y.set(0)
+  }
+
+  return (
+    <motion.div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        rotateX,
+        rotateY,
+        transformStyle: "preserve-3d",
+        filter: useTransform(brightness, (v) => `brightness(${v})`),
+        ...style,
+      }}
+      className={className}
+      {...props}
+    >
+      <div style={{ transform: "translateZ(30px)", transformStyle: "preserve-3d" }}>
+        {children}
+      </div>
+    </motion.div>
+  )
+}
 
 export function MorphingCardStack({
   cards = [],
@@ -170,8 +237,21 @@ export function MorphingCardStack({
               const isTopCard = layout === "stack" && card.stackPosition === 0
 
               return (
-                <motion.div
+                <TiltCard
                   key={card.id}
+                  className={cn(
+                    "cursor-pointer rounded-xl border border-border bg-card p-4 shadow-sm",
+                    "hover:border-primary/50 transition-colors",
+                    layout === "stack" && "absolute w-56 h-48",
+                    layout === "stack" && isTopCard && "cursor-grab active:cursor-grabbing",
+                    layout === "grid" && "w-full aspect-square",
+                    layout === "list" && "w-full",
+                    isExpanded && "ring-2 ring-primary ring-offset-2 ring-offset-background",
+                  )}
+                  style={{
+                    backgroundColor: card.color || undefined,
+                    perspective: "1000px",
+                  }}
                   layoutId={card.id}
                   initial={{ opacity: 0, scale: 0.8, y: 20 }}
                   animate={{
@@ -196,29 +276,12 @@ export function MorphingCardStack({
                   dragElastic={0.7}
                   onDragStart={() => setIsDragging(true)}
                   onDragEnd={handleDragEnd}
-                  whileHover={{ 
-                    scale: isExpanded ? 1.05 : 1.02,
-                    boxShadow: "0 10px 30px -10px hsl(var(--primary) / 0.3)",
-                    transition: { duration: 0.2 }
-                  }}
                   whileDrag={{ scale: 1.05, cursor: "grabbing" }}
                   onClick={() => {
                     if (isDragging) return
                     setExpandedCard(isExpanded ? null : card.id)
                     card.onClick?.()
                     onCardClick?.(card)
-                  }}
-                  className={cn(
-                    "cursor-pointer rounded-xl border border-border bg-card p-4 shadow-sm",
-                    "hover:border-primary/50 transition-colors",
-                    layout === "stack" && "absolute w-56 h-48",
-                    layout === "stack" && isTopCard && "cursor-grab active:cursor-grabbing",
-                    layout === "grid" && "w-full aspect-square",
-                    layout === "list" && "w-full",
-                    isExpanded && "ring-2 ring-primary ring-offset-2 ring-offset-background",
-                  )}
-                  style={{
-                    backgroundColor: card.color || undefined,
                   }}
                 >
                   <motion.div 
@@ -230,13 +293,19 @@ export function MorphingCardStack({
                     {card.icon && (
                       <motion.div 
                         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"
-                        whileHover={{ rotate: [0, -10, 10, 0], transition: { duration: 0.4 } }}
+                        whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1, transition: { duration: 0.4 } }}
+                        style={{ transform: "translateZ(40px)" }}
                       >
                         {card.icon}
                       </motion.div>
                     )}
                     <div className="min-w-0 flex-1">
-                      <h3 className="font-semibold text-card-foreground truncate">{card.title}</h3>
+                      <h3 
+                        className="font-semibold text-card-foreground truncate"
+                        style={{ transform: "translateZ(25px)" }}
+                      >
+                        {card.title}
+                      </h3>
                       <motion.p
                         layout
                         className={cn(
@@ -245,6 +314,7 @@ export function MorphingCardStack({
                           layout === "grid" && "line-clamp-2",
                           layout === "list" && "line-clamp-1",
                         )}
+                        style={{ transform: "translateZ(15px)" }}
                       >
                         {card.description}
                       </motion.p>
@@ -257,11 +327,12 @@ export function MorphingCardStack({
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.3 }}
+                      style={{ transform: "translateZ(10px)" }}
                     >
                       <span className="text-xs text-muted-foreground/50">Swipe to navigate</span>
                     </motion.div>
                   )}
-                </motion.div>
+                </TiltCard>
               )
             })}
           </AnimatePresence>
