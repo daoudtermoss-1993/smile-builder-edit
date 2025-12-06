@@ -2,7 +2,9 @@ import { Calendar, Phone } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EditableText } from "@/components/admin/EditableText";
 import { EditableImage } from "@/components/admin/EditableImage";
+import { useEditable } from "@/contexts/EditableContext";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 interface HeroProps {
   backgroundImage?: string;
@@ -27,6 +29,20 @@ export const Hero = ({
   badge
 }: HeroProps) => {
   const { t } = useLanguage();
+  const { getSectionContent, loadSectionContent } = useEditable();
+  const [currentBackgroundImage, setCurrentBackgroundImage] = useState(backgroundImage);
+  
+  // Load saved background image from database
+  useEffect(() => {
+    const loadBackground = async () => {
+      await loadSectionContent('hero');
+      const content = getSectionContent('hero');
+      if (content?.backgroundImage) {
+        setCurrentBackgroundImage(content.backgroundImage);
+      }
+    };
+    loadBackground();
+  }, [loadSectionContent, getSectionContent]);
   
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden hero-gradient">
@@ -79,7 +95,7 @@ export const Hero = ({
         >
           <source src={backgroundVideo} type="video/mp4" />
         </video>
-      ) : backgroundImage && backgroundImage !== "/placeholder.svg" ? (
+      ) : currentBackgroundImage && currentBackgroundImage !== "/placeholder.svg" ? (
         <div className="absolute inset-0">
           <motion.div
             className="absolute inset-0 hero-image-mask"
@@ -88,7 +104,7 @@ export const Hero = ({
             transition={{ duration: 1.5, ease: "easeOut" }}
           >
             <img
-              src={backgroundImage}
+              src={currentBackgroundImage}
               alt="Dental Clinic"
               className="w-full h-full object-cover"
             />
@@ -98,7 +114,7 @@ export const Hero = ({
             <EditableImage
               sectionKey="hero"
               field="backgroundImage"
-              defaultSrc={backgroundImage}
+              defaultSrc={currentBackgroundImage}
               alt="Modifier l'arrière-plan"
               label="Modifier l'arrière-plan"
             />
