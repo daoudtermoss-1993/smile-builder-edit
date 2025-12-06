@@ -321,17 +321,6 @@ export function MorphingCardStack({
                     </div>
                   </motion.div>
 
-                  {isTopCard && (
-                    <motion.div 
-                      className="absolute bottom-2 left-0 right-0 text-center"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.3 }}
-                      style={{ transform: "translateZ(10px)" }}
-                    >
-                      <span className="text-xs text-muted-foreground/50">Swipe to navigate</span>
-                    </motion.div>
-                  )}
                 </TiltCard>
               )
             })}
