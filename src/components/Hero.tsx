@@ -80,20 +80,30 @@ export const Hero = ({
           <source src={backgroundVideo} type="video/mp4" />
         </video>
       ) : backgroundImage && backgroundImage !== "/placeholder.svg" ? (
-        <motion.div
-          className="absolute inset-0 hero-image-mask"
-          initial={{ scale: 1.1, opacity: 0 }}
-          animate={{ scale: 1, opacity: 0.15 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-        >
-          <EditableImage
-            sectionKey="hero"
-            field="backgroundImage"
-            defaultSrc={backgroundImage}
-            alt="Dental Clinic"
-            className="w-full h-full"
-          />
-        </motion.div>
+        <div className="absolute inset-0">
+          <motion.div
+            className="absolute inset-0 hero-image-mask"
+            initial={{ scale: 1.1, opacity: 0 }}
+            animate={{ scale: 1, opacity: 0.15 }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+          >
+            <img
+              src={backgroundImage}
+              alt="Dental Clinic"
+              className="w-full h-full object-cover"
+            />
+          </motion.div>
+          {/* Separate editable button for background */}
+          <div className="absolute top-4 right-4 z-50">
+            <EditableImage
+              sectionKey="hero"
+              field="backgroundImage"
+              defaultSrc={backgroundImage}
+              alt="Modifier l'arrière-plan"
+              label="Modifier l'arrière-plan"
+            />
+          </div>
+        </div>
       ) : null}
       
       <div className="relative z-10 container mx-auto px-4 text-center">
