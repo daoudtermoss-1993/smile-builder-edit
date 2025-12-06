@@ -215,58 +215,6 @@ const ServiceDetail = () => {
           />
         </div>
       </section>
-
-      {/* Other Services Section */}
-      <section className="py-20 bg-white/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-display font-bold mb-4 text-center">
-            {language === 'ar' ? 'خدمات أخرى' : 'Other Services'}
-          </h2>
-          <p className="text-muted-foreground text-center mb-12">
-            {language === 'ar' ? 'استكشف خدماتنا الأخرى' : 'Explore our other dental services'}
-          </p>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {otherServices.map((otherService) => {
-              const OtherIcon = otherService.icon;
-              return (
-                <Link 
-                  key={otherService.id} 
-                  to={`/services/${otherService.id}`}
-                  className="group"
-                >
-                  <Card className="h-full bg-card/50 backdrop-blur border-border hover:border-primary/50 hover:shadow-lg transition-all duration-300 overflow-hidden">
-                    <div className="h-40 overflow-hidden">
-                      <img 
-                        src={otherService.image} 
-                        alt={language === 'ar' ? otherService.titleAr : otherService.titleEn}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-                    <CardContent className="p-6">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-vibe flex items-center justify-center">
-                          <OtherIcon className="h-5 w-5 text-white" />
-                        </div>
-                        <h3 className="font-display font-semibold text-lg text-foreground group-hover:text-primary transition-colors">
-                          {language === 'ar' ? otherService.titleAr : otherService.titleEn}
-                        </h3>
-                      </div>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {language === 'ar' ? otherService.descriptionAr : otherService.descriptionEn}
-                      </p>
-                      <div className="mt-4 flex items-center gap-2 text-primary text-sm font-medium">
-                        {language === 'ar' ? 'اعرف المزيد' : 'Learn more'}
-                        {isRTL ? <ArrowLeft className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
       {/* CTA Section */}
       <section className="py-20">
         <div className="container mx-auto px-4 text-center">
