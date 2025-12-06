@@ -14,6 +14,7 @@ interface EditableImageProps {
   defaultSrc: string;
   alt: string;
   className?: string;
+  label?: string;
 }
 
 export const EditableImage = ({
@@ -22,6 +23,7 @@ export const EditableImage = ({
   defaultSrc,
   alt,
   className = "",
+  label,
 }: EditableImageProps) => {
   const { isEditMode, getSectionContent, setPendingChange, loadSectionContent } = useEditable();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -30,7 +32,6 @@ export const EditableImage = ({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Load section content on mount
   useEffect(() => {
     loadSectionContent(sectionKey);
   }, [sectionKey, loadSectionContent]);
@@ -72,13 +73,11 @@ export const EditableImage = ({
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast.error("Veuillez sélectionner un fichier image");
       return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error("L'image ne doit pas dépasser 5MB");
       return;
@@ -99,7 +98,6 @@ export const EditableImage = ({
       return;
     }
 
-    // Basic URL validation
     try {
       new URL(urlInput);
       setPreviewUrl(urlInput);
@@ -126,117 +124,147 @@ export const EditableImage = ({
     setUrlInput("");
   };
 
+  const renderDialog = () => (
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <DialogContent className="sm:max-w-md z-[9999]">
+        <DialogHeader>
+          <DialogTitle>Modifier l'image{label ? ` - ${label}` : ''}</DialogTitle>
+        </DialogHeader>
+
+        <Tabs defaultValue="upload" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="upload" className="flex items-center gap-2">
+              <Upload className="h-4 w-4" />
+              Télécharger
+            </TabsTrigger>
+            <TabsTrigger value="url" className="flex items-center gap-2">
+              <Link className="h-4 w-4" />
+              URL
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="upload" className="space-y-4">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="w-full"
+              variant="outline"
+            >
+              {isUploading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Téléchargement...
+                </>
+              ) : (
+                <>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Choisir une image
+                </>
+              )}
+            </Button>
+          </TabsContent>
+
+          <TabsContent value="url" className="space-y-4">
+            <div className="flex gap-2">
+              <Input
+                placeholder="https://example.com/image.jpg"
+                value={urlInput}
+                onChange={(e) => setUrlInput(e.target.value)}
+              />
+              <Button onClick={handleUrlSubmit} variant="outline">
+                Charger
+              </Button>
+            </div>
+          </TabsContent>
+        </Tabs>
+
+        {previewUrl && (
+          <div className="relative mt-4">
+            <p className="text-sm text-muted-foreground mb-2">Aperçu:</p>
+            <div className="relative aspect-video rounded-lg overflow-hidden border border-border">
+              <img
+                src={previewUrl}
+                alt="Preview"
+                className="w-full h-full object-cover"
+              />
+              <button
+                onClick={() => setPreviewUrl(null)}
+                className="absolute top-2 right-2 bg-destructive text-destructive-foreground rounded-full p-1"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="flex justify-end gap-2 mt-4">
+          <Button variant="outline" onClick={handleCancel}>
+            Annuler
+          </Button>
+          <Button onClick={handleConfirm} disabled={!previewUrl}>
+            Confirmer
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+
+  // Mode bouton uniquement (pour before/after avec label)
+  if (label) {
+    if (!isEditMode) return null;
+    
+    return (
+      <>
+        <Button
+          type="button"
+          onClick={handleImageClick}
+          variant="outline"
+          size="sm"
+          className="gap-2"
+        >
+          <Upload className="h-4 w-4" />
+          {label}
+        </Button>
+        {renderDialog()}
+      </>
+    );
+  }
+
+  // Mode image standard
   return (
     <>
-      <div
-        className={`relative group ${isEditMode ? 'cursor-pointer' : ''}`}
-        onClick={handleImageClick}
-      >
+      <div className={`relative group ${className}`}>
         <img
           src={currentSrc}
           alt={alt}
-          className={`w-full h-full object-cover ${className}`}
+          className="w-full h-full object-cover"
         />
         {isEditMode && (
-          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
             <div className="bg-white rounded-full p-3 shadow-lg">
               <Camera className="h-6 w-6 text-primary" />
             </div>
           </div>
         )}
+        {isEditMode && (
+          <button
+            type="button"
+            onClick={handleImageClick}
+            className="absolute bottom-2 right-2 z-50 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full p-2 shadow-lg transition-all opacity-0 group-hover:opacity-100"
+            title="Modifier l'image"
+          >
+            <Upload className="h-4 w-4" />
+          </button>
+        )}
       </div>
-
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-md z-[9999]">
-          <DialogHeader>
-            <DialogTitle>Modifier l'image</DialogTitle>
-          </DialogHeader>
-
-          <Tabs defaultValue="upload" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="upload" className="flex items-center gap-2">
-                <Upload className="h-4 w-4" />
-                Télécharger
-              </TabsTrigger>
-              <TabsTrigger value="url" className="flex items-center gap-2">
-                <Link className="h-4 w-4" />
-                URL
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="upload" className="space-y-4">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileSelect}
-                className="hidden"
-              />
-              <Button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isUploading}
-                className="w-full"
-                variant="outline"
-              >
-                {isUploading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Téléchargement...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="h-4 w-4 mr-2" />
-                    Choisir une image
-                  </>
-                )}
-              </Button>
-            </TabsContent>
-
-            <TabsContent value="url" className="space-y-4">
-              <div className="flex gap-2">
-                <Input
-                  placeholder="https://example.com/image.jpg"
-                  value={urlInput}
-                  onChange={(e) => setUrlInput(e.target.value)}
-                />
-                <Button onClick={handleUrlSubmit} variant="outline">
-                  Charger
-                </Button>
-              </div>
-            </TabsContent>
-          </Tabs>
-
-          {/* Preview */}
-          {previewUrl && (
-            <div className="relative mt-4">
-              <p className="text-sm text-muted-foreground mb-2">Aperçu:</p>
-              <div className="relative aspect-video rounded-lg overflow-hidden border border-border">
-                <img
-                  src={previewUrl}
-                  alt="Preview"
-                  className="w-full h-full object-cover"
-                />
-                <button
-                  onClick={() => setPreviewUrl(null)}
-                  className="absolute top-2 right-2 bg-destructive text-destructive-foreground rounded-full p-1"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Actions */}
-          <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" onClick={handleCancel}>
-              Annuler
-            </Button>
-            <Button onClick={handleConfirm} disabled={!previewUrl}>
-              Confirmer
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {renderDialog()}
     </>
   );
 };

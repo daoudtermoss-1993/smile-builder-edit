@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ChevronLeft, ChevronRight, Quote, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EditableText } from "@/components/admin/EditableText";
 import { EditableImage } from "@/components/admin/EditableImage";
+import { useEditable } from "@/contexts/EditableContext";
 import { motion } from "framer-motion";
 import { ScrollVelocity } from "@/components/ui/scroll-velocity";
 
@@ -38,6 +39,15 @@ const ImageComparisonSlider = ({
 }) => {
   const [sliderPosition, setSliderPosition] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
+  const { isEditMode, getSectionContent, loadSectionContent } = useEditable();
+
+  useEffect(() => {
+    loadSectionContent("gallery");
+  }, [loadSectionContent]);
+
+  const sectionContent = getSectionContent("gallery");
+  const beforeSrc = sectionContent[`before_${index}`] || before;
+  const afterSrc = sectionContent[`after_${index}`] || after;
 
   const handleMove = (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
     if (!isDragging && e.type !== 'click') return;
@@ -52,7 +62,27 @@ const ImageComparisonSlider = ({
   };
 
   return (
-    <div className="relative group">
+    <div className="relative">
+      {/* Editable Image Buttons - Outside slider */}
+      {isEditMode && (
+        <div className="flex justify-center gap-4 mb-3">
+          <EditableImage
+            sectionKey="gallery"
+            field={`before_${index}`}
+            defaultSrc={before}
+            alt={`${title} - Before`}
+            label={language === 'ar' ? 'تعديل قبل' : 'Edit Before'}
+          />
+          <EditableImage
+            sectionKey="gallery"
+            field={`after_${index}`}
+            defaultSrc={after}
+            alt={`${title} - After`}
+            label={language === 'ar' ? 'تعديل بعد' : 'Edit After'}
+          />
+        </div>
+      )}
+
       <div
         className="relative w-full aspect-[4/3] overflow-hidden rounded-lg cursor-col-resize select-none"
         onMouseDown={() => setIsDragging(true)}
@@ -64,27 +94,26 @@ const ImageComparisonSlider = ({
         onTouchMove={handleMove}
         onClick={handleMove}
       >
-        <EditableImage
-          sectionKey="gallery"
-          field={`after_${index}`}
-          defaultSrc={after}
+        {/* After image (background) */}
+        <img
+          src={afterSrc}
           alt={`${title} - After`}
-          className="absolute inset-0"
+          className="absolute inset-0 w-full h-full object-cover"
         />
         
+        {/* Before image (clipped) */}
         <div
           className="absolute inset-0 w-full h-full overflow-hidden"
           style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
         >
-          <EditableImage
-            sectionKey="gallery"
-            field={`before_${index}`}
-            defaultSrc={before}
+          <img
+            src={beforeSrc}
             alt={`${title} - Before`}
-            className="absolute inset-0"
+            className="absolute inset-0 w-full h-full object-cover"
           />
         </div>
 
+        {/* Slider handle */}
         <div
           className="absolute top-0 bottom-0 w-1 bg-primary cursor-col-resize z-10"
           style={{ left: `${sliderPosition}%` }}
@@ -95,6 +124,7 @@ const ImageComparisonSlider = ({
           </div>
         </div>
 
+        {/* Labels */}
         <div className="absolute top-4 left-4 bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium z-10">
           {language === 'ar' ? 'قبل' : 'Before'}
         </div>
