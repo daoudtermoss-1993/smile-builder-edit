@@ -74,8 +74,8 @@ export function InteractiveImageAccordion({
   };
 
   return (
-    <div className={cn("w-full", className)}>
-      <div className="flex flex-row items-center justify-center gap-2 md:gap-4 overflow-x-auto p-4">
+    <div className={cn("w-full overflow-hidden", className)}>
+      <div className="flex flex-row items-center justify-start md:justify-center gap-2 md:gap-4 overflow-x-auto p-4 scrollbar-hide">
         {items.map((item, index) => (
           <AccordionItem
             key={item.id}
