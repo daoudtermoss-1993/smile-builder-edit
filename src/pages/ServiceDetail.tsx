@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, ArrowRight, Clock, DollarSign, CheckCircle, Calendar } from "lucide-react";
 import { InteractiveImageAccordion, type AccordionItemData } from "@/components/ui/interactive-image-accordion";
-import { Footer } from "@/components/Footer";
 
 const ServiceDetail = () => {
   const { serviceId } = useParams<{ serviceId: string }>();
@@ -236,8 +235,6 @@ const ServiceDetail = () => {
           </Button>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 };
