@@ -1,6 +1,7 @@
 import { Award, Users, Clock } from "lucide-react";
 import { EditableText } from "@/components/admin/EditableText";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface AboutProps {
   doctorImage?: string;
@@ -19,6 +20,8 @@ export const About = ({
   description,
   stats
 }: AboutProps) => {
+  const { language } = useLanguage();
+  
   return (
     <section className="py-24 overflow-hidden">
       <div className="container mx-auto px-4">
@@ -98,7 +101,7 @@ export const About = ({
                 <div className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">
                   <EditableText sectionKey="about" field="years" defaultValue={stats.years} />
                 </div>
-                <div className="text-sm text-muted-foreground">Years Exp.</div>
+                <div className="text-sm text-muted-foreground">{language === 'ar' ? 'سنوات خبرة' : 'Years Exp.'}</div>
               </motion.div>
               
               <motion.div 
@@ -115,7 +118,7 @@ export const About = ({
                 <div className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">
                   <EditableText sectionKey="about" field="patients" defaultValue={stats.patients} />
                 </div>
-                <div className="text-sm text-muted-foreground">Patients</div>
+                <div className="text-sm text-muted-foreground">{language === 'ar' ? 'مريض' : 'Patients'}</div>
               </motion.div>
               
               <motion.div 
@@ -132,7 +135,7 @@ export const About = ({
                 <div className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">
                   <EditableText sectionKey="about" field="treatments" defaultValue={stats.treatments} />
                 </div>
-                <div className="text-sm text-muted-foreground">Treatments</div>
+                <div className="text-sm text-muted-foreground">{language === 'ar' ? 'علاج' : 'Treatments'}</div>
               </motion.div>
             </div>
           </motion.div>
