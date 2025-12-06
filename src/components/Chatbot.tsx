@@ -214,14 +214,14 @@ export const Chatbot = () => {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 w-16 h-16 rounded-full bg-primary shadow-glow flex items-center justify-center hover:scale-110 transition-transform z-50"
+          className="fixed bottom-6 right-6 w-16 h-16 rounded-full bg-primary shadow-glow flex items-center justify-center hover:scale-110 transition-transform z-[60]"
         >
           <MessageCircle className="w-8 h-8 text-white" />
         </button>
       )}
 
       {isOpen && (
-        <div className="fixed bottom-6 right-6 w-96 h-[500px] vibe-card flex flex-col z-50 animate-scale-in">
+        <div className="fixed bottom-6 right-6 w-96 h-[500px] vibe-card flex flex-col z-[60] animate-scale-in">
           <div className="flex items-center justify-between p-4 border-b border-border">
             <div className="flex items-center gap-2">
               <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
