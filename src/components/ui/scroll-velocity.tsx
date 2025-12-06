@@ -29,9 +29,36 @@ const ScrollVelocity = React.forwardRef<HTMLDivElement, ScrollVelocityProps>(
 
     const directionFactor = React.useRef<number>(1)
     const scrollThreshold = React.useRef<number>(5)
+    const currentVelocity = React.useRef<number>(velocity)
+
+    // Smooth transition for pause/resume
+    React.useEffect(() => {
+      if (paused) {
+        // Gradually slow down
+        const slowDown = setInterval(() => {
+          currentVelocity.current *= 0.85
+          if (currentVelocity.current < 0.1) {
+            currentVelocity.current = 0
+            clearInterval(slowDown)
+          }
+        }, 16)
+        return () => clearInterval(slowDown)
+      } else {
+        // Gradually speed up
+        currentVelocity.current = 0.1
+        const speedUp = setInterval(() => {
+          currentVelocity.current = Math.min(currentVelocity.current * 1.15, velocity)
+          if (currentVelocity.current >= velocity * 0.95) {
+            currentVelocity.current = velocity
+            clearInterval(speedUp)
+          }
+        }, 16)
+        return () => clearInterval(speedUp)
+      }
+    }, [paused, velocity])
 
     useAnimationFrame((t, delta) => {
-      if (paused) return
+      if (currentVelocity.current < 0.01) return
       if (movable) {
         move(delta)
       } else {
@@ -42,7 +69,7 @@ const ScrollVelocity = React.forwardRef<HTMLDivElement, ScrollVelocityProps>(
     })
 
     function move(delta: number) {
-      let moveBy = directionFactor.current * velocity * (delta / 1000)
+      let moveBy = directionFactor.current * currentVelocity.current * (delta / 1000)
       if (velocityFactor.get() < 0) {
         directionFactor.current = -1
       } else if (velocityFactor.get() > 0) {
