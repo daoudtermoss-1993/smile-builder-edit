@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ChevronLeft, ChevronRight, Quote, Star } from "lucide-react";
+import { ChevronLeft, ChevronRight, Quote, Star, Camera } from "lucide-react";
 import { EditableText } from "@/components/admin/EditableText";
 import { EditableImage } from "@/components/admin/EditableImage";
 import { AddContentButton } from "@/components/admin/AddContentButton";
@@ -56,6 +56,7 @@ interface TestimonialCardProps {
   language: string;
   isEditMode: boolean;
   onDelete: (id: string) => void;
+  onUpdate: (id: string, updates: Partial<Testimonial>) => void;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
 }
@@ -65,46 +66,151 @@ const TestimonialCard = ({
   language, 
   isEditMode, 
   onDelete,
+  onUpdate,
   onMouseEnter,
   onMouseLeave 
-}: TestimonialCardProps) => (
-  <Card 
-    className="relative inline-block w-[280px] sm:w-[350px] md:w-[400px] min-h-[200px] border-primary/20 bg-card/50 backdrop-blur-sm shrink-0 overflow-visible"
-    onMouseEnter={onMouseEnter}
-    onMouseLeave={onMouseLeave}
-  >
-    {isEditMode && (
-      <div className="absolute top-2 right-2 z-50">
-        <DeleteContentButton 
-          onConfirm={() => onDelete(testimonial.id)} 
-          itemName="ce témoignage" 
-        />
-      </div>
-    )}
-    <CardContent className="p-4 sm:p-6 h-full">
-      <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-primary/30 shrink-0">
-          <img src={testimonial.avatar} alt={testimonial.name} className="w-full h-full object-cover" />
+}: TestimonialCardProps) => {
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [isEditingText, setIsEditingText] = useState(false);
+  const [isEditingTreatment, setIsEditingTreatment] = useState(false);
+  const [localName, setLocalName] = useState(language === 'ar' ? testimonial.nameAr : testimonial.name);
+  const [localText, setLocalText] = useState(language === 'ar' ? testimonial.textAr : testimonial.text);
+  const [localTreatment, setLocalTreatment] = useState(language === 'ar' ? testimonial.treatmentAr : testimonial.treatment);
+
+  const handleNameSave = () => {
+    if (language === 'ar') {
+      onUpdate(testimonial.id, { nameAr: localName });
+    } else {
+      onUpdate(testimonial.id, { name: localName });
+    }
+    setIsEditingName(false);
+  };
+
+  const handleTextSave = () => {
+    if (language === 'ar') {
+      onUpdate(testimonial.id, { textAr: localText });
+    } else {
+      onUpdate(testimonial.id, { text: localText });
+    }
+    setIsEditingText(false);
+  };
+
+  const handleTreatmentSave = () => {
+    if (language === 'ar') {
+      onUpdate(testimonial.id, { treatmentAr: localTreatment });
+    } else {
+      onUpdate(testimonial.id, { treatment: localTreatment });
+    }
+    setIsEditingTreatment(false);
+  };
+
+  const handleAvatarChange = (url: string) => {
+    onUpdate(testimonial.id, { avatar: url });
+  };
+
+  return (
+    <Card 
+      className="relative inline-block w-[280px] sm:w-[350px] md:w-[400px] min-h-[200px] border-primary/20 bg-card/50 backdrop-blur-sm shrink-0 overflow-visible"
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
+      {isEditMode && (
+        <div className="absolute top-2 right-2 z-50">
+          <DeleteContentButton 
+            onConfirm={() => onDelete(testimonial.id)} 
+            itemName="ce témoignage" 
+          />
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="font-semibold text-sm sm:text-base truncate">
-            {language === 'ar' ? testimonial.nameAr : testimonial.name}
+      )}
+      <CardContent className="p-4 sm:p-6 h-full">
+        <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+        {/* Avatar - Editable */}
+          <div 
+            className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-primary/30 shrink-0 ${isEditMode ? 'cursor-pointer hover:ring-2 hover:ring-primary' : ''}`}
+            onClick={() => {
+              if (isEditMode) {
+                const url = window.prompt('Entrez l\'URL de la nouvelle photo:', testimonial.avatar);
+                if (url && url.trim()) {
+                  handleAvatarChange(url.trim());
+                }
+              }
+            }}
+            title={isEditMode ? 'Cliquez pour changer la photo' : undefined}
+          >
+            <img src={testimonial.avatar} alt={testimonial.name} className="w-full h-full object-cover" />
+            {isEditMode && (
+              <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
+                <Camera className="h-4 w-4 text-white" />
+              </div>
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            {/* Name - Editable */}
+            {isEditMode && isEditingName ? (
+              <input
+                type="text"
+                value={localName}
+                onChange={(e) => setLocalName(e.target.value)}
+                onBlur={handleNameSave}
+                onKeyDown={(e) => e.key === 'Enter' && handleNameSave()}
+                autoFocus
+                className="w-full font-semibold text-sm sm:text-base bg-background/80 border border-primary rounded px-2 py-1 focus:outline-none"
+              />
+            ) : (
+              <p 
+                className={`font-semibold text-sm sm:text-base truncate ${isEditMode ? 'cursor-pointer hover:bg-primary/10 rounded px-1' : ''}`}
+                onClick={() => isEditMode && setIsEditingName(true)}
+              >
+                {language === 'ar' ? testimonial.nameAr : testimonial.name}
+              </p>
+            )}
+            <div className="flex gap-0.5">{renderStars(testimonial.rating)}</div>
+          </div>
+          <Quote className="w-6 h-6 sm:w-8 sm:h-8 text-primary/30 shrink-0" />
+        </div>
+        {/* Text - Editable */}
+        {isEditMode && isEditingText ? (
+          <textarea
+            value={localText}
+            onChange={(e) => setLocalText(e.target.value)}
+            onBlur={handleTextSave}
+            autoFocus
+            className="w-full text-xs sm:text-sm md:text-base bg-background/80 border border-primary rounded px-2 py-1 focus:outline-none resize-none mb-3 sm:mb-4"
+            rows={3}
+          />
+        ) : (
+          <p 
+            className={`text-xs sm:text-sm md:text-base text-foreground mb-3 sm:mb-4 leading-relaxed line-clamp-4 overflow-hidden ${isEditMode ? 'cursor-pointer hover:bg-primary/10 rounded px-1' : ''}`}
+            onClick={() => isEditMode && setIsEditingText(true)}
+          >
+            "{language === 'ar' ? testimonial.textAr : testimonial.text}"
           </p>
-          <div className="flex gap-0.5">{renderStars(testimonial.rating)}</div>
+        )}
+        <div className="border-t border-border/50 pt-2 sm:pt-3">
+          {/* Treatment - Editable */}
+          {isEditMode && isEditingTreatment ? (
+            <input
+              type="text"
+              value={localTreatment}
+              onChange={(e) => setLocalTreatment(e.target.value)}
+              onBlur={handleTreatmentSave}
+              onKeyDown={(e) => e.key === 'Enter' && handleTreatmentSave()}
+              autoFocus
+              className="w-full text-xs bg-background/80 border border-primary rounded px-2 py-1 focus:outline-none"
+            />
+          ) : (
+            <p 
+              className={`text-xs text-muted-foreground truncate ${isEditMode ? 'cursor-pointer hover:bg-primary/10 rounded px-1' : ''}`}
+              onClick={() => isEditMode && setIsEditingTreatment(true)}
+            >
+              {language === 'ar' ? testimonial.treatmentAr : testimonial.treatment}
+            </p>
+          )}
         </div>
-        <Quote className="w-6 h-6 sm:w-8 sm:h-8 text-primary/30 shrink-0" />
-      </div>
-      <p className="text-xs sm:text-sm md:text-base text-foreground mb-3 sm:mb-4 leading-relaxed line-clamp-4 overflow-hidden">
-        "{language === 'ar' ? testimonial.textAr : testimonial.text}"
-      </p>
-      <div className="border-t border-border/50 pt-2 sm:pt-3">
-        <p className="text-xs text-muted-foreground truncate">
-          {language === 'ar' ? testimonial.treatmentAr : testimonial.treatment}
-        </p>
-      </div>
-    </CardContent>
-  </Card>
-);
+      </CardContent>
+    </Card>
+  );
+};
 
 const defaultBeforeAfterImages: BeforeAfterImage[] = [
   {
@@ -456,6 +562,7 @@ export const BeforeAfter = () => {
                   language={language}
                   isEditMode={isEditMode}
                   onDelete={handleDeleteTestimonial}
+                  onUpdate={(id, updates) => updateTestimonial(id, updates)}
                 />
               ))}
             </div>
@@ -470,6 +577,7 @@ export const BeforeAfter = () => {
                     language={language}
                     isEditMode={false}
                     onDelete={handleDeleteTestimonial}
+                    onUpdate={(id, updates) => updateTestimonial(id, updates)}
                     onMouseEnter={() => setIsPaused(true)}
                     onMouseLeave={() => setIsPaused(false)}
                   />
@@ -484,6 +592,7 @@ export const BeforeAfter = () => {
                     language={language}
                     isEditMode={false}
                     onDelete={handleDeleteTestimonial}
+                    onUpdate={(id, updates) => updateTestimonial(id, updates)}
                     onMouseEnter={() => setIsPaused(true)}
                     onMouseLeave={() => setIsPaused(false)}
                   />
