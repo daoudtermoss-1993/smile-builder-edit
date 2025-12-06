@@ -159,7 +159,22 @@ export const Navigation = () => {
             <NavMenu setActive={setActive}>
               <MenuItem setActive={setActive} active={active} item={t("home")} href="#home" />
               <MenuItem setActive={setActive} active={active} item={t("about")} href="#about" />
-              <MenuItem setActive={setActive} active={active} item={t("services")} href="#services" />
+              <MenuItem setActive={setActive} active={active} item={t("services")} href="#services">
+                <div className="flex flex-col space-y-3 text-sm min-w-[180px]">
+                  <HoveredLink href="/services/implants">
+                    {language === 'en' ? 'Dental Implants' : 'زراعة الأسنان'}
+                  </HoveredLink>
+                  <HoveredLink href="/services/whitening">
+                    {language === 'en' ? 'Teeth Whitening' : 'تبييض الأسنان'}
+                  </HoveredLink>
+                  <HoveredLink href="/services/orthodontics">
+                    {language === 'en' ? 'Orthodontics' : 'تقويم الأسنان'}
+                  </HoveredLink>
+                  <HoveredLink href="/services/cosmetic">
+                    {language === 'en' ? 'Cosmetic Dentistry' : 'طب الأسنان التجميلي'}
+                  </HoveredLink>
+                </div>
+              </MenuItem>
               <MenuItem setActive={setActive} active={active} item={t("booking")} href="#booking" />
               <MenuItem setActive={setActive} active={active} item={t("contact")} href="#contact" />
             </NavMenu>
