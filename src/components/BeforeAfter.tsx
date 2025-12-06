@@ -41,6 +41,71 @@ interface Testimonial extends DynamicContentItem {
   rating: number;
 }
 
+// Extracted outside to prevent re-creation on every render
+const renderStars = (rating: number) => {
+  return Array.from({ length: 5 }).map((_, i) => (
+    <Star
+      key={i}
+      className={`w-4 h-4 ${i < rating ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground/30'}`}
+    />
+  ));
+};
+
+interface TestimonialCardProps {
+  testimonial: Testimonial;
+  language: string;
+  isEditMode: boolean;
+  onDelete: (id: string) => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+}
+
+const TestimonialCard = ({ 
+  testimonial, 
+  language, 
+  isEditMode, 
+  onDelete,
+  onMouseEnter,
+  onMouseLeave 
+}: TestimonialCardProps) => (
+  <Card 
+    className="relative inline-block w-[280px] sm:w-[350px] md:w-[400px] min-h-[200px] border-primary/20 bg-card/50 backdrop-blur-sm shrink-0 overflow-visible"
+    onMouseEnter={onMouseEnter}
+    onMouseLeave={onMouseLeave}
+  >
+    {isEditMode && (
+      <div className="absolute top-2 right-2 z-50">
+        <DeleteContentButton 
+          onConfirm={() => onDelete(testimonial.id)} 
+          itemName="ce témoignage" 
+        />
+      </div>
+    )}
+    <CardContent className="p-4 sm:p-6 h-full">
+      <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-primary/30 shrink-0">
+          <img src={testimonial.avatar} alt={testimonial.name} className="w-full h-full object-cover" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-semibold text-sm sm:text-base truncate">
+            {language === 'ar' ? testimonial.nameAr : testimonial.name}
+          </p>
+          <div className="flex gap-0.5">{renderStars(testimonial.rating)}</div>
+        </div>
+        <Quote className="w-6 h-6 sm:w-8 sm:h-8 text-primary/30 shrink-0" />
+      </div>
+      <p className="text-xs sm:text-sm md:text-base text-foreground mb-3 sm:mb-4 leading-relaxed line-clamp-4 overflow-hidden">
+        "{language === 'ar' ? testimonial.textAr : testimonial.text}"
+      </p>
+      <div className="border-t border-border/50 pt-2 sm:pt-3">
+        <p className="text-xs text-muted-foreground truncate">
+          {language === 'ar' ? testimonial.treatmentAr : testimonial.treatment}
+        </p>
+      </div>
+    </CardContent>
+  </Card>
+);
+
 const defaultBeforeAfterImages: BeforeAfterImage[] = [
   {
     id: "1",
@@ -279,59 +344,10 @@ export const BeforeAfter = () => {
     }
   };
 
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }).map((_, i) => (
-      <Star
-        key={i}
-        className={`w-4 h-4 ${i < rating ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground/30'}`}
-      />
-    ));
-  };
-
   const handleDeleteTestimonial = (id: string) => {
     console.log("handleDeleteTestimonial called with id:", id);
     deleteTestimonial(id);
-    // Toast is now handled by useDynamicContent hook
   };
-
-  const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => (
-    <Card 
-      className="relative inline-block w-[280px] sm:w-[350px] md:w-[400px] min-h-[200px] border-primary/20 bg-card/50 backdrop-blur-sm shrink-0 overflow-visible"
-      onMouseEnter={() => !isEditMode && setIsPaused(true)}
-      onMouseLeave={() => !isEditMode && setIsPaused(false)}
-    >
-      {isEditMode && (
-        <div className="absolute top-2 right-2 z-50">
-          <DeleteContentButton 
-            onConfirm={() => handleDeleteTestimonial(testimonial.id)} 
-            itemName="ce témoignage" 
-          />
-        </div>
-      )}
-      <CardContent className="p-4 sm:p-6 h-full">
-        <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-primary/30 shrink-0">
-            <img src={testimonial.avatar} alt={testimonial.name} className="w-full h-full object-cover" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold text-sm sm:text-base truncate">
-              {language === 'ar' ? testimonial.nameAr : testimonial.name}
-            </p>
-            <div className="flex gap-0.5">{renderStars(testimonial.rating)}</div>
-          </div>
-          <Quote className="w-6 h-6 sm:w-8 sm:h-8 text-primary/30 shrink-0" />
-        </div>
-        <p className="text-xs sm:text-sm md:text-base text-foreground mb-3 sm:mb-4 leading-relaxed line-clamp-4 overflow-hidden">
-          "{language === 'ar' ? testimonial.textAr : testimonial.text}"
-        </p>
-        <div className="border-t border-border/50 pt-2 sm:pt-3">
-          <p className="text-xs text-muted-foreground truncate">
-            {language === 'ar' ? testimonial.treatmentAr : testimonial.treatment}
-          </p>
-        </div>
-      </CardContent>
-    </Card>
-  );
 
   return (
     <section className="py-16 overflow-hidden">
@@ -434,7 +450,13 @@ export const BeforeAfter = () => {
             /* Static Grid for Edit Mode - easier to click delete buttons */
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {testimonials.map((testimonial) => (
-                <TestimonialCard key={testimonial.id} testimonial={testimonial} />
+                <TestimonialCard 
+                  key={testimonial.id} 
+                  testimonial={testimonial} 
+                  language={language}
+                  isEditMode={isEditMode}
+                  onDelete={handleDeleteTestimonial}
+                />
               ))}
             </div>
           ) : (
@@ -442,13 +464,29 @@ export const BeforeAfter = () => {
             <div className="space-y-6">
               <ScrollVelocity velocity={2} paused={isPaused} className="py-4">
                 {[...testimonials, ...testimonials].map((testimonial, index) => (
-                  <TestimonialCard key={`${testimonial.id}-${index}`} testimonial={testimonial} />
+                  <TestimonialCard 
+                    key={`${testimonial.id}-${index}`} 
+                    testimonial={testimonial}
+                    language={language}
+                    isEditMode={false}
+                    onDelete={handleDeleteTestimonial}
+                    onMouseEnter={() => setIsPaused(true)}
+                    onMouseLeave={() => setIsPaused(false)}
+                  />
                 ))}
               </ScrollVelocity>
               
               <ScrollVelocity velocity={-2} paused={isPaused} className="py-4">
                 {[...testimonials, ...testimonials].reverse().map((testimonial, index) => (
-                  <TestimonialCard key={`${testimonial.id}-rev-${index}`} testimonial={testimonial} />
+                  <TestimonialCard 
+                    key={`${testimonial.id}-rev-${index}`} 
+                    testimonial={testimonial}
+                    language={language}
+                    isEditMode={false}
+                    onDelete={handleDeleteTestimonial}
+                    onMouseEnter={() => setIsPaused(true)}
+                    onMouseLeave={() => setIsPaused(false)}
+                  />
                 ))}
               </ScrollVelocity>
             </div>
