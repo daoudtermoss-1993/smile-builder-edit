@@ -1,7 +1,6 @@
 import { Calendar, Phone } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EditableText } from "@/components/admin/EditableText";
-import { DentalBackground3D, FloatingTooth } from "./DentalBackground3D";
 
 interface HeroProps {
   backgroundImage?: string;
@@ -29,15 +28,6 @@ export const Hero = ({
   
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* 3D Animated Background */}
-      <DentalBackground3D />
-      
-      {/* Floating decorative elements */}
-      <FloatingTooth delay={0} className="top-20 left-10 hidden lg:block" />
-      <FloatingTooth delay={1} className="top-40 right-20 hidden lg:block" />
-      <FloatingTooth delay={2} className="bottom-40 left-1/4 hidden lg:block" />
-      <FloatingTooth delay={1.5} className="bottom-60 right-1/4 hidden lg:block" />
-      
       {/* Optional background image/video overlay */}
       {backgroundVideo ? (
         <video
@@ -56,8 +46,6 @@ export const Hero = ({
           className="absolute inset-0 w-full h-full object-cover opacity-10 z-[1]"
         />
       ) : null}
-      
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/30 to-background/60 z-[2]" />
       
       <div className="relative z-10 container mx-auto px-4 text-center">
         <div className="inline-block mb-6 px-6 py-2 bg-white/80 backdrop-blur-xl rounded-full border border-primary/20 shadow-sm">
