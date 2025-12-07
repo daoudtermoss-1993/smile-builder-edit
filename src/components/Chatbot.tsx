@@ -171,39 +171,36 @@ export const Chatbot = () => {
 
     // Check FAQ categories with keyword matching
     const lowerInput = input.toLowerCase();
-    let matchedCategory = null;
+    let matchedCategory: FAQCategory | null = null;
+    let bestMatchScore = 0;
     
+    // Find the best matching category based on keyword matches
     for (const [key, category] of Object.entries(FAQ_CATEGORIES)) {
-      if (category.keywords.some(keyword => lowerInput.includes(keyword))) {
+      const matchCount = category.keywords.filter(keyword => 
+        lowerInput.includes(keyword.toLowerCase())
+      ).length;
+      
+      if (matchCount > bestMatchScore) {
+        bestMatchScore = matchCount;
         matchedCategory = category;
-        break;
       }
     }
 
-    if (matchedCategory) {
+    // If we found a match, use it
+    if (matchedCategory && bestMatchScore > 0) {
       setTimeout(() => {
-        const answer = language === 'ar' && matchedCategory.answerAr 
-          ? matchedCategory.answerAr 
-          : matchedCategory.answer;
+        const answer = language === 'ar' && matchedCategory!.answerAr 
+          ? matchedCategory!.answerAr 
+          : matchedCategory!.answer;
         setMessages(prev => [...prev, { text: answer, isBot: true }]);
       }, 500);
-    } else if (lowerInput.includes("appointment") || lowerInput.includes("book") || lowerInput.includes("rendez-vous") || lowerInput.includes("موعد") || lowerInput.includes("حجز")) {
-      setTimeout(() => {
-        setMessages(prev => [...prev, { 
-          text: language === 'ar' 
-            ? "📅 يمكنني مساعدتك في حجز موعد! ما هو اسمك؟" 
-            : "📅 I can help you book an appointment! What is your name?", 
-          isBot: true 
-        }]);
-        setCollectingInfo(true);
-        setStep("name");
-      }, 500);
     } else {
+      // No keyword match - show helpful menu
       setTimeout(() => {
         setMessages(prev => [...prev, { 
           text: language === 'ar'
-            ? "👋 **يمكنني مساعدتك في:**\n\n🏥 **العلاجات:**\n• زراعة الأسنان • التبييض • تقويم الأسنان\n• التنظيف • علاج العصب\n\n🚨 **حالات الطوارئ**\n\n💡 **نصائح الوقاية**\n\n📍 **معلومات عملية:**\n• المواعيد • الموقع • الأسعار\n• حجز موعد\n\n❓ كيف يمكنني مساعدتك؟"
-            : "👋 **I can help you with:**\n\n🏥 **Treatments:**\n• Implants • Whitening • Orthodontics\n• Cleaning • Root canal\n\n🚨 **Dental emergencies**\n\n💡 **Prevention tips**\n\n📍 **Practical info:**\n• Hours • Location • Pricing\n• Book appointment\n\n❓ How can I help you?", 
+            ? "👋 **يمكنني مساعدتك في:**\n\n🏥 **العلاجات:**\n• زراعة الأسنان • التبييض • تقويم الأسنان\n• التنظيف • علاج العصب\n\n🚨 **حالات الطوارئ**\n\n📍 **معلومات عملية:**\n• المواعيد • الموقع • الأسعار\n• حجز موعد\n\n💡 جرب كتابة: \"تبييض\"، \"زراعة\"، \"موعد\"، \"سعر\"، \"طوارئ\""
+            : "👋 **I can help you with:**\n\n🏥 **Treatments:**\n• Implants • Whitening • Orthodontics\n• Cleaning • Root canal\n\n🚨 **Dental emergencies**\n\n📍 **Practical info:**\n• Hours • Location • Pricing\n• Book appointment\n\n💡 Try typing: \"whitening\", \"implant\", \"appointment\", \"price\", \"emergency\"", 
           isBot: true 
         }]);
       }, 500);
