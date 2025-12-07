@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { MessageCircle, X, Send } from "lucide-react";
+import { MessageCircle, X, Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,198 +12,74 @@ interface Message {
   isBot: boolean;
 }
 
-interface FAQCategory {
-  keywords: string[];
-  answer: string;
-  answerAr?: string;
+interface ConversationMessage {
+  role: 'user' | 'assistant';
+  content: string;
 }
-
-const FAQ_CATEGORIES: Record<string, FAQCategory> = {
-    // Practical information
-    hours: { 
-      keywords: ["opening", "hours", "horaires", "ouvert", "open", "ferme", "closed", "ساعات", "مفتوح", "مغلق"],
-      answer: "🕐 **Clinic Hours:**\nMonday to Friday: 9:00 AM - 5:00 PM\nClosed on weekends (Saturday and Sunday)\n\nTo book an appointment: +96561112299",
-      answerAr: "🕐 **ساعات العمل:**\nالإثنين إلى الجمعة: 9:00 صباحاً - 5:00 مساءً\nمغلق في عطلة نهاية الأسبوع\n\nللحجز: +96561112299"
-    },
-    location: {
-      keywords: ["location", "where", "address", "où", "adresse", "kuwait", "موقع", "عنوان", "أين", "الكويت"],
-      answer: "📍 **Location:**\nKuwait City, Kuwait\n\nFind us easily in the Contact section with Google Maps.\nPhone: +96561112299",
-      answerAr: "📍 **الموقع:**\nمدينة الكويت، الكويت\n\nتجدنا بسهولة في قسم الاتصال مع خرائط جوجل.\nهاتف: +96561112299"
-    },
-    contact: {
-      keywords: ["contact", "phone", "email", "téléphone", "appeler", "call", "اتصال", "هاتف", "بريد"],
-      answer: "📞 **Contact us:**\nPhone: +96561112299\nEmail: info@dryousifgerman.com\nInstagram: @dr_german\nSnapchat: @yousif_german",
-      answerAr: "📞 **تواصل معنا:**\nهاتف: +96561112299\nبريد إلكتروني: info@dryousifgerman.com\nإنستغرام: @dr_german\nسناب شات: @yousif_german"
-    },
-    
-    // Dental treatments
-    implants: {
-      keywords: ["implant", "implants", "missing tooth", "dent manquante", "زراعة", "أسنان مفقودة"],
-      answer: "🦷 **Dental Implants:**\nPermanent solution for missing teeth. The implant is an artificial titanium root that fuses with the bone.\n\n✓ Duration: 3-6 months (complete process)\n✓ Natural and permanent result\n✓ Free consultation available",
-      answerAr: "🦷 **زراعة الأسنان:**\nحل دائم للأسنان المفقودة. الزرعة هي جذر صناعي من التيتانيوم يندمج مع العظم.\n\n✓ المدة: 3-6 أشهر\n✓ نتيجة طبيعية ودائمة\n✓ استشارة مجانية متاحة"
-    },
-    whitening: {
-      keywords: ["whitening", "white", "blanchiment", "blanches", "whiten", "تبييض", "بياض"],
-      answer: "✨ **Teeth Whitening:**\nGet a bright smile with our professional whitening treatments.\n\n✓ Visible results from 1st session\n✓ Safe and painless treatment\n✓ Lasts 1-3 years with good hygiene",
-      answerAr: "✨ **تبييض الأسنان:**\nاحصل على ابتسامة مشرقة مع علاجات التبييض الاحترافية.\n\n✓ نتائج مرئية من الجلسة الأولى\n✓ علاج آمن وغير مؤلم\n✓ يدوم 1-3 سنوات"
-    },
-    orthodontics: {
-      keywords: ["braces", "orthodontic", "orthodontie", "appareil", "align", "alignement", "تقويم", "محاذاة"],
-      answer: "😁 **Orthodontics:**\nCorrect your teeth alignment with our modern solutions:\n\n• Classic braces\n• Clear braces\n• Invisible aligners\n\nAverage duration: 12-24 months",
-      answerAr: "😁 **تقويم الأسنان:**\nصحح محاذاة أسنانك مع حلولنا الحديثة:\n\n• التقويم الكلاسيكي\n• التقويم الشفاف\n• الحاملات غير المرئية\n\nالمدة المتوسطة: 12-24 شهر"
-    },
-    cleaning: {
-      keywords: ["cleaning", "nettoyage", "détartrage", "scaling", "hygiene", "تنظيف", "نظافة"],
-      answer: "🪥 **Cleaning & Scaling:**\nProfessional cleaning recommended every 6 months.\n\n✓ Prevents cavities and gum disease\n✓ Removes plaque and tartar\n✓ Duration: 30-45 minutes\n✓ Painless and refreshing",
-      answerAr: "🪥 **التنظيف وإزالة الجير:**\nتنظيف احترافي موصى به كل 6 أشهر.\n\n✓ يمنع التسوس وأمراض اللثة\n✓ يزيل البلاك والجير\n✓ المدة: 30-45 دقيقة"
-    },
-    rootcanal: {
-      keywords: ["root canal", "canal", "traitement canalaire", "endodontie", "nerve", "علاج عصب", "قناة"],
-      answer: "🔬 **Root Canal Treatment:**\nSave your tooth with modern, painless root canal treatment.\n\n✓ Eliminates infection\n✓ Preserves natural tooth\n✓ Local anesthesia for total comfort\n✓ 1-2 sessions depending on case",
-      answerAr: "🔬 **علاج قناة الجذر:**\nأنقذ سنك بعلاج قناة الجذر الحديث وغير المؤلم.\n\n✓ يقضي على العدوى\n✓ يحافظ على السن الطبيعي\n✓ تخدير موضعي للراحة التامة"
-    },
-    
-    // Dental emergencies
-    emergency: {
-      keywords: ["emergency", "urgence", "pain", "douleur", "hurt", "broken", "cassé", "طوارئ", "ألم", "مكسور"],
-      answer: "🚨 **Dental Emergencies:**\nWe treat emergencies quickly!\n\n📞 Call immediately: +96561112299\n\n**Common emergencies:**\n• Severe pain\n• Broken/lost tooth\n• Dental abscess\n• Significant bleeding\n• Facial trauma\n\nContact us 24/7 for real emergencies!",
-      answerAr: "🚨 **حالات طوارئ الأسنان:**\nnنعالج الطوارئ بسرعة!\n\n📞 اتصل فوراً: +96561112299\n\n**حالات الطوارئ الشائعة:**\n• ألم شديد\n• سن مكسور/مفقود\n• خراج الأسنان\n• نزيف كبير"
-    },
-    
-    // About
-    about: {
-      keywords: ["about", "doctor", "dr", "yousif", "german", "qualifications", "experience", "عن", "دكتور", "خبرة"],
-      answer: "👨‍⚕️ **Dr. Yousif German - Smile Builder**\n\n15+ years of experience in advanced dentistry\n5000+ satisfied patients\n10000+ successful treatments\n\nSpecializing in:\n• Implantology\n• Cosmetic dentistry\n• Modern orthodontics\n• Complete care\n\nState-of-the-art technology • Maximum comfort",
-      answerAr: "👨‍⚕️ **د. يوسف جيرمان - صانع الابتسامات**\n\n+15 سنة خبرة في طب الأسنان المتقدم\n+5000 مريض راضٍ\n+10000 علاج ناجح\n\nمتخصص في:\n• زراعة الأسنان\n• طب الأسنان التجميلي\n• تقويم الأسنان الحديث"
-    },
-    services: {
-      keywords: ["services", "treatments", "traitements", "what do you offer", "خدمات", "علاجات"],
-      answer: "🏥 **Our Services:**\n\n• Dental implants\n• Professional whitening\n• Orthodontics\n• Root canal treatment\n• Crowns & Bridges\n• Dental veneers\n• Cleaning & Scaling\n• Emergency care\n• Pediatric dentistry\n\nAll care under one roof!",
-      answerAr: "🏥 **خدماتنا:**\n\n• زراعة الأسنان\n• تبييض احترافي\n• تقويم الأسنان\n• علاج قناة الجذر\n• التيجان والجسور\n• الفينير\n• التنظيف\n• رعاية الطوارئ\n• طب أسنان الأطفال"
-    },
-    
-    // Appointment
-    appointment: {
-      keywords: ["appointment", "book", "rendez-vous", "réserver", "booking", "موعد", "حجز"],
-      answer: "📅 **Book an appointment:**\n\n3 easy ways:\n1️⃣ Online form (Booking section)\n2️⃣ Direct call: +96561112299\n3️⃣ 'Call' button for voice assistant\n\nYou will receive instant WhatsApp confirmation!",
-      answerAr: "📅 **احجز موعد:**\n\n3 طرق سهلة:\n1️⃣ النموذج عبر الإنترنت (قسم الحجز)\n2️⃣ اتصال مباشر: +96561112299\n3️⃣ زر 'اتصال' للمساعد الصوتي\n\nستتلقى تأكيداً فورياً عبر واتساب!"
-    },
-    cost: {
-      keywords: ["cost", "price", "tarif", "prix", "combien", "how much", "سعر", "تكلفة", "كم"],
-      answer: "💰 **Pricing:**\n\nOur rates vary depending on the treatment needed.\n\n✓ Free evaluation consultation\n✓ Payment plans available\n✓ Transparent quote before treatment\n✓ We accept several insurances\n\nContact us for a personalized quote: +96561112299",
-      answerAr: "💰 **الأسعار:**\n\nتختلف أسعارنا حسب العلاج المطلوب.\n\n✓ استشارة تقييم مجانية\n✓ خطط دفع متاحة\n✓ عرض سعر شفاف قبل العلاج\n✓ نقبل عدة تأمينات\n\nاتصل بنا للحصول على عرض سعر: +96561112299"
-    }
-  };
 
 export const Chatbot = () => {
   const { language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { text: language === 'ar' 
-      ? "👋 **مرحباً بكم في عيادة د. يوسف جيرمان!**\n\nأنا مساعدك الافتراضي. يمكنني مساعدتك في:\n\n• 🦷 علاجات الأسنان\n• 🚨 الحالات الطارئة\n• 💡 نصائح الوقاية\n• 📅 حجز موعد\n• 📍 معلومات عملية\n\n❓ **كيف يمكنني مساعدتك؟**"
-      : "👋 **Welcome to Dr. Yousif German - Smile Builder!**\n\nI'm your virtual assistant. I can help you with:\n\n• 🦷 Dental treatments\n• 🚨 Emergencies\n• 💡 Prevention tips\n• 📅 Book appointment\n• 📍 Practical info\n\n❓ **How can I help you today?**", 
+    { 
+      text: language === 'ar' 
+        ? "👋 مرحباً بكم في عيادة د. يوسف جيرمان!\n\nأنا مساعدك الذكي. اسألني أي سؤال عن:\n• علاجات الأسنان\n• حجز المواعيد\n• الأسعار والخدمات\n• حالات الطوارئ\n\nكيف يمكنني مساعدتك؟"
+        : "👋 Welcome to Dr. Yousif German - Smile Builder!\n\nI'm your AI assistant. Ask me anything about:\n• Dental treatments\n• Booking appointments\n• Pricing & services\n• Emergencies\n\nHow can I help you today?", 
       isBot: true 
     }
   ]);
   const [input, setInput] = useState("");
-  const [collectingInfo, setCollectingInfo] = useState(false);
-  const [leadData, setLeadData] = useState({ name: "", email: "", phone: "" });
-  const [step, setStep] = useState<"name" | "email" | "phone" | "done">("name");
+  const [isLoading, setIsLoading] = useState(false);
+  const [conversationHistory, setConversationHistory] = useState<ConversationMessage[]>([]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // SECURITY: Use edge function for lead submission (no localStorage exposure)
-  const saveLead = async () => {
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const handleSend = async () => {
+    if (!input.trim() || isLoading) return;
+
+    const userMessage = input.trim();
+    setMessages(prev => [...prev, { text: userMessage, isBot: false }]);
+    setInput("");
+    setIsLoading(true);
+
     try {
-      const { data, error } = await supabase.functions.invoke('submit-lead', {
+      // Call the AI chatbot edge function
+      const { data, error } = await supabase.functions.invoke('patient-chatbot', {
         body: {
-          name: leadData.name,
-          email: leadData.email,
-          phone: leadData.phone,
-          message: messages.filter(m => !m.isBot).map(m => m.text).join("\n"),
-          source: "chatbot"
+          message: userMessage,
+          conversationHistory: conversationHistory
         }
       });
 
       if (error) throw error;
 
-      setMessages(prev => [...prev, {
-        text: language === 'ar' 
-          ? "شكراً لك! تم تسجيل معلوماتك. سنتواصل معك قريباً!"
-          : "Thank you! Your information has been recorded. We will contact you soon!",
-        isBot: true
-      }]);
-      setCollectingInfo(false);
-      setLeadData({ name: "", email: "", phone: "" });
-      setStep("name");
+      const botResponse = data.answer || (language === 'ar' 
+        ? "عذراً، حدث خطأ. يرجى المحاولة مرة أخرى."
+        : "Sorry, an error occurred. Please try again.");
+
+      // Update conversation history for context
+      setConversationHistory(prev => [
+        ...prev,
+        { role: 'user', content: userMessage },
+        { role: 'assistant', content: botResponse }
+      ]);
+
+      setMessages(prev => [...prev, { text: botResponse, isBot: true }]);
+
     } catch (error) {
-      console.error("Error saving lead:", error);
-      toast.error(language === 'ar' ? "خطأ في الحفظ" : "Error saving information");
-    }
-  };
-
-  const handleSend = async () => {
-    if (!input.trim()) return;
-
-    const userMessage = { text: input, isBot: false };
-    setMessages(prev => [...prev, userMessage]);
-    setInput("");
-
-    if (collectingInfo) {
-      if (step === "name") {
-        setLeadData(prev => ({ ...prev, name: input }));
-        setStep("email");
-        setMessages(prev => [...prev, { 
-          text: language === 'ar' ? "ما هو بريدك الإلكتروني؟" : "Perfect! What is your email?", 
-          isBot: true 
-        }]);
-      } else if (step === "email") {
-        setLeadData(prev => ({ ...prev, email: input }));
-        setStep("phone");
-        setMessages(prev => [...prev, { 
-          text: language === 'ar' ? "ما هو رقم الواتساب/الهاتف؟" : "And your WhatsApp/phone number?", 
-          isBot: true 
-        }]);
-      } else if (step === "phone") {
-        setLeadData(prev => ({ ...prev, phone: input }));
-        await saveLead();
-      }
-      return;
-    }
-
-    // Check FAQ categories with keyword matching
-    const lowerInput = input.toLowerCase();
-    let matchedCategory: FAQCategory | null = null;
-    let bestMatchScore = 0;
-    
-    // Find the best matching category based on keyword matches
-    for (const [key, category] of Object.entries(FAQ_CATEGORIES)) {
-      const matchCount = category.keywords.filter(keyword => 
-        lowerInput.includes(keyword.toLowerCase())
-      ).length;
-      
-      if (matchCount > bestMatchScore) {
-        bestMatchScore = matchCount;
-        matchedCategory = category;
-      }
-    }
-
-    // If we found a match, use it
-    if (matchedCategory && bestMatchScore > 0) {
-      setTimeout(() => {
-        const answer = language === 'ar' && matchedCategory!.answerAr 
-          ? matchedCategory!.answerAr 
-          : matchedCategory!.answer;
-        setMessages(prev => [...prev, { text: answer, isBot: true }]);
-      }, 500);
-    } else {
-      // No keyword match - show helpful menu
-      setTimeout(() => {
-        setMessages(prev => [...prev, { 
-          text: language === 'ar'
-            ? "👋 **يمكنني مساعدتك في:**\n\n🏥 **العلاجات:**\n• زراعة الأسنان • التبييض • تقويم الأسنان\n• التنظيف • علاج العصب\n\n🚨 **حالات الطوارئ**\n\n📍 **معلومات عملية:**\n• المواعيد • الموقع • الأسعار\n• حجز موعد\n\n💡 جرب كتابة: \"تبييض\"، \"زراعة\"، \"موعد\"، \"سعر\"، \"طوارئ\""
-            : "👋 **I can help you with:**\n\n🏥 **Treatments:**\n• Implants • Whitening • Orthodontics\n• Cleaning • Root canal\n\n🚨 **Dental emergencies**\n\n📍 **Practical info:**\n• Hours • Location • Pricing\n• Book appointment\n\n💡 Try typing: \"whitening\", \"implant\", \"appointment\", \"price\", \"emergency\"", 
-          isBot: true 
-        }]);
-      }, 500);
+      console.error("Chatbot error:", error);
+      setMessages(prev => [...prev, { 
+        text: language === 'ar'
+          ? "عذراً، حدث خطأ. يمكنك الاتصال بنا مباشرة على +96561112299"
+          : "Sorry, an error occurred. You can contact us directly at +96561112299",
+        isBot: true 
+      }]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -226,8 +102,12 @@ export const Chatbot = () => {
                 <MessageCircle className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold text-foreground">Dr. Yousif Assistant</h3>
-                <p className="text-xs text-muted-foreground">Online</p>
+                <h3 className="font-semibold text-foreground">
+                  {language === 'ar' ? 'مساعد د. يوسف' : 'Dr. Yousif Assistant'}
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  {language === 'ar' ? 'مدعوم بالذكاء الاصطناعي' : 'AI-powered'}
+                </p>
               </div>
             </div>
             <button onClick={() => setIsOpen(false)} className="text-muted-foreground hover:text-foreground">
@@ -247,6 +127,17 @@ export const Chatbot = () => {
                 </div>
               </div>
             ))}
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="bg-secondary text-foreground p-3 rounded-lg flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-sm">
+                    {language === 'ar' ? 'جاري الكتابة...' : 'Typing...'}
+                  </span>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
           </div>
 
           <div className="p-4 border-t border-border">
@@ -255,11 +146,21 @@ export const Chatbot = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && handleSend()}
-                placeholder="Write your message..."
+                placeholder={language === 'ar' ? "اكتب رسالتك..." : "Write your message..."}
                 className="bg-secondary border-border"
+                disabled={isLoading}
               />
-              <Button onClick={handleSend} size="icon" className="bg-primary hover:bg-vibe-cyan">
-                <Send className="w-4 h-4" />
+              <Button 
+                onClick={handleSend} 
+                size="icon" 
+                className="bg-primary hover:bg-vibe-cyan"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Send className="w-4 h-4" />
+                )}
               </Button>
             </div>
           </div>
