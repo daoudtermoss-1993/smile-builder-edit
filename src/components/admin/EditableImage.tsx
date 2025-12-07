@@ -92,16 +92,49 @@ export const EditableImage = ({
     }
   };
 
-  const handleUrlSubmit = () => {
+  const handleUrlSubmit = async () => {
     if (!urlInput.trim()) {
       toast.error("Veuillez entrer une URL valide");
       return;
     }
 
     try {
-      new URL(urlInput);
-      setPreviewUrl(urlInput);
+      const parsedUrl = new URL(urlInput);
+      
+      // Only allow HTTPS URLs
+      if (parsedUrl.protocol !== 'https:') {
+        toast.error("Seules les URLs HTTPS sont autorisées");
+        return;
+      }
+      
+      setIsUploading(true);
+      
+      // Test if the image can be loaded
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      
+      const loadPromise = new Promise<boolean>((resolve) => {
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false);
+        img.src = urlInput;
+      });
+      
+      // Set a timeout for loading
+      const timeoutPromise = new Promise<boolean>((resolve) => {
+        setTimeout(() => resolve(false), 10000);
+      });
+      
+      const loaded = await Promise.race([loadPromise, timeoutPromise]);
+      setIsUploading(false);
+      
+      if (loaded) {
+        setPreviewUrl(urlInput);
+        toast.success("Image chargée avec succès");
+      } else {
+        toast.error("Impossible de charger l'image. Vérifiez l'URL ou essayez de télécharger le fichier.");
+      }
     } catch {
+      setIsUploading(false);
       toast.error("URL invalide");
     }
   };
@@ -176,8 +209,15 @@ export const EditableImage = ({
                 value={urlInput}
                 onChange={(e) => setUrlInput(e.target.value)}
               />
-              <Button onClick={handleUrlSubmit} variant="outline">
-                Charger
+              <Button onClick={handleUrlSubmit} variant="outline" disabled={isUploading}>
+                {isUploading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Chargement...
+                  </>
+                ) : (
+                  'Charger'
+                )}
               </Button>
             </div>
           </TabsContent>
