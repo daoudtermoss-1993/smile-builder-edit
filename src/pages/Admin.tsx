@@ -483,13 +483,10 @@ export default function Admin() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="pending_doctor">Pending Doctor</SelectItem>
-                <SelectItem value="pending_patient">Pending Patient</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="confirmed">Confirmed</SelectItem>
                 <SelectItem value="blocked">Blocked</SelectItem>
                 <SelectItem value="cancelled">Cancelled</SelectItem>
-                <SelectItem value="rejected_by_doctor">Rejected by Doctor</SelectItem>
-                <SelectItem value="cancelled_by_patient">Cancelled by Patient</SelectItem>
               </SelectContent>
             </Select>
             <AdminBookingDialog onSuccess={loadAppointments} />
@@ -583,10 +580,10 @@ export default function Admin() {
                         
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-2">
-                            {appointment.status === 'pending_doctor' && (
+                            {appointment.status === 'pending' && (
                               <>
                                 <Button
-                                  onClick={() => confirmAppointmentByDoctor(appointment)}
+                                  onClick={() => updateAppointmentStatus(appointment.id, 'confirmed')}
                                   size="sm"
                                   className="bg-green-600 hover:bg-green-700 h-8"
                                 >
@@ -594,7 +591,7 @@ export default function Admin() {
                                   Confirm
                                 </Button>
                                 <Button
-                                  onClick={() => updateAppointmentStatus(appointment.id, 'rejected_by_doctor')}
+                                  onClick={() => updateAppointmentStatus(appointment.id, 'cancelled')}
                                   size="sm"
                                   variant="destructive"
                                   className="h-8"
@@ -604,7 +601,7 @@ export default function Admin() {
                                 </Button>
                               </>
                             )}
-                            {(appointment.status === 'pending_patient' || appointment.status === 'confirmed') && (
+                            {appointment.status === 'confirmed' && (
                               <Button
                                 onClick={() => handleCancelClick(appointment.id)}
                                 size="sm"

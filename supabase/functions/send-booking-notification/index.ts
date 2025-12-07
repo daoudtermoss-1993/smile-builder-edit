@@ -192,6 +192,7 @@ serve(async (req) => {
     }
 
     // Save appointment to database (service role bypasses RLS)
+    // Status is 'pending' until doctor confirms from admin dashboard
     const { data: appointment, error: dbError } = await supabase
       .from('appointments')
       .insert({
@@ -203,7 +204,7 @@ serve(async (req) => {
         appointment_time: validatedData.time,
         notes: validatedData.notes,
         source: 'booking_form',
-        status: 'confirmed'
+        status: 'pending' // Requires doctor confirmation
       })
       .select()
       .single();
@@ -264,7 +265,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true,
-        message: 'Appointment request received! You will receive a WhatsApp confirmation shortly.',
+        message: 'Appointment request received! The doctor will review and confirm your appointment shortly.',
         appointment_id: appointment.id
       }),
       { 
