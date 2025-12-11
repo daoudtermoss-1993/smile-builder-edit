@@ -88,9 +88,10 @@ serve(async (req) => {
       );
     }
 
-    if (appointment.status !== "pending_doctor") {
+    // Accept both 'pending' and 'pending_doctor' statuses
+    if (appointment.status !== "pending_doctor" && appointment.status !== "pending") {
       console.warn(
-        `Appointment ${appointment_id} is not in pending_doctor status (current: ${appointment.status})`,
+        `Appointment ${appointment_id} is not in pending status (current: ${appointment.status})`,
       );
       return new Response(
         JSON.stringify({
@@ -109,7 +110,7 @@ serve(async (req) => {
       .from("appointments")
       .update({ status: "confirmed" })
       .eq("id", appointment_id)
-      .eq("status", "pending_doctor")
+      .in("status", ["pending", "pending_doctor"])
       .select()
       .single();
 
