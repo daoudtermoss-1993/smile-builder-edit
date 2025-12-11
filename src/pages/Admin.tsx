@@ -43,6 +43,7 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMont
 import AnalyticsCard from '@/components/admin/AnalyticsCard';
 import { AdminBookingDialog } from '@/components/admin/AdminBookingDialog';
 import { MedicalKnowledge } from '@/components/admin/MedicalKnowledge';
+import { AppointmentStats } from '@/components/admin/AppointmentStats';
 
 interface Appointment {
   id: string;
@@ -182,10 +183,10 @@ export default function Admin() {
     }
   };
 
-  const confirmAppointmentByDoctor = async (appointment: Appointment) => {
+  const confirmAppointmentByDoctor = async (id: string) => {
     try {
       const { data, error } = await supabase.functions.invoke('notify-patient-confirmation', {
-        body: { appointment_id: appointment.id },
+        body: { appointment_id: id },
       });
 
       if (error) {
@@ -198,11 +199,28 @@ export default function Admin() {
         console.warn('notify-patient-confirmation warning:', data.warning);
       }
 
-      toast.success('Appointment confirmed! WhatsApp message sent to patient');
+      toast.success('Rendez-vous confirmé! Message WhatsApp envoyé au patient');
       loadAppointments();
     } catch (error) {
       console.error('Error confirming appointment:', error);
-      toast.error('Failed to confirm appointment');
+      toast.error('Échec de la confirmation du rendez-vous');
+    }
+  };
+
+  const rejectAppointment = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('appointments')
+        .update({ status: 'cancelled' })
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      toast.success('Rendez-vous rejeté');
+      loadAppointments();
+    } catch (error) {
+      console.error('Error rejecting appointment:', error);
+      toast.error('Échec du rejet du rendez-vous');
     }
   };
 
@@ -312,80 +330,20 @@ export default function Admin() {
       </header>
 
       <main className="container mx-auto px-4 py-8 space-y-8">
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-primary/5 to-background border-primary/20 hover:border-primary/40 transition-all duration-300 group">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                  <Calendar className="w-6 h-6 text-primary" />
-                </div>
-                <TrendingUp className="w-5 h-5 text-primary/40" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Total Appointments</p>
-                <p className="text-3xl font-bold">{stats.total}</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="relative overflow-hidden bg-gradient-to-br from-yellow-500/10 via-yellow-500/5 to-background border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-300 group">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-xl bg-yellow-500/10 group-hover:bg-yellow-500/20 transition-colors">
-                  <Clock className="w-6 h-6 text-yellow-600" />
-                </div>
-                <Activity className="w-5 h-5 text-yellow-500/40" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Pending Review</p>
-                <p className="text-3xl font-bold text-yellow-600">{stats.pending}</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="relative overflow-hidden bg-gradient-to-br from-green-500/10 via-green-500/5 to-background border-green-500/20 hover:border-green-500/40 transition-all duration-300 group">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-xl bg-green-500/10 group-hover:bg-green-500/20 transition-colors">
-                  <CheckCircle className="w-6 h-6 text-green-600" />
-                </div>
-                <UsersIcon className="w-5 h-5 text-green-500/40" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Confirmed</p>
-                <p className="text-3xl font-bold text-green-600">{stats.confirmed}</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="relative overflow-hidden bg-gradient-to-br from-red-500/10 via-red-500/5 to-background border-red-500/20 hover:border-red-500/40 transition-all duration-300 group">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-xl bg-red-500/10 group-hover:bg-red-500/20 transition-colors">
-                  <Ban className="w-6 h-6 text-red-600" />
-                </div>
-                <XCircle className="w-5 h-5 text-red-500/40" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Blocked</p>
-                <p className="text-3xl font-bold text-red-600">{stats.blocked}</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Enhanced Stats Dashboard */}
+        <AppointmentStats appointments={appointments} />
 
         {/* Analytics Card */}
-          <AnalyticsCard />
+        <AnalyticsCard />
 
-          {/* Medical Knowledge RAG Section */}
-          <MedicalKnowledge />
+        {/* Medical Knowledge RAG Section */}
+        <MedicalKnowledge />
 
         {/* Monthly Calendar View */}
         <Card className="p-6 mb-8 bg-gradient-card backdrop-blur-xl border-primary/20">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold bg-gradient-vibe bg-clip-text text-transparent">
-              Monthly Calendar
+              Calendrier Mensuel
             </h2>
             <div className="flex items-center gap-4">
               <Button onClick={goToPreviousMonth} variant="outline" size="sm">
@@ -399,14 +357,14 @@ export default function Admin() {
               </Button>
               {selectedDate && (
                 <Button onClick={() => setSelectedDate(null)} variant="ghost" size="sm">
-                  Clear Filter
+                  Effacer le filtre
                 </Button>
               )}
             </div>
           </div>
           
           <div className="grid grid-cols-7 gap-2">
-            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+            {['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'].map(day => (
               <div key={day} className="text-center font-semibold text-sm p-2">
                 {day}
               </div>
@@ -416,17 +374,21 @@ export default function Admin() {
               const dayAppointments = getAppointmentsForDate(day);
               const isSelected = selectedDate && isSameDay(day, selectedDate);
               const isToday = isSameDay(day, new Date());
+              const hasPending = dayAppointments.some(apt => apt.status === 'pending');
               
               return (
                 <button
                   key={day.toISOString()}
                   onClick={() => setSelectedDate(day)}
                   className={`
-                    min-h-[80px] p-2 rounded-lg border transition-all
+                    min-h-[80px] p-2 rounded-lg border transition-all relative
                     ${isSelected ? 'bg-primary text-primary-foreground border-primary' : 'bg-card hover:bg-accent'}
                     ${isToday ? 'ring-2 ring-primary' : ''}
                   `}
                 >
+                  {hasPending && (
+                    <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
+                  )}
                   <div className="text-sm font-semibold mb-1">
                     {format(day, 'd')}
                   </div>
@@ -449,7 +411,7 @@ export default function Admin() {
                       ))}
                       {dayAppointments.length > 2 && (
                         <div className="text-xs text-muted-foreground">
-                          +{dayAppointments.length - 2} more
+                          +{dayAppointments.length - 2} autres
                         </div>
                       )}
                     </div>
@@ -460,7 +422,7 @@ export default function Admin() {
           </div>
           {selectedDate && (
             <div className="mt-4 text-sm text-muted-foreground">
-              Showing appointments for: <strong>{format(selectedDate, 'PPP')}</strong>
+              Affichage des rendez-vous pour: <strong>{format(selectedDate, 'PPP')}</strong>
             </div>
           )}
         </Card>
@@ -583,21 +545,21 @@ export default function Admin() {
                             {appointment.status === 'pending' && (
                               <>
                                 <Button
-                                  onClick={() => updateAppointmentStatus(appointment.id, 'confirmed')}
+                                  onClick={() => confirmAppointmentByDoctor(appointment.id)}
                                   size="sm"
                                   className="bg-green-600 hover:bg-green-700 h-8"
                                 >
                                   <CheckCircle className="w-3 h-3 mr-1" />
-                                  Confirm
+                                  Confirmer
                                 </Button>
                                 <Button
-                                  onClick={() => updateAppointmentStatus(appointment.id, 'cancelled')}
+                                  onClick={() => rejectAppointment(appointment.id)}
                                   size="sm"
                                   variant="destructive"
                                   className="h-8"
                                 >
                                   <XCircle className="w-3 h-3 mr-1" />
-                                  Reject
+                                  Rejeter
                                 </Button>
                               </>
                             )}
@@ -609,7 +571,7 @@ export default function Admin() {
                                 className="h-8"
                               >
                                 <Ban className="w-3 h-3 mr-1" />
-                                Cancel
+                                Annuler
                               </Button>
                             )}
                             <Button
@@ -635,16 +597,16 @@ export default function Admin() {
         <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Cancel Appointment</AlertDialogTitle>
+              <AlertDialogTitle>Annuler le rendez-vous</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to cancel this appointment? This action cannot be undone.
-                The patient will need to book a new appointment.
+                Êtes-vous sûr de vouloir annuler ce rendez-vous? Cette action ne peut pas être annulée.
+                Le patient devra prendre un nouveau rendez-vous.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>No, Keep It</AlertDialogCancel>
+              <AlertDialogCancel>Non, garder</AlertDialogCancel>
               <AlertDialogAction onClick={confirmCancel} className="bg-red-600 hover:bg-red-700">
-                Yes, Cancel Appointment
+                Oui, annuler
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -654,16 +616,16 @@ export default function Admin() {
         <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Delete Appointment</AlertDialogTitle>
+              <AlertDialogTitle>Supprimer le rendez-vous</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to permanently delete this appointment? This action cannot be undone.
-                All appointment data will be lost forever.
+                Êtes-vous sûr de vouloir supprimer définitivement ce rendez-vous? Cette action ne peut pas être annulée.
+                Toutes les données du rendez-vous seront perdues.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>No, Keep It</AlertDialogCancel>
+              <AlertDialogCancel>Non, garder</AlertDialogCancel>
               <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
-                Yes, Delete Permanently
+                Oui, supprimer
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

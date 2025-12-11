@@ -121,7 +121,9 @@ export const Booking = () => {
         throw error;
       }
 
-      toast.success("Appointment request sent! We'll contact you shortly via WhatsApp.");
+      toast.success(language === 'ar' 
+        ? "تم إرسال طلب الموعد! سيقوم الدكتور بمراجعته وتأكيده قريباً." 
+        : "Demande de rendez-vous envoyée! Le docteur va la réviser et vous confirmer par WhatsApp.");
       
       setFormData({
         name: "",
