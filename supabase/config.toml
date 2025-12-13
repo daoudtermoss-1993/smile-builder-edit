@@ -19,6 +19,12 @@ verify_jwt = false
 [functions.notify-patient-confirmation]
 verify_jwt = false
 
+[functions.elevenlabs-tts]
+verify_jwt = false
+
+[functions.patient-chatbot]
+verify_jwt = false
+
 # Admin-only functions - require JWT authentication
 [functions.process-pdf-document]
 verify_jwt = true
@@ -28,12 +34,3 @@ verify_jwt = true
 
 [functions.rag-chat]
 verify_jwt = true
-
-[functions.elevenlabs-session]
-verify_jwt = false
-
-[functions.handle-patient-confirmation]
-verify_jwt = false
-
-[functions.submit-lead]
-verify_jwt = false
