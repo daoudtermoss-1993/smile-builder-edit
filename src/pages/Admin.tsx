@@ -37,7 +37,8 @@ import {
   Calendar,
   Activity,
   Users as UsersIcon,
-  TrendingUp
+  TrendingUp,
+  Home
 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths } from 'date-fns';
 import AnalyticsCard from '@/components/admin/AnalyticsCard';
@@ -322,10 +323,16 @@ export default function Admin() {
             </h1>
             <p className="text-sm text-muted-foreground">Welcome, {user.email}</p>
           </div>
-          <Button onClick={handleSignOut} variant="outline">
-            <LogOut className="w-4 h-4 mr-2" />
-            Sign Out
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button onClick={() => navigate('/')} variant="default" className="bg-primary hover:bg-primary/90">
+              <Home className="w-4 h-4 mr-2" />
+              Voir le site
+            </Button>
+            <Button onClick={handleSignOut} variant="outline">
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
+            </Button>
+          </div>
         </div>
       </header>
 
