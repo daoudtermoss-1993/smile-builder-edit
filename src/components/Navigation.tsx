@@ -112,41 +112,46 @@ export const Navigation = () => {
           >
             <motion.div
               className="relative"
-              animate={{ rotateY: [0, 360] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-              style={{ transformStyle: "preserve-3d" }}
+              whileHover={{ rotate: [0, -5, 5, 0] }}
+              transition={{ duration: 0.5 }}
             >
               <svg
-                width="44"
-                height="44"
-                viewBox="0 0 40 40"
+                width="48"
+                height="48"
+                viewBox="0 0 48 48"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
+                className="drop-shadow-lg"
               >
                 <defs>
-                  <linearGradient id="teal-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="hsl(180, 100%, 35%)" />
-                    <stop offset="100%" stopColor="hsl(180, 100%, 45%)" />
+                  <linearGradient id="tooth-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="hsl(180, 100%, 40%)" />
+                    <stop offset="50%" stopColor="hsl(180, 100%, 35%)" />
+                    <stop offset="100%" stopColor="hsl(180, 80%, 30%)" />
                   </linearGradient>
+                  <linearGradient id="tooth-shine" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="white" stopOpacity="0.9" />
+                    <stop offset="50%" stopColor="hsl(180, 20%, 95%)" stopOpacity="0.8" />
+                    <stop offset="100%" stopColor="hsl(180, 10%, 90%)" stopOpacity="0.6" />
+                  </linearGradient>
+                  <filter id="tooth-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="hsl(180, 100%, 25%)" floodOpacity="0.3"/>
+                  </filter>
                 </defs>
-                <circle cx="20" cy="20" r="18" fill="url(#teal-gradient)" />
+                {/* Background circle */}
+                <circle cx="24" cy="24" r="22" fill="url(#tooth-gradient)" filter="url(#tooth-shadow)" />
+                {/* Stylized tooth */}
                 <path
-                  d="M14 12 C14 12 16 18 20 18 C24 18 26 12 26 12"
+                  d="M24 10 C18 10 14 14 14 19 C14 24 16 26 17 30 C18 34 18 38 19 38 C20 38 21 34 22 30 C22.5 28 23.5 28 24 28 C24.5 28 25.5 28 26 30 C27 34 28 38 29 38 C30 38 30 34 31 30 C32 26 34 24 34 19 C34 14 30 10 24 10 Z"
+                  fill="url(#tooth-shine)"
                   stroke="white"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  fill="none"
+                  strokeWidth="0.5"
                 />
-                <path
-                  d="M12 20 C12 20 15 28 20 28 C25 28 28 20 28 20"
-                  stroke="white"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  fill="none"
-                  opacity="0.8"
-                />
-                <circle cx="16" cy="15" r="1.5" fill="white" opacity="0.9" />
-                <circle cx="24" cy="15" r="1.5" fill="white" opacity="0.9" />
+                {/* Tooth shine highlight */}
+                <ellipse cx="20" cy="16" rx="3" ry="4" fill="white" opacity="0.4" />
+                {/* Small sparkle */}
+                <circle cx="30" cy="13" r="1.5" fill="white" opacity="0.6" />
+                <path d="M30 11 L30 15 M28 13 L32 13" stroke="white" strokeWidth="0.8" opacity="0.5" strokeLinecap="round" />
               </svg>
             </motion.div>
             <span className="text-lg font-bold bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent hidden sm:block">
