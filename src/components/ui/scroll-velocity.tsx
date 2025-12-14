@@ -27,10 +27,13 @@ const ScrollVelocity = React.forwardRef<HTMLDivElement, ScrollVelocityProps>(
 
     const x = useTransform(baseX, (v) => `${wrap(0, -50, v)}%`)
 
-    const directionFactor = React.useRef<number>(1)
+    const baseDirection = velocity >= 0 ? 1 : -1
+    const directionFactor = React.useRef<number>(baseDirection)
     const scrollThreshold = React.useRef<number>(5)
-    const currentVelocity = React.useRef<number>(velocity)
+    const currentVelocity = React.useRef<number>(Math.abs(velocity))
 
+    const absVelocity = Math.abs(velocity)
+    
     // Smooth transition for pause/resume
     React.useEffect(() => {
       if (paused) {
@@ -47,15 +50,15 @@ const ScrollVelocity = React.forwardRef<HTMLDivElement, ScrollVelocityProps>(
         // Gradually speed up
         currentVelocity.current = 0.1
         const speedUp = setInterval(() => {
-          currentVelocity.current = Math.min(currentVelocity.current * 1.15, velocity)
-          if (currentVelocity.current >= velocity * 0.95) {
-            currentVelocity.current = velocity
+          currentVelocity.current = Math.min(currentVelocity.current * 1.15, absVelocity)
+          if (currentVelocity.current >= absVelocity * 0.95) {
+            currentVelocity.current = absVelocity
             clearInterval(speedUp)
           }
         }, 16)
         return () => clearInterval(speedUp)
       }
-    }, [paused, velocity])
+    }, [paused, absVelocity])
 
     useAnimationFrame((t, delta) => {
       if (currentVelocity.current < 0.01) return
@@ -69,13 +72,10 @@ const ScrollVelocity = React.forwardRef<HTMLDivElement, ScrollVelocityProps>(
     })
 
     function move(delta: number) {
-      let moveBy = directionFactor.current * currentVelocity.current * (delta / 1000)
-      if (velocityFactor.get() < 0) {
-        directionFactor.current = -1
-      } else if (velocityFactor.get() > 0) {
-        directionFactor.current = 1
-      }
-      moveBy += directionFactor.current * moveBy * velocityFactor.get()
+      let moveBy = baseDirection * currentVelocity.current * (delta / 1000)
+      // Add scroll velocity influence but keep base direction
+      const scrollInfluence = velocityFactor.get() * baseDirection
+      moveBy += moveBy * Math.abs(scrollInfluence)
       baseX.set(baseX.get() + moveBy)
     }
 

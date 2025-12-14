@@ -52,21 +52,6 @@ export function HeroContent({ onBookClick, onContactClick }: HeroContentProps) {
 
   return (
     <div className="relative z-10 container mx-auto px-4 text-center">
-      {/* Floating badge */}
-      <motion.div 
-        className="inline-flex items-center gap-2 mb-6 px-6 py-2 glass rounded-full border border-primary/20"
-        initial={{ opacity: 0, y: 20, scale: 0.9 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-      >
-        <Sparkles className="w-4 h-4 text-primary animate-pulse" />
-        <EditableText 
-          sectionKey="hero" 
-          field="badge" 
-          defaultValue={t('dentist')}
-          className="text-sm font-semibold text-primary"
-        />
-      </motion.div>
       
       {/* Main title with gradient */}
       <motion.h1 
