@@ -1,13 +1,27 @@
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Environment, ContactShadows, OrbitControls } from '@react-three/drei';
 import { Tooth3D } from './Tooth3D';
 
 export function HeroScene() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   return (
     <div className="absolute inset-0 z-0">
       <Canvas
-        camera={{ position: [0, 0, 5], fov: 45 }}
+        camera={{ 
+          position: isMobile ? [0, 0, 7] : [0, 0, 5], 
+          fov: isMobile ? 50 : 45 
+        }}
         dpr={[1, 2]}
         gl={{ antialias: true, alpha: true }}
       >
