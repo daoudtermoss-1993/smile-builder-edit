@@ -1,10 +1,20 @@
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { MeshTransmissionMaterial, Float } from '@react-three/drei';
 import * as THREE from 'three';
 
 export function Tooth3D() {
   const toothRef = useRef<THREE.Group>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   // Create tooth shape using lathe geometry for realistic molar shape
   const toothShape = useMemo(() => {
@@ -41,13 +51,16 @@ export function Tooth3D() {
       // Smooth rotation
       toothRef.current.rotation.y = state.clock.elapsedTime * 0.3;
       // Gentle floating motion
-      toothRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.1;
+      toothRef.current.position.y = (isMobile ? 1.5 : 0) + Math.sin(state.clock.elapsedTime * 0.5) * 0.1;
     }
   });
 
+  // Mobile: smaller scale, positioned higher
+  const scale = isMobile ? 1.2 : 1.8;
+
   return (
     <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.5}>
-      <group ref={toothRef} scale={1.8}>
+      <group ref={toothRef} scale={scale} position={[0, isMobile ? 1.5 : 0, 0]}>
         {/* Main tooth body */}
         <mesh>
           <latheGeometry args={[toothShape, 32]} />
