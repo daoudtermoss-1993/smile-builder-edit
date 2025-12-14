@@ -173,24 +173,27 @@ export const MedicalKnowledge = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Base de Connaissances Médicales (RAG)</h2>
+        <h2 className="text-lg md:text-2xl font-bold">Base de Connaissances Médicales (RAG)</h2>
       </div>
 
       <Tabs defaultValue="chat" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="chat">
-            <MessageSquare className="w-4 h-4 mr-2" />
-            Chatbot IA
+        <TabsList className="grid w-full grid-cols-3 h-auto p-1">
+          <TabsTrigger value="chat" className="flex flex-col md:flex-row items-center gap-1 md:gap-2 px-2 py-2 text-xs md:text-sm">
+            <MessageSquare className="w-4 h-4" />
+            <span className="hidden sm:inline">Chatbot IA</span>
+            <span className="sm:hidden">Chat</span>
           </TabsTrigger>
-          <TabsTrigger value="add">
-            <Upload className="w-4 h-4 mr-2" />
-            Ajouter Documents
+          <TabsTrigger value="add" className="flex flex-col md:flex-row items-center gap-1 md:gap-2 px-2 py-2 text-xs md:text-sm">
+            <Upload className="w-4 h-4" />
+            <span className="hidden sm:inline">Ajouter Documents</span>
+            <span className="sm:hidden">Ajouter</span>
           </TabsTrigger>
-          <TabsTrigger value="manage">
-            <FileText className="w-4 h-4 mr-2" />
-            Gérer Documents
+          <TabsTrigger value="manage" className="flex flex-col md:flex-row items-center gap-1 md:gap-2 px-2 py-2 text-xs md:text-sm">
+            <FileText className="w-4 h-4" />
+            <span className="hidden sm:inline">Gérer Documents</span>
+            <span className="sm:hidden">Gérer</span>
           </TabsTrigger>
         </TabsList>
 
@@ -200,10 +203,10 @@ export const MedicalKnowledge = () => {
             <CardHeader>
               <CardTitle>Assistant IA Médical</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="h-[400px] overflow-y-auto space-y-4 p-4 border rounded-lg bg-muted/20">
+            <CardContent className="space-y-4 p-3 md:p-6">
+              <div className="h-[250px] md:h-[400px] overflow-y-auto space-y-3 md:space-y-4 p-3 md:p-4 border rounded-lg bg-muted/20">
                 {chatHistory.length === 0 ? (
-                  <div className="flex items-center justify-center h-full text-muted-foreground">
+                  <div className="flex items-center justify-center h-full text-muted-foreground text-sm text-center px-4">
                     Posez une question médicale pour commencer...
                   </div>
                 ) : (
@@ -213,28 +216,28 @@ export const MedicalKnowledge = () => {
                       className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                       <div
-                        className={`max-w-[80%] p-3 rounded-lg ${
+                        className={`max-w-[90%] md:max-w-[80%] p-2 md:p-3 rounded-lg ${
                           msg.role === 'user'
                             ? 'bg-primary text-primary-foreground'
                             : 'bg-card border'
                         }`}
                       >
-                        <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                        <p className="text-xs md:text-sm whitespace-pre-wrap">{msg.content}</p>
                       </div>
                     </div>
                   ))
                 )}
                 {isAsking && (
                   <div className="flex justify-start">
-                    <div className="bg-card border p-3 rounded-lg flex items-center gap-2">
+                    <div className="bg-card border p-2 md:p-3 rounded-lg flex items-center gap-2">
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      <span className="text-sm text-muted-foreground">Recherche et génération de réponse...</span>
+                      <span className="text-xs md:text-sm text-muted-foreground">Génération...</span>
                     </div>
                   </div>
                 )}
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Textarea
                   placeholder="Posez votre question médicale..."
                   value={chatQuestion}
@@ -245,12 +248,12 @@ export const MedicalKnowledge = () => {
                       askQuestion();
                     }
                   }}
-                  className="min-h-[80px]"
+                  className="min-h-[60px] md:min-h-[80px] text-sm flex-1"
                 />
                 <Button
                   onClick={askQuestion}
                   disabled={isAsking || !chatQuestion.trim()}
-                  className="self-end"
+                  className="self-stretch sm:self-end w-full sm:w-auto"
                 >
                   {isAsking ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -275,38 +278,40 @@ export const MedicalKnowledge = () => {
 
         {/* Add Documents Tab */}
         <TabsContent value="add">
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             {/* PDF Upload */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Upload className="w-5 h-5" />
+              <CardHeader className="p-4 md:p-6">
+                <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                  <Upload className="w-4 h-4 md:w-5 md:h-5" />
                   Télécharger PDF
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6 pt-0 md:pt-0">
                 <div>
-                  <Label htmlFor="pdf-title">Titre du document</Label>
+                  <Label htmlFor="pdf-title" className="text-sm">Titre du document</Label>
                   <Input
                     id="pdf-title"
-                    placeholder="Ex: Guide de traitement endodontique"
+                    placeholder="Ex: Guide de traitement"
                     value={pdfTitle}
                     onChange={(e) => setPdfTitle(e.target.value)}
+                    className="text-sm"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="pdf-file">Fichier PDF</Label>
+                  <Label htmlFor="pdf-file" className="text-sm">Fichier PDF</Label>
                   <Input
                     id="pdf-file"
                     type="file"
                     accept=".pdf"
                     onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
+                    className="text-sm"
                   />
                 </div>
                 <Button
                   onClick={() => uploadPdfMutation.mutate()}
                   disabled={!pdfFile || !pdfTitle || uploadPdfMutation.isPending}
-                  className="w-full"
+                  className="w-full text-sm"
                 >
                   {uploadPdfMutation.isPending ? (
                     <>
@@ -316,7 +321,8 @@ export const MedicalKnowledge = () => {
                   ) : (
                     <>
                       <Upload className="w-4 h-4 mr-2" />
-                      Télécharger et Traiter
+                      <span className="hidden sm:inline">Télécharger et Traiter</span>
+                      <span className="sm:hidden">Télécharger</span>
                     </>
                   )}
                 </Button>
@@ -325,36 +331,38 @@ export const MedicalKnowledge = () => {
 
             {/* URL Input */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <LinkIcon className="w-5 h-5" />
+              <CardHeader className="p-4 md:p-6">
+                <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                  <LinkIcon className="w-4 h-4 md:w-5 md:h-5" />
                   Ajouter Article Web
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6 pt-0 md:pt-0">
                 <div>
-                  <Label htmlFor="url-title">Titre (optionnel)</Label>
+                  <Label htmlFor="url-title" className="text-sm">Titre (optionnel)</Label>
                   <Input
                     id="url-title"
-                    placeholder="Laisser vide pour auto-détection"
+                    placeholder="Auto-détection"
                     value={urlTitle}
                     onChange={(e) => setUrlTitle(e.target.value)}
+                    className="text-sm"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="url-input">URL de l'article</Label>
+                  <Label htmlFor="url-input" className="text-sm">URL de l'article</Label>
                   <Input
                     id="url-input"
                     type="url"
                     placeholder="https://..."
                     value={urlInput}
                     onChange={(e) => setUrlInput(e.target.value)}
+                    className="text-sm"
                   />
                 </div>
                 <Button
                   onClick={() => addUrlMutation.mutate()}
                   disabled={!urlInput || addUrlMutation.isPending}
-                  className="w-full"
+                  className="w-full text-sm"
                 >
                   {addUrlMutation.isPending ? (
                     <>
@@ -376,10 +384,10 @@ export const MedicalKnowledge = () => {
         {/* Manage Documents Tab */}
         <TabsContent value="manage">
           <Card>
-            <CardHeader>
-              <CardTitle>Documents dans la base de connaissances</CardTitle>
+            <CardHeader className="p-4 md:p-6">
+              <CardTitle className="text-base md:text-lg">Documents dans la base de connaissances</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
               {isLoading ? (
                 <div className="flex justify-center py-8">
                   <Loader2 className="w-6 h-6 animate-spin" />
@@ -389,32 +397,32 @@ export const MedicalKnowledge = () => {
                   {documents.map((doc) => (
                     <div
                       key={doc.id}
-                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                      className="flex items-start gap-2 p-3 md:p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                     >
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           {doc.source_type === 'pdf' ? (
-                            <FileText className="w-4 h-4 text-primary" />
+                            <FileText className="w-4 h-4 text-primary flex-shrink-0" />
                           ) : (
-                            <ExternalLink className="w-4 h-4 text-primary" />
+                            <ExternalLink className="w-4 h-4 text-primary flex-shrink-0" />
                           )}
-                          <h4 className="font-medium">{doc.title}</h4>
+                          <h4 className="font-medium text-sm md:text-base truncate">{doc.title}</h4>
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                          {doc.content.substring(0, 150)}...
+                        <p className="text-xs md:text-sm text-muted-foreground line-clamp-2">
+                          {doc.content.substring(0, 100)}...
                         </p>
                         {doc.source_url && (
                           <a
                             href={doc.source_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs text-primary hover:underline mt-1 inline-block"
+                            className="text-xs text-primary hover:underline mt-1 inline-block truncate max-w-full"
                           >
-                            {doc.source_url}
+                            {doc.source_url.length > 40 ? `${doc.source_url.substring(0, 40)}...` : doc.source_url}
                           </a>
                         )}
                         <p className="text-xs text-muted-foreground mt-1">
-                          Ajouté le {new Date(doc.created_at).toLocaleDateString('fr-FR')}
+                          {new Date(doc.created_at).toLocaleDateString('fr-FR')}
                         </p>
                       </div>
                       <Button
@@ -422,6 +430,7 @@ export const MedicalKnowledge = () => {
                         size="icon"
                         onClick={() => deleteMutation.mutate(doc.id)}
                         disabled={deleteMutation.isPending}
+                        className="flex-shrink-0"
                       >
                         <Trash2 className="w-4 h-4 text-destructive" />
                       </Button>
