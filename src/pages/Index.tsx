@@ -7,6 +7,7 @@ import { Booking } from "@/components/Booking";
 import { ContactMap } from "@/components/ContactMap";
 import { Footer } from "@/components/Footer";
 import { Chatbot } from "@/components/Chatbot";
+import { ScrollDrivenObject } from "@/components/ScrollDrivenObject";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useVisitorTracking } from "@/hooks/useVisitorTracking";
 import AdminAccessButton from "@/components/AdminAccessButton";
@@ -49,6 +50,7 @@ const Index = () => {
       <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] rounded-full bg-primary/[0.02] blur-[120px] -z-10 pointer-events-none" />
       
       <Navigation />
+      <ScrollDrivenObject />
       <AdminAccessButton />
       <AdminEditToggle />
       <AdminEditConfirmDialog />
