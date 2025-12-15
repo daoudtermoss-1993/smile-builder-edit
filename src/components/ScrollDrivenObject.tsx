@@ -1,94 +1,89 @@
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
-import { useRef, useEffect, useState } from "react";
 
 export const ScrollDrivenObject = () => {
-  const [windowHeight, setWindowHeight] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
-  
-  useEffect(() => {
-    setWindowHeight(window.innerHeight);
-    const handleResize = () => setWindowHeight(window.innerHeight);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
   const { scrollYProgress } = useScroll();
 
-  // Smooth spring physics for premium feel
+  // Smooth spring physics for premium cinematic feel
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 50,
-    damping: 20,
+    stiffness: 40,
+    damping: 25,
     restDelta: 0.001
   });
 
-  // Position keyframes - object travels across the page
+  // Section-synchronized keyframes:
+  // 0.00 - 0.15: Hero (starts large, centered-right)
+  // 0.15 - 0.30: About (moves left, shrinks)
+  // 0.30 - 0.45: Services (moves right, grows slightly)
+  // 0.45 - 0.60: Gallery/BeforeAfter (moves left)
+  // 0.60 - 0.80: Booking (moves right, shrinks)
+  // 0.80 - 1.00: Contact (fades out to center)
+
   const x = useTransform(
     smoothProgress,
-    [0, 0.15, 0.3, 0.5, 0.7, 0.85, 1],
-    ["70vw", "20vw", "75vw", "15vw", "80vw", "25vw", "50vw"]
+    [0, 0.15, 0.30, 0.45, 0.60, 0.80, 1],
+    ["65vw", "15vw", "75vw", "10vw", "80vw", "20vw", "50vw"]
   );
   
   const y = useTransform(
     smoothProgress,
-    [0, 0.2, 0.4, 0.6, 0.8, 1],
-    ["15vh", "35vh", "55vh", "45vh", "65vh", "85vh"]
+    [0, 0.15, 0.30, 0.45, 0.60, 0.80, 1],
+    ["25vh", "50vh", "45vh", "55vh", "50vh", "60vh", "75vh"]
   );
 
-  // Scale - starts large, shrinks, grows again at key moments
+  // Scale - large in hero, smaller as we scroll
   const scale = useTransform(
     smoothProgress,
-    [0, 0.1, 0.25, 0.4, 0.55, 0.7, 0.85, 1],
-    [1.2, 0.8, 1.1, 0.6, 0.9, 0.5, 0.7, 0.4]
+    [0, 0.10, 0.15, 0.30, 0.45, 0.60, 0.80, 1],
+    [1.5, 1.3, 0.9, 1.0, 0.7, 0.8, 0.5, 0.3]
   );
 
-  // Rotation - continuous rotation with varying speeds
+  // Rotation synchronized with sections
   const rotate = useTransform(
     smoothProgress,
-    [0, 0.25, 0.5, 0.75, 1],
-    [0, 90, 180, 270, 360]
+    [0, 0.15, 0.30, 0.45, 0.60, 0.80, 1],
+    [0, 15, -10, 20, -15, 10, 0]
   );
 
-  // 3D rotation for depth
-  const rotateX = useTransform(
-    smoothProgress,
-    [0, 0.33, 0.66, 1],
-    [0, 15, -15, 0]
-  );
-
+  // 3D rotations for depth
   const rotateY = useTransform(
     smoothProgress,
-    [0, 0.25, 0.5, 0.75, 1],
-    [0, 25, 0, -25, 0]
+    [0, 0.15, 0.30, 0.45, 0.60, 0.80, 1],
+    [0, 30, -20, 25, -30, 15, 0]
   );
 
-  // Opacity - fades at certain points for dramatic effect
+  const rotateX = useTransform(
+    smoothProgress,
+    [0, 0.30, 0.60, 1],
+    [0, 10, -10, 5]
+  );
+
+  // Opacity - visible in hero, fades slightly in middle, fades out at end
   const opacity = useTransform(
     smoothProgress,
-    [0, 0.05, 0.15, 0.85, 0.95, 1],
-    [0, 1, 1, 1, 0.5, 0]
+    [0, 0.05, 0.12, 0.85, 0.95, 1],
+    [0, 0.85, 0.7, 0.5, 0.2, 0]
   );
 
-  // Blur effect for depth
-  const blur = useTransform(
-    smoothProgress,
-    [0, 0.3, 0.5, 0.7, 1],
-    [0, 2, 0, 3, 5]
-  );
-
-  // Glow intensity
+  // Glow intensity per section
   const glowOpacity = useTransform(
     smoothProgress,
-    [0, 0.25, 0.5, 0.75, 1],
-    [0.4, 0.8, 0.5, 0.9, 0.3]
+    [0, 0.15, 0.30, 0.45, 0.60, 0.80, 1],
+    [0.6, 0.8, 0.5, 0.7, 0.4, 0.6, 0.3]
+  );
+
+  // Blur for depth effect
+  const blur = useTransform(
+    smoothProgress,
+    [0, 0.15, 0.45, 0.80, 1],
+    [0, 1, 2, 3, 5]
   );
 
   return (
     <div 
-      ref={containerRef}
-      className="fixed inset-0 pointer-events-none z-20 overflow-hidden"
-      style={{ perspective: "1000px" }}
+      className="fixed inset-0 pointer-events-none z-[5] overflow-hidden"
+      style={{ perspective: "1200px" }}
     >
-      {/* Main floating object */}
+      {/* Main floating tooth */}
       <motion.div
         className="absolute"
         style={{
@@ -104,111 +99,178 @@ export const ScrollDrivenObject = () => {
           willChange: "transform, opacity, filter"
         }}
       >
-        {/* Outer glow ring */}
+        {/* Outer glow */}
         <motion.div
-          className="absolute -inset-8 rounded-full"
+          className="absolute -inset-12 rounded-full"
           style={{
-            background: "radial-gradient(circle, hsl(var(--primary) / 0.3) 0%, transparent 70%)",
+            background: "radial-gradient(circle, hsl(var(--primary) / 0.4) 0%, transparent 60%)",
             opacity: glowOpacity,
-            filter: "blur(20px)"
+            filter: "blur(25px)"
           }}
         />
         
-        {/* Main crystal/gem shape */}
-        <div className="relative w-24 h-24 md:w-32 md:h-32">
-          {/* Diamond facets */}
-          <motion.div
-            className="absolute inset-0"
-            style={{
-              background: `
-                linear-gradient(135deg, 
-                  hsl(var(--primary) / 0.9) 0%, 
-                  hsl(var(--primary) / 0.5) 25%,
-                  hsl(180 100% 45% / 0.7) 50%,
-                  hsl(var(--primary) / 0.6) 75%,
-                  hsl(180 100% 35% / 0.8) 100%
-                )
-              `,
-              clipPath: "polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)",
-              boxShadow: `
-                inset 0 0 30px hsl(var(--primary) / 0.5),
-                0 0 40px hsl(var(--primary) / 0.4)
-              `
-            }}
-          />
-          
-          {/* Inner highlight */}
-          <motion.div
-            className="absolute inset-4"
-            style={{
-              background: "linear-gradient(to bottom right, hsl(0 0% 100% / 0.6), transparent)",
-              clipPath: "polygon(50% 15%, 85% 40%, 70% 85%, 30% 85%, 15% 40%)",
-            }}
-          />
+        {/* Tooth shape - stylized molar */}
+        <div className="relative w-28 h-32 md:w-36 md:h-40">
+          {/* Main tooth body */}
+          <motion.svg
+            viewBox="0 0 100 120"
+            className="w-full h-full"
+            style={{ filter: "drop-shadow(0 0 20px hsl(var(--primary) / 0.5))" }}
+          >
+            {/* Gradient definitions */}
+            <defs>
+              <linearGradient id="toothGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="hsl(180 100% 98%)" />
+                <stop offset="30%" stopColor="hsl(180 60% 95%)" />
+                <stop offset="60%" stopColor="hsl(180 40% 90%)" />
+                <stop offset="100%" stopColor="hsl(180 50% 85%)" />
+              </linearGradient>
+              <linearGradient id="toothHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="white" stopOpacity="0.9" />
+                <stop offset="50%" stopColor="white" stopOpacity="0.3" />
+                <stop offset="100%" stopColor="white" stopOpacity="0" />
+              </linearGradient>
+              <linearGradient id="toothShadow" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="hsl(180 100% 35%)" stopOpacity="0" />
+                <stop offset="100%" stopColor="hsl(180 100% 35%)" stopOpacity="0.3" />
+              </linearGradient>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                <feMerge>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+            
+            {/* Tooth crown (top part) */}
+            <path
+              d="M20 45 
+                 Q20 15, 50 10 
+                 Q80 15, 80 45
+                 Q80 55, 75 60
+                 L70 65
+                 Q65 70, 60 68
+                 L55 65
+                 Q50 62, 45 65
+                 L40 68
+                 Q35 70, 30 65
+                 L25 60
+                 Q20 55, 20 45Z"
+              fill="url(#toothGradient)"
+              stroke="hsl(180 40% 80%)"
+              strokeWidth="1"
+              filter="url(#glow)"
+            />
+            
+            {/* Left root */}
+            <path
+              d="M30 65
+                 Q28 75, 25 90
+                 Q23 105, 28 110
+                 Q33 112, 35 105
+                 Q38 90, 40 68Z"
+              fill="url(#toothGradient)"
+              stroke="hsl(180 40% 80%)"
+              strokeWidth="1"
+            />
+            
+            {/* Right root */}
+            <path
+              d="M60 68
+                 Q62 85, 65 95
+                 Q68 108, 72 110
+                 Q77 108, 75 100
+                 Q73 85, 70 65Z"
+              fill="url(#toothGradient)"
+              stroke="hsl(180 40% 80%)"
+              strokeWidth="1"
+            />
+            
+            {/* Crown highlight */}
+            <path
+              d="M25 40 
+                 Q25 20, 50 15 
+                 Q70 18, 72 35
+                 Q65 25, 50 22
+                 Q35 25, 25 40Z"
+              fill="url(#toothHighlight)"
+            />
+            
+            {/* Crown shadow/depth */}
+            <path
+              d="M50 35
+                 Q45 40, 40 38
+                 Q35 36, 38 42
+                 Q42 48, 50 45
+                 Q58 48, 62 42
+                 Q65 36, 60 38
+                 Q55 40, 50 35Z"
+              fill="hsl(180 30% 85%)"
+              opacity="0.5"
+            />
+          </motion.svg>
           
           {/* Sparkle effect */}
           <motion.div
-            className="absolute top-1/4 left-1/4 w-2 h-2 bg-white rounded-full"
+            className="absolute top-4 left-6 w-3 h-3 bg-white rounded-full"
             animate={{
-              opacity: [0.5, 1, 0.5],
-              scale: [0.8, 1.2, 0.8]
+              opacity: [0.4, 1, 0.4],
+              scale: [0.8, 1.3, 0.8]
             }}
             transition={{
-              duration: 2,
+              duration: 2.5,
               repeat: Infinity,
               ease: "easeInOut"
             }}
             style={{
-              boxShadow: "0 0 10px 2px white"
+              boxShadow: "0 0 12px 4px white"
+            }}
+          />
+          
+          {/* Secondary sparkle */}
+          <motion.div
+            className="absolute top-8 right-8 w-2 h-2 bg-white rounded-full"
+            animate={{
+              opacity: [0.3, 0.8, 0.3],
+              scale: [0.6, 1.1, 0.6]
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 1
+            }}
+            style={{
+              boxShadow: "0 0 8px 2px white"
             }}
           />
         </div>
       </motion.div>
 
-      {/* Trail particles that follow with delay */}
-      {[...Array(5)].map((_, i) => (
+      {/* Trail particles following the tooth */}
+      {[...Array(4)].map((_, i) => (
         <motion.div
           key={i}
-          className="absolute w-3 h-3 rounded-full"
+          className="absolute w-2 h-2 rounded-full"
           style={{
-            x: useSpring(useTransform(scrollYProgress, (v) => {
-              const offset = (i + 1) * 0.02;
-              return `calc(${70 - v * 50}vw + ${Math.sin(v * Math.PI * 4 + i) * 50}px)`;
-            }), { stiffness: 30 - i * 4, damping: 15 }),
-            y: useSpring(useTransform(scrollYProgress, (v) => {
-              return `calc(${15 + v * 70}vh + ${Math.cos(v * Math.PI * 3 + i) * 30}px)`;
-            }), { stiffness: 30 - i * 4, damping: 15 }),
-            scale: useTransform(scrollYProgress, [0, 1], [0.8 - i * 0.1, 0.3]),
-            opacity: useTransform(scrollYProgress, [0, 0.1, 0.9, 1], [0, 0.6 - i * 0.1, 0.4 - i * 0.08, 0]),
-            background: `radial-gradient(circle, hsl(var(--primary) / ${0.8 - i * 0.15}) 0%, transparent 70%)`,
-            filter: `blur(${i * 2}px)`,
-            willChange: "transform, opacity"
-          }}
-        />
-      ))}
-
-      {/* Ambient floating particles */}
-      {[...Array(8)].map((_, i) => (
-        <motion.div
-          key={`particle-${i}`}
-          className="absolute w-1 h-1 rounded-full bg-primary/40"
-          style={{
-            left: `${10 + i * 12}%`,
-            top: useTransform(
-              smoothProgress,
-              [0, 1],
-              [`${20 + i * 8}%`, `${80 - i * 5}%`]
-            ),
+            x: useSpring(useTransform(smoothProgress, (v) => {
+              const baseX = 65 - v * 45 + Math.sin(v * Math.PI * 3 + i * 1.5) * 40;
+              return `${baseX}vw`;
+            }), { stiffness: 25 - i * 3, damping: 12 }),
+            y: useSpring(useTransform(smoothProgress, (v) => {
+              const baseY = 25 + v * 50 + Math.cos(v * Math.PI * 2.5 + i) * 25;
+              return `${baseY}vh`;
+            }), { stiffness: 25 - i * 3, damping: 12 }),
+            scale: useTransform(smoothProgress, [0, 1], [0.6 - i * 0.1, 0.2]),
             opacity: useTransform(
-              smoothProgress,
-              [i * 0.1, i * 0.1 + 0.1, 0.9 - i * 0.05, 1],
-              [0, 0.6, 0.4, 0]
+              smoothProgress, 
+              [0, 0.08, 0.88, 1], 
+              [0, 0.5 - i * 0.1, 0.3 - i * 0.05, 0]
             ),
-            scale: useTransform(
-              smoothProgress,
-              [0, 0.5, 1],
-              [0.5, 1.5, 0.8]
-            )
+            background: `radial-gradient(circle, hsl(180 100% 90% / ${0.7 - i * 0.12}) 0%, transparent 70%)`,
+            filter: `blur(${i + 1}px)`,
+            willChange: "transform, opacity"
           }}
         />
       ))}
