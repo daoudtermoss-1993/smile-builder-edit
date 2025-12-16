@@ -144,8 +144,10 @@ export const Booking = () => {
   };
 
   return (
-    <section className="py-16 overflow-hidden">
-      <div className="container mx-auto px-4 max-w-4xl">
+    <section className="py-16 overflow-hidden relative">
+      {/* Subtle gradient accent */}
+      <div className="absolute inset-0 bg-gradient-to-t from-primary/[0.03] via-transparent to-transparent pointer-events-none" />
+      <div className="container mx-auto px-4 max-w-4xl relative z-10">
         <motion.div 
           className="text-center mb-12"
           initial={{ opacity: 0, y: 40 }}

@@ -44,10 +44,10 @@ const Index = () => {
         }}
       />
       
-      {/* Decorative gradient orbs */}
-      <div className="fixed top-0 right-0 w-[800px] h-[800px] rounded-full bg-primary/[0.03] blur-[100px] -z-10 pointer-events-none" />
-      <div className="fixed bottom-0 left-0 w-[600px] h-[600px] rounded-full bg-accent/[0.03] blur-[100px] -z-10 pointer-events-none" />
-      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] rounded-full bg-primary/[0.02] blur-[120px] -z-10 pointer-events-none" />
+      {/* Decorative gradient orbs - behind floating object */}
+      <div className="fixed top-0 right-0 w-[800px] h-[800px] rounded-full bg-primary/[0.02] blur-[120px] -z-10 pointer-events-none" />
+      <div className="fixed bottom-0 left-0 w-[600px] h-[600px] rounded-full bg-accent/[0.02] blur-[120px] -z-10 pointer-events-none" />
+      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] rounded-full bg-primary/[0.015] blur-[150px] -z-10 pointer-events-none" />
       
       <Navigation />
       <ScrollDrivenObject />

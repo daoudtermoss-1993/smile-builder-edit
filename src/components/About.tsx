@@ -72,8 +72,10 @@ export const About = ({
   };
   
   return (
-    <section className="py-16 overflow-hidden">
-      <div className="container mx-auto px-4">
+    <section className="py-16 overflow-hidden relative">
+      {/* Subtle gradient accent */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.02] to-transparent pointer-events-none" />
+      <div className="container mx-auto px-4 relative z-10">
         <div className="grid md:grid-cols-2 gap-16 items-center">
           <motion.div 
             className="relative"

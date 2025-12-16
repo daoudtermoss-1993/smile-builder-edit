@@ -80,7 +80,7 @@ export const ScrollDrivenObject = () => {
 
   return (
     <div 
-      className="fixed inset-0 pointer-events-none z-[5] overflow-hidden"
+      className="fixed inset-0 pointer-events-none z-[2] overflow-hidden"
       style={{ perspective: "1200px" }}
     >
       {/* Main floating tooth */}
