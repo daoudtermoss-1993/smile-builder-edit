@@ -456,8 +456,10 @@ export const BeforeAfter = () => {
   };
 
   return (
-    <section className="py-16 overflow-hidden">
-      <div className="container mx-auto max-w-7xl px-4">
+    <section className="py-16 overflow-hidden relative">
+      {/* Subtle gradient accent */}
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/[0.02] to-transparent pointer-events-none" />
+      <div className="container mx-auto max-w-7xl px-4 relative z-10">
         {/* Section Header */}
         <motion.div 
           className="text-center mb-16"

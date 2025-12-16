@@ -42,8 +42,10 @@ export const Services = () => {
   };
   
   return (
-    <section id="services" className="py-16 overflow-hidden">
-      <div className="container mx-auto px-4">
+    <section id="services" className="py-16 overflow-hidden relative">
+      {/* Subtle gradient accent */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-transparent to-accent/[0.02] pointer-events-none" />
+      <div className="container mx-auto px-4 relative z-10">
         <motion.div 
           className="text-center mb-16"
           initial={{ opacity: 0, y: 40 }}
