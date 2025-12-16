@@ -42,10 +42,10 @@ export const Services = () => {
   };
   
   return (
-    <section id="services" className="py-16 overflow-hidden relative">
-      {/* Subtle gradient accent */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-transparent to-accent/[0.02] pointer-events-none" />
+    <section id="services" className="py-20 overflow-hidden relative min-h-screen flex items-center">
       <div className="container mx-auto px-4 relative z-10">
+        {/* Content positioned to the left (3D object on right) */}
+        <div className="max-w-2xl">
         <motion.div 
           className="text-center mb-16"
           initial={{ opacity: 0, y: 40 }}
@@ -89,7 +89,7 @@ export const Services = () => {
 
         {/* Morphing Card Stack Feature */}
         <motion.div 
-          className="flex justify-center mb-16"
+          className="flex justify-start"
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true, margin: "-50px" }}
@@ -101,7 +101,7 @@ export const Services = () => {
             className="w-full max-w-md"
           />
         </motion.div>
-        
+        </div>
       </div>
     </section>
   );
