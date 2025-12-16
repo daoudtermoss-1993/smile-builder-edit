@@ -24,10 +24,9 @@ export const ContactMap = ({ address, phone, email, hours }: ContactMapProps) =>
   ];
   
   return (
-    <section id="contact" className="py-16 overflow-hidden relative">
-      {/* Subtle gradient accent */}
-      <div className="absolute inset-0 bg-gradient-to-bl from-accent/[0.03] via-transparent to-primary/[0.02] pointer-events-none" />
+    <section id="contact" className="py-20 overflow-hidden relative min-h-[80vh] flex items-center">
       <div className="container mx-auto px-4 relative z-10">
+        {/* Content centered (3D object centered/fading) */}
         <motion.div 
           className="text-center mb-16"
           initial={{ opacity: 0, y: 40 }}

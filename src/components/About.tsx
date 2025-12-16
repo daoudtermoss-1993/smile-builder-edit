@@ -72,20 +72,19 @@ export const About = ({
   };
   
   return (
-    <section className="py-16 overflow-hidden relative">
-      {/* Subtle gradient accent */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.02] to-transparent pointer-events-none" />
+    <section className="py-20 overflow-hidden relative min-h-screen flex items-center">
       <div className="container mx-auto px-4 relative z-10">
+        {/* Content positioned to the right (3D object on left) */}
         <div className="grid md:grid-cols-2 gap-16 items-center">
           <motion.div 
-            className="relative"
+            className="relative order-2 md:order-1"
             initial={{ opacity: 0, x: -60 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
             <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl blur-3xl -z-10" />
-            <div className="relative overflow-hidden rounded-3xl shadow-elevated border border-primary/10 group">
+            <div className="relative overflow-hidden rounded-3xl shadow-elevated border border-primary/10 group backdrop-blur-sm bg-card/30">
               <EditableImage
                 sectionKey="about"
                 field="doctorImage"
@@ -98,7 +97,7 @@ export const About = ({
           </motion.div>
           
           <motion.div 
-            className="space-y-6"
+            className="space-y-6 order-1 md:order-2"
             initial={{ opacity: 0, x: 60 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-100px" }}
