@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { HeroScene } from "./hero/HeroScene";
 import { HeroContent } from "./hero/HeroContent";
 import { ScrollIndicator } from "./hero/ScrollIndicator";
+import heroImage from "@/assets/hero-dental.jpg";
 
 interface HeroProps {
   backgroundImage?: string;
@@ -43,13 +44,40 @@ export const Hero = ({
   // Opacité qui diminue au scroll
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0.3]);
   
+  // Background image parallax effects
+  const bgY = useSpring(useTransform(scrollYProgress, [0, 1], [0, 150]), { stiffness: 50, damping: 20 });
+  const bgScale = useSpring(useTransform(scrollYProgress, [0, 1], [1, 1.15]), { stiffness: 50, damping: 20 });
+  const bgRotate = useSpring(useTransform(scrollYProgress, [0, 1], [0, 5]), { stiffness: 50, damping: 20 });
+  const bgBlur = useTransform(scrollYProgress, [0, 0.5, 1], [0, 4, 12]);
+  const bgOpacity = useTransform(scrollYProgress, [0, 0.7], [0.4, 0.1]);
+  
   return (
     <section 
       ref={containerRef}
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
     >
-      {/* Gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-background/95" />
+      {/* Parallax background image with rotation and blur */}
+      <motion.div
+        className="absolute inset-0 -inset-x-20 -inset-y-20"
+        style={{
+          y: bgY,
+          scale: bgScale,
+          rotate: bgRotate,
+          opacity: bgOpacity,
+        }}
+      >
+        <motion.img
+          src={heroImage}
+          alt=""
+          className="w-full h-full object-cover"
+          style={{
+            filter: useTransform(bgBlur, (value) => `blur(${value}px)`),
+          }}
+        />
+      </motion.div>
+      
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
       
       {/* Animated gradient orbs with horizontal parallax */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
