@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar } from "@/components/ui/calendar";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowRight } from "lucide-react";
 import { format } from "date-fns";
 import { EditableText } from "@/components/admin/EditableText";
 import { motion } from "framer-motion";
@@ -123,7 +123,7 @@ export const Booking = () => {
 
       toast.success(language === 'ar' 
         ? "تم إرسال طلب الموعد! سيقوم الدكتور بمراجعته وتأكيده قريباً." 
-        : "Demande de rendez-vous envoyée! Le docteur va la réviser et vous confirmer par WhatsApp.");
+        : "Appointment request sent! The doctor will review and confirm via WhatsApp.");
       
       setFormData({
         name: "",
@@ -144,192 +144,190 @@ export const Booking = () => {
   };
 
   return (
-    <section className="py-20 overflow-hidden relative min-h-screen flex items-center">
-      <div className="container mx-auto px-4 relative z-10">
-        {/* Content positioned to the left (3D object on right) */}
-        <div className="max-w-xl ml-0">
-        <motion.div 
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8 }}
-        >
+    <section id="booking" className="py-32 md:py-40 overflow-hidden relative min-h-screen flex items-center">
+      <div className="container mx-auto px-6 lg:px-12 relative z-10">
+        <div className="max-w-4xl mx-auto">
+          {/* Section header - mont-fort style */}
           <motion.div 
-            className="inline-block px-6 py-2 glass-teal rounded-full mb-6"
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           >
-            <EditableText 
-              sectionKey="booking" 
-              field="badge" 
-              defaultValue={language === 'ar' ? 'حجز موعد' : 'Book Appointment'}
-              className="text-sm font-semibold text-primary"
-            />
+            <span className="text-xs font-light tracking-[0.4em] text-slate-400 uppercase mb-6 block">
+              {language === 'ar' ? 'حجز موعد' : 'Book Appointment'}
+            </span>
+            <h2 className="text-3xl md:text-5xl lg:text-6xl font-extralight tracking-[0.1em] text-slate-800 mb-6">
+              <EditableText 
+                sectionKey="booking" 
+                field="title" 
+                defaultValue={language === 'ar' ? 'حدد موعد زيارتك' : 'Schedule Your Visit'}
+                as="span"
+              />
+            </h2>
+            <div className="w-16 h-px bg-primary/40 mx-auto" />
           </motion.div>
-          <h2 className="text-4xl md:text-5xl font-display font-bold mb-4 text-foreground">
-            <EditableText 
-              sectionKey="booking" 
-              field="title" 
-              defaultValue={language === 'ar' ? 'حدد موعد زيارتك' : 'Schedule Your Visit'}
-              as="span"
-            />
-          </h2>
-        </motion.div>
-        
-        <motion.div 
-          className="vibe-card"
-          initial={{ opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-50px" }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-4 md:gap-6">
+          
+          {/* Form card - minimal glassmorphism */}
+          <motion.div 
+            className="bg-white/60 backdrop-blur-xl border border-slate-200/50 p-8 md:p-12"
+            initial={{ opacity: 0, y: 60 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+                <div className="space-y-2">
+                  <label className="text-xs font-light tracking-[0.15em] text-slate-500 uppercase">
+                    {language === 'ar' ? 'الاسم الكامل' : 'Full Name'} *
+                  </label>
+                  <Input 
+                    placeholder={language === 'ar' ? 'أدخل اسمك الكامل' : 'Enter your full name'}
+                    className="bg-transparent border-0 border-b border-slate-200 rounded-none px-0 focus:border-primary focus:ring-0 font-light"
+                    value={formData.name}
+                    onChange={(e) => handleChange("name", e.target.value)}
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-xs font-light tracking-[0.15em] text-slate-500 uppercase">
+                    {language === 'ar' ? 'رقم الهاتف' : 'Phone Number'} *
+                  </label>
+                  <Input 
+                    placeholder="+965 XXXX XXXX" 
+                    className="bg-transparent border-0 border-b border-slate-200 rounded-none px-0 focus:border-primary focus:ring-0 font-light"
+                    value={formData.phone}
+                    onChange={(e) => handleChange("phone", e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+              
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">{language === 'ar' ? 'الاسم الكامل *' : 'Full Name *'}</label>
+                <label className="text-xs font-light tracking-[0.15em] text-slate-500 uppercase">
+                  {language === 'ar' ? 'البريد الإلكتروني' : 'Email'} *
+                </label>
                 <Input 
-                  placeholder={language === 'ar' ? 'أدخل اسمك الكامل' : 'Enter your full name'}
-                  className="bg-background/50 border-primary/20"
-                  value={formData.name}
-                  onChange={(e) => handleChange("name", e.target.value)}
+                  type="email" 
+                  placeholder={language === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email'}
+                  className="bg-transparent border-0 border-b border-slate-200 rounded-none px-0 focus:border-primary focus:ring-0 font-light"
+                  value={formData.email}
+                  onChange={(e) => handleChange("email", e.target.value)}
                   required
                 />
               </div>
               
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">{language === 'ar' ? 'رقم الهاتف *' : 'Phone Number *'}</label>
-                <Input 
-                  placeholder="+965 XXXX XXXX" 
-                  className="bg-background/50 border-primary/20"
-                  value={formData.phone}
-                  onChange={(e) => handleChange("phone", e.target.value)}
-                  required
-                />
+                <label className="text-xs font-light tracking-[0.15em] text-slate-500 uppercase">
+                  {language === 'ar' ? 'الخدمة المطلوبة' : 'Service Needed'} *
+                </label>
+                <Select value={formData.service} onValueChange={(value) => handleChange("service", value)} required>
+                  <SelectTrigger className="bg-transparent border-0 border-b border-slate-200 rounded-none px-0 focus:border-primary focus:ring-0 font-light">
+                    <SelectValue placeholder={language === 'ar' ? 'اختر خدمة' : 'Select a service'} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="implants">{language === 'ar' ? 'زراعة الأسنان' : 'Dental Implants'}</SelectItem>
+                    <SelectItem value="cosmetic">{language === 'ar' ? 'تجميل الأسنان' : 'Cosmetic Dentistry'}</SelectItem>
+                    <SelectItem value="orthodontics">{language === 'ar' ? 'تقويم الأسنان' : 'Orthodontics'}</SelectItem>
+                    <SelectItem value="root-canal">{language === 'ar' ? 'علاج قناة الجذر' : 'Root Canal'}</SelectItem>
+                    <SelectItem value="cleaning">{language === 'ar' ? 'تنظيف وفحص' : 'Cleaning & Check-ups'}</SelectItem>
+                    <SelectItem value="emergency">{language === 'ar' ? 'رعاية طوارئ' : 'Emergency Care'}</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">{language === 'ar' ? 'البريد الإلكتروني *' : 'Email *'}</label>
-              <Input 
-                type="email" 
-                placeholder={language === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email'}
-                className="bg-background/50 border-primary/20"
-                value={formData.email}
-                onChange={(e) => handleChange("email", e.target.value)}
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">{language === 'ar' ? 'الخدمة المطلوبة *' : 'Service Needed *'}</label>
-              <Select value={formData.service} onValueChange={(value) => handleChange("service", value)} required>
-                <SelectTrigger className="bg-background/50 border-primary/20">
-                  <SelectValue placeholder={language === 'ar' ? 'اختر خدمة' : 'Select a service'} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="implants">{language === 'ar' ? 'زراعة الأسنان' : 'Dental Implants'}</SelectItem>
-                  <SelectItem value="cosmetic">{language === 'ar' ? 'تجميل الأسنان' : 'Cosmetic Dentistry'}</SelectItem>
-                  <SelectItem value="orthodontics">{language === 'ar' ? 'تقويم الأسنان' : 'Orthodontics'}</SelectItem>
-                  <SelectItem value="root-canal">{language === 'ar' ? 'علاج قناة الجذر' : 'Root Canal Treatment'}</SelectItem>
-                  <SelectItem value="cleaning">{language === 'ar' ? 'تنظيف وفحص' : 'Cleaning & Check-ups'}</SelectItem>
-                  <SelectItem value="emergency">{language === 'ar' ? 'رعاية طوارئ' : 'Emergency Care'}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="grid md:grid-cols-2 gap-4 md:gap-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">{language === 'ar' ? 'اختر التاريخ *' : 'Select Date *'}</label>
-                <div className="flex justify-center overflow-x-auto">
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={setSelectedDate}
-                    disabled={(date) => {
-                      const day = date.getDay();
-                      return day === 0 || day === 6 || date < new Date();
-                    }}
-                    className="rounded-md border border-primary/20 bg-background/50 w-full max-w-[300px]"
-                  />
+              
+              <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+                <div className="space-y-3">
+                  <label className="text-xs font-light tracking-[0.15em] text-slate-500 uppercase">
+                    {language === 'ar' ? 'اختر التاريخ' : 'Select Date'} *
+                  </label>
+                  <div className="flex justify-center">
+                    <Calendar
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={setSelectedDate}
+                      disabled={(date) => {
+                        const day = date.getDay();
+                        return day === 0 || day === 6 || date < new Date();
+                      }}
+                      className="border border-slate-200 bg-white/50"
+                    />
+                  </div>
+                </div>
+                  
+                <div className="space-y-3">
+                  <label className="text-xs font-light tracking-[0.15em] text-slate-500 uppercase">
+                    {language === 'ar' ? 'اختر الوقت' : 'Select Time'} *
+                  </label>
+                  {!selectedDate ? (
+                    <p className="text-sm font-light text-slate-400">{language === 'ar' ? 'يرجى اختيار التاريخ أولاً' : 'Please select a date first'}</p>
+                  ) : isLoadingSlots ? (
+                    <div className="flex items-center justify-center py-4">
+                      <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                    </div>
+                  ) : availableSlots.length === 0 ? (
+                    <p className="text-sm font-light text-slate-400">{language === 'ar' ? 'لا توجد مواعيد متاحة' : 'No available slots'}</p>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-2">
+                      {availableSlots.map((slot) => (
+                        <button
+                          key={slot.slot_time}
+                          type="button"
+                          onClick={() => slot.is_available && handleChange("time", slot.slot_time)}
+                          disabled={!slot.is_available}
+                          className={`py-3 px-4 text-sm font-light border transition-all duration-300 ${
+                            formData.time === slot.slot_time
+                              ? 'border-primary bg-primary text-white'
+                              : slot.is_available
+                                ? 'border-slate-200 hover:border-primary text-slate-600'
+                                : 'border-slate-100 text-slate-300 cursor-not-allowed'
+                          }`}
+                        >
+                          {slot.slot_time}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
-                
+              
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">{language === 'ar' ? 'اختر الوقت *' : 'Select Time *'}</label>
-                {!selectedDate ? (
-                  <p className="text-sm text-muted-foreground">{language === 'ar' ? 'يرجى اختيار التاريخ أولاً' : 'Please select a date first'}</p>
-                ) : isLoadingSlots ? (
-                  <div className="flex items-center justify-center py-4">
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  </div>
-                ) : availableSlots.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">{language === 'ar' ? 'لا توجد مواعيد متاحة لهذا التاريخ' : 'No available slots for this date'}</p>
+                <label className="text-xs font-light tracking-[0.15em] text-slate-500 uppercase">
+                  {language === 'ar' ? 'ملاحظات إضافية' : 'Additional Notes'}
+                </label>
+                <Textarea 
+                  placeholder={language === 'ar' ? 'أي معلومات إضافية' : 'Any additional information'}
+                  rows={3}
+                  className="bg-transparent border-0 border-b border-slate-200 rounded-none px-0 focus:border-primary focus:ring-0 font-light resize-none"
+                  value={formData.notes}
+                  onChange={(e) => handleChange("notes", e.target.value)}
+                />
+              </div>
+              
+              <motion.button 
+                type="submit" 
+                className="group w-full py-5 px-8 text-sm font-light tracking-[0.2em] uppercase bg-primary text-white hover:bg-primary/90 transition-all duration-300 flex items-center justify-center gap-3"
+                disabled={isSubmitting}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    {language === 'ar' ? 'جاري الإرسال...' : 'Sending...'}
+                  </>
                 ) : (
                   <>
-                    <Select value={formData.time} onValueChange={(value) => handleChange("time", value)}>
-                      <SelectTrigger className="bg-background/50 border-primary/20">
-                        <SelectValue placeholder={language === 'ar' ? 'اختر موعداً' : 'Choose a time slot'} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {availableSlots.map((slot) => (
-                          <SelectItem 
-                            key={slot.slot_time} 
-                            value={slot.slot_time}
-                            disabled={!slot.is_available}
-                            className={!slot.is_available ? "opacity-50" : ""}
-                          >
-                            <span className="flex items-center justify-between w-full gap-2">
-                              <span>{slot.slot_time}</span>
-                              {!slot.is_available ? (
-                                <span className="text-xs px-2 py-0.5 rounded-full bg-destructive/20 text-destructive">
-                                  {language === 'ar' ? 'محجوز' : 'Réservé'}
-                                </span>
-                              ) : (
-                                <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-600">
-                                  {language === 'ar' ? 'متاح' : 'Disponible'}
-                                </span>
-                              )}
-                            </span>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {availableSlots.every(slot => !slot.is_available) && (
-                      <p className="text-sm text-destructive mt-2">
-                        ⚠️ {language === 'ar' ? 'جميع المواعيد محجوزة لهذا التاريخ. يرجى اختيار تاريخ آخر.' : 'All time slots are fully booked for this date. Please select another date.'}
-                      </p>
-                    )}
+                    {language === 'ar' ? 'حجز موعد' : 'Book Appointment'}
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </>
                 )}
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">{language === 'ar' ? 'ملاحظات إضافية' : 'Additional Notes'}</label>
-              <Textarea 
-                placeholder={language === 'ar' ? 'أي معلومات إضافية أو متطلبات خاصة' : 'Any additional information or special requirements'}
-                rows={4}
-                className="bg-background/50 border-primary/20"
-                value={formData.notes}
-                onChange={(e) => handleChange("notes", e.target.value)}
-              />
-            </div>
-            
-            <button type="submit" className="vibe-btn vibe-glow w-full" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {language === 'ar' ? 'جاري الإرسال...' : 'Sending...'}
-                </>
-              ) : (
-                language === 'ar' ? 'حجز موعد' : 'Book Appointment'
-              )}
-            </button>
-          </form>
-        </motion.div>
+              </motion.button>
+            </form>
+          </motion.div>
         </div>
       </div>
     </section>
