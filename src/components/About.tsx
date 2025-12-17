@@ -36,9 +36,9 @@ interface StatItem extends DynamicContentItem {
 }
 
 const defaultStats: StatItem[] = [
-  { id: "1", value: "15+", labelEn: "Years Exp.", labelAr: "سنوات خبرة", iconType: "award" },
-  { id: "2", value: "5000+", labelEn: "Patients", labelAr: "مريض", iconType: "users" },
-  { id: "3", value: "10000+", labelEn: "Treatments", labelAr: "علاج", iconType: "clock" },
+  { id: "1", value: "15+", labelEn: "Years Experience", labelAr: "سنوات خبرة", iconType: "award" },
+  { id: "2", value: "5000+", labelEn: "Happy Patients", labelAr: "مريض سعيد", iconType: "users" },
+  { id: "3", value: "10000+", labelEn: "Treatments Done", labelAr: "علاج ناجح", iconType: "clock" },
 ];
 
 const iconMap: Record<string, LucideIcon> = {
@@ -72,113 +72,115 @@ export const About = ({
   };
   
   return (
-    <section className="py-20 overflow-hidden relative min-h-screen flex items-center">
-      <div className="container mx-auto px-4 relative z-10">
-        {/* Content positioned to the right (3D object on left) */}
-        <div className="grid md:grid-cols-2 gap-16 items-center">
+    <section id="about" className="py-32 md:py-40 overflow-hidden relative min-h-screen flex items-center">
+      <div className="container mx-auto px-6 lg:px-12 relative z-10">
+        <div className="max-w-6xl mx-auto">
+          {/* Section header - mont-fort style */}
           <motion.div 
-            className="relative order-2 md:order-1"
-            initial={{ opacity: 0, x: -60 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            className="text-center mb-20"
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl blur-3xl -z-10" />
-            <div className="relative overflow-hidden rounded-3xl shadow-elevated border border-primary/10 group backdrop-blur-sm bg-card/30">
-              <EditableImage
-                sectionKey="about"
-                field="doctorImage"
-                defaultSrc={doctorImage}
-                alt={doctorName}
-                className="aspect-square transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-            </div>
-          </motion.div>
-          
-          <motion.div 
-            className="space-y-6 order-1 md:order-2"
-            initial={{ opacity: 0, x: 60 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          >
-            <motion.div 
-              className="inline-block px-6 py-2 glass-teal rounded-full"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <EditableText 
-                sectionKey="about" 
-                field="badge" 
-                defaultValue={language === 'ar' ? 'عن عيادتنا' : 'About Our Clinic'}
-                className="text-sm font-semibold text-primary"
-              />
-            </motion.div>
-            
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground">
+            <span className="text-xs font-light tracking-[0.4em] text-slate-400 uppercase mb-6 block">
+              {language === 'ar' ? 'عن عيادتنا' : 'About Us'}
+            </span>
+            <h2 className="text-3xl md:text-5xl lg:text-6xl font-extralight tracking-[0.1em] text-slate-800 mb-6">
               <EditableText 
                 sectionKey="about" 
                 field="title" 
-                defaultValue={language === 'ar' ? `تعرف على ${doctorName}` : `Meet ${doctorName}`}
+                defaultValue={language === 'ar' ? 'طب الأسنان الفاخر' : 'Premium Dental Care'}
                 as="span"
               />
             </h2>
-            
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              <EditableText 
-                sectionKey="about" 
-                field="description" 
-                defaultValue={language === 'ar' ? 'مع سنوات من الخبرة في طب الأسنان التجميلي والترميمي، الدكتور يوسف جيرمان ملتزم بتقديم رعاية أسنان استثنائية في بيئة مريحة وترحيبية. تجمع عيادتنا بين أحدث التقنيات واللمسة الشخصية لضمان أفضل النتائج الممكنة لابتسامتك.' : description}
-                as="span"
-              />
-            </p>
-            
-            {/* Dynamic Stats grid */}
-            <div className="grid grid-cols-3 gap-4 pt-6">
-              {statItems.map((stat, index) => {
-                const Icon = iconMap[stat.iconType] || Award;
-                return (
-                  <motion.div 
-                    key={stat.id}
-                    className="vibe-card text-center group cursor-pointer relative"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
-                    whileHover={{ y: -8, scale: 1.02 }}
-                  >
-                    {isEditMode && (
-                      <div className="absolute -top-2 -right-2 z-10">
-                        <DeleteContentButton onConfirm={() => deleteItem(stat.id)} itemName="cette statistique" />
-                      </div>
-                    )}
-                    <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
-                      <Icon className="h-6 w-6 text-primary" />
-                    </div>
-                    <div className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">
-                      {stat.value}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {language === 'ar' ? stat.labelAr : stat.labelEn}
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-
-            {/* Add stat button */}
-            {isEditMode && (
-              <div className="flex justify-center pt-4">
-                <AddContentButton 
-                  onClick={() => setShowAddDialog(true)} 
-                  label={language === 'ar' ? 'إضافة إحصائية' : 'Add Statistic'}
-                />
-              </div>
-            )}
+            <div className="w-16 h-px bg-primary/40 mx-auto" />
           </motion.div>
+
+          {/* Content grid */}
+          <div className="grid md:grid-cols-2 gap-16 lg:gap-24 items-center">
+            {/* Image */}
+            <motion.div 
+              className="relative order-2 md:order-1"
+              initial={{ opacity: 0, x: -60 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div className="relative overflow-hidden">
+                <EditableImage
+                  sectionKey="about"
+                  field="doctorImage"
+                  defaultSrc={doctorImage}
+                  alt={doctorName}
+                  className="w-full aspect-[4/5] object-cover"
+                />
+                {/* Overlay line decoration */}
+                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+              </div>
+            </motion.div>
+            
+            {/* Text content */}
+            <motion.div 
+              className="space-y-8 order-1 md:order-2"
+              initial={{ opacity: 0, x: 60 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <h3 className="text-2xl md:text-3xl font-light tracking-[0.05em] text-slate-700">
+                {language === 'ar' ? `تعرف على ${doctorName}` : `Meet ${doctorName}`}
+              </h3>
+              
+              <p className="text-base md:text-lg font-light leading-relaxed text-slate-500">
+                <EditableText 
+                  sectionKey="about" 
+                  field="description" 
+                  defaultValue={language === 'ar' ? 'مع سنوات من الخبرة في طب الأسنان التجميلي والترميمي، الدكتور يوسف جيرمان ملتزم بتقديم رعاية أسنان استثنائية في بيئة مريحة وترحيبية.' : description}
+                  as="span"
+                />
+              </p>
+              
+              {/* Stats - minimal style */}
+              <div className="grid grid-cols-3 gap-8 pt-8 border-t border-slate-200">
+                {statItems.map((stat, index) => {
+                  const Icon = iconMap[stat.iconType] || Award;
+                  return (
+                    <motion.div 
+                      key={stat.id}
+                      className="text-center relative group"
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.6, delay: index * 0.1 }}
+                    >
+                      {isEditMode && (
+                        <div className="absolute -top-2 -right-2 z-10">
+                          <DeleteContentButton onConfirm={() => deleteItem(stat.id)} itemName="cette statistique" />
+                        </div>
+                      )}
+                      <div className="text-3xl md:text-4xl font-extralight text-primary mb-2">
+                        {stat.value}
+                      </div>
+                      <div className="text-xs font-light tracking-[0.15em] text-slate-400 uppercase">
+                        {language === 'ar' ? stat.labelAr : stat.labelEn}
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+
+              {/* Add stat button */}
+              {isEditMode && (
+                <div className="flex justify-center pt-4">
+                  <AddContentButton 
+                    onClick={() => setShowAddDialog(true)} 
+                    label={language === 'ar' ? 'إضافة إحصائية' : 'Add Statistic'}
+                  />
+                </div>
+              )}
+            </motion.div>
+          </div>
         </div>
       </div>
 
