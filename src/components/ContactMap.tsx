@@ -25,8 +25,8 @@ export const ContactMap = ({ address, phone, email, hours }: ContactMapProps) =>
   
   return (
     <section id="contact" className="py-16 overflow-hidden relative">
-      {/* Subtle gradient accent */}
-      <div className="absolute inset-0 bg-gradient-to-bl from-accent/[0.03] via-transparent to-primary/[0.02] pointer-events-none" />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-xl" />
+      <div className="absolute inset-0 bg-gradient-to-bl from-[hsl(180,50%,8%)]/80 via-black/70 to-[hsl(180,50%,10%)]/80" />
       <div className="container mx-auto px-4 relative z-10">
         <motion.div 
           className="text-center mb-16"

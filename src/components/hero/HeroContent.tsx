@@ -53,7 +53,7 @@ export function HeroContent({ onBookClick, onContactClick }: HeroContentProps) {
   return (
     <div className="relative z-10 container mx-auto px-4 text-center">
       
-      {/* Main title with gradient */}
+      {/* Main title with gradient - white/teal for dark background */}
       <motion.h1 
         className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 tracking-tight"
         initial={{ opacity: 0, y: 30 }}
@@ -65,13 +65,13 @@ export function HeroContent({ onBookClick, onContactClick }: HeroContentProps) {
           field="title" 
           defaultValue={t('heroTitle')}
           as="span"
-          className="bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient"
+          className="bg-gradient-to-r from-white via-[hsl(180,100%,70%)] to-white bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient drop-shadow-[0_0_30px_rgba(0,180,180,0.4)]"
         />
       </motion.h1>
       
-      {/* Subtitle */}
+      {/* Subtitle - light for dark background */}
       <motion.p 
-        className="text-lg md:text-xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed"
+        className="text-lg md:text-xl text-white/80 mb-12 max-w-2xl mx-auto leading-relaxed drop-shadow-lg"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.6 }}
@@ -93,7 +93,7 @@ export function HeroContent({ onBookClick, onContactClick }: HeroContentProps) {
       >
         <button 
           onClick={handlePlayDoctorInfo}
-          className="group relative overflow-hidden px-8 py-4 bg-primary text-primary-foreground rounded-full font-semibold text-lg shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 hover:scale-105"
+          className="group relative overflow-hidden px-8 py-4 bg-[hsl(180,100%,40%)] text-white rounded-full font-semibold text-lg shadow-lg shadow-[hsl(180,100%,40%)]/40 hover:shadow-xl hover:shadow-[hsl(180,100%,40%)]/50 transition-all duration-300 hover:scale-105 backdrop-blur-sm"
         >
           <span className="relative z-10 inline-flex items-center gap-2">
             {isPlaying ? (
@@ -105,12 +105,12 @@ export function HeroContent({ onBookClick, onContactClick }: HeroContentProps) {
               ? (language === 'ar' ? 'إيقاف' : 'Stop') 
               : (language === 'ar' ? 'عن الدكتور' : 'About Dr.')}
           </span>
-          <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/80 to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[hsl(180,100%,45%)] via-[hsl(180,100%,50%)] to-[hsl(180,100%,45%)] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </button>
         
         <button 
           onClick={onContactClick}
-          className="group px-8 py-4 glass border border-primary/20 text-foreground rounded-full font-semibold text-lg hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 hover:scale-105"
+          className="group px-8 py-4 bg-white/10 backdrop-blur-md border border-white/30 text-white rounded-full font-semibold text-lg hover:border-white/50 hover:bg-white/20 transition-all duration-300 hover:scale-105"
         >
           <span className="inline-flex items-center gap-2">
             <Phone className="h-5 w-5 transition-transform group-hover:rotate-12" />

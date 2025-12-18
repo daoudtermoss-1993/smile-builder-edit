@@ -43,8 +43,9 @@ export const Services = () => {
   
   return (
     <section id="services" className="py-16 overflow-hidden relative">
-      {/* Subtle gradient accent */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-transparent to-accent/[0.02] pointer-events-none" />
+      {/* Glass panel background for readability */}
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-xl" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[hsl(180,50%,8%)]/70 via-black/60 to-[hsl(180,50%,10%)]/70" />
       <div className="container mx-auto px-4 relative z-10">
         <motion.div 
           className="text-center mb-16"
