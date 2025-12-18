@@ -1,7 +1,10 @@
 import { useLanguage } from "@/contexts/LanguageContext";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { useRef } from "react";
-import { ChevronDown } from "lucide-react";
+import { HeroScene } from "./hero/HeroScene";
+import { HeroContent } from "./hero/HeroContent";
+import { ScrollIndicator } from "./hero/ScrollIndicator";
+import heroImage from "@/assets/hero-dental.jpg";
 
 interface HeroProps {
   backgroundImage?: string;
@@ -23,7 +26,7 @@ export const Hero = ({
   subtitle,
   badge
 }: HeroProps) => {
-  const { language } = useLanguage();
+  const { t } = useLanguage();
   const containerRef = useRef<HTMLElement>(null);
   
   const { scrollYProgress } = useScroll({
@@ -31,125 +34,126 @@ export const Hero = ({
     offset: ["start start", "end start"]
   });
   
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const contentY = useTransform(scrollYProgress, [0, 0.5], [0, 100]);
+  // Parallax horizontal effects - différentes vitesses pour chaque élément
+  const xOrb1 = useSpring(useTransform(scrollYProgress, [0, 1], [0, 300]), { stiffness: 100, damping: 30 });
+  const xOrb2 = useSpring(useTransform(scrollYProgress, [0, 1], [0, -250]), { stiffness: 80, damping: 25 });
+  const xOrb3 = useSpring(useTransform(scrollYProgress, [0, 1], [0, 150]), { stiffness: 60, damping: 20 });
+  const xContent = useSpring(useTransform(scrollYProgress, [0, 1], [0, -50]), { stiffness: 100, damping: 30 });
+  const x3DScene = useSpring(useTransform(scrollYProgress, [0, 1], [0, 100]), { stiffness: 120, damping: 35 });
+  
+  // Opacité qui diminue au scroll
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0.3]);
+  
+  // Background image parallax effects
+  const bgY = useSpring(useTransform(scrollYProgress, [0, 1], [0, 150]), { stiffness: 50, damping: 20 });
+  const bgScale = useSpring(useTransform(scrollYProgress, [0, 1], [1, 1.15]), { stiffness: 50, damping: 20 });
+  const bgRotate = useSpring(useTransform(scrollYProgress, [0, 1], [0, 5]), { stiffness: 50, damping: 20 });
+  const bgBlur = useTransform(scrollYProgress, [0, 0.5, 1], [0, 4, 12]);
+  const bgOpacity = useTransform(scrollYProgress, [0, 0.7], [0.4, 0.1]);
   
   return (
     <section 
       ref={containerRef}
-      id="home"
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
     >
-      {/* Content - Mont-fort style centered minimal */}
-      <motion.div 
-        className="relative z-10 w-full max-w-5xl mx-auto px-6 text-center"
-        style={{ 
-          opacity: contentOpacity,
-          y: contentY
+      {/* Parallax background image with rotation and blur */}
+      <motion.div
+        className="absolute inset-0 -inset-x-20 -inset-y-20"
+        style={{
+          y: bgY,
+          scale: bgScale,
+          rotate: bgRotate,
+          opacity: bgOpacity,
         }}
       >
-        {/* Logo/Brand mark */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-12"
-        >
-          <svg
-            width="60"
-            height="60"
-            viewBox="0 0 48 48"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="mx-auto opacity-60"
-          >
-            <circle cx="24" cy="24" r="20" stroke="hsl(180, 100%, 35%)" strokeWidth="0.5" fill="none" />
-            <circle cx="24" cy="12" r="2" fill="hsl(180, 100%, 35%)" opacity="0.6" />
-            <circle cx="16" cy="18" r="1.5" fill="hsl(180, 100%, 35%)" opacity="0.4" />
-            <circle cx="32" cy="18" r="1.5" fill="hsl(180, 100%, 35%)" opacity="0.4" />
-            <circle cx="24" cy="24" r="3" fill="hsl(180, 100%, 35%)" opacity="0.8" />
-            <circle cx="18" cy="30" r="1.5" fill="hsl(180, 100%, 35%)" opacity="0.4" />
-            <circle cx="30" cy="30" r="1.5" fill="hsl(180, 100%, 35%)" opacity="0.4" />
-            <circle cx="24" cy="36" r="2" fill="hsl(180, 100%, 35%)" opacity="0.6" />
-          </svg>
-        </motion.div>
-
-        {/* Main title - letter-spaced like mont-fort */}
-        <motion.h1
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="text-4xl md:text-6xl lg:text-7xl font-extralight tracking-[0.2em] md:tracking-[0.3em] text-slate-800 uppercase mb-8"
-        >
-          {language === 'ar' ? 'د. يوسف جيرمان' : 'Dr. Yousif German'}
-        </motion.h1>
-
-        {/* Divider line */}
-        <motion.div
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 1, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="w-24 h-px bg-primary/40 mx-auto mb-8"
+        <motion.img
+          src={heroImage}
+          alt=""
+          className="w-full h-full object-cover"
+          style={{
+            filter: useTransform(bgBlur, (value) => `blur(${value}px)`),
+          }}
         />
-
-        {/* Subtitle - elegant and minimal */}
-        <motion.p
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="text-lg md:text-xl font-light tracking-[0.1em] text-slate-500 max-w-2xl mx-auto leading-relaxed"
-        >
-          {language === 'ar' 
-            ? 'طب الأسنان الفاخر في الكويت' 
-            : 'Premium Dental Care in Kuwait'
-          }
-        </motion.p>
-
-        {/* CTA Buttons - minimal style */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 1, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-16 flex flex-col sm:flex-row items-center justify-center gap-6"
-        >
-          <motion.button
-            onClick={() => scrollToSection('booking')}
-            className="group relative px-10 py-4 text-sm font-light tracking-[0.2em] text-white uppercase bg-primary hover:bg-primary/90 transition-all duration-300"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            {language === 'ar' ? 'احجز موعد' : 'Book Appointment'}
-          </motion.button>
-          
-          <motion.button
-            onClick={() => scrollToSection('about')}
-            className="group relative px-10 py-4 text-sm font-light tracking-[0.2em] text-slate-600 uppercase border border-slate-300 hover:border-primary hover:text-primary transition-all duration-300"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            {language === 'ar' ? 'اكتشف المزيد' : 'Discover More'}
-          </motion.button>
-        </motion.div>
       </motion.div>
-
-      {/* Scroll indicator - mont-fort style */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5, duration: 1 }}
-        className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 cursor-pointer"
-        onClick={() => scrollToSection('about')}
+      
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
+      
+      {/* Animated gradient orbs with horizontal parallax */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-primary/10 blur-3xl"
+          style={{ x: xOrb1, opacity }}
+          animate={{
+            scale: [1, 1.2, 1],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        <motion.div
+          className="absolute -bottom-40 -left-40 w-[700px] h-[700px] rounded-full bg-primary/5 blur-3xl"
+          style={{ x: xOrb2, opacity }}
+          animate={{
+            scale: [1.2, 1, 1.2],
+          }}
+          transition={{
+            duration: 12,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        <motion.div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-primary/5 blur-3xl"
+          style={{ x: xOrb3, opacity }}
+          animate={{
+            scale: [1, 1.3, 1],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        
+        {/* Additional decorative elements for enhanced parallax */}
+        <motion.div
+          className="absolute top-20 left-1/4 w-2 h-2 rounded-full bg-primary/40"
+          style={{ x: useTransform(scrollYProgress, [0, 1], [0, 200]) }}
+        />
+        <motion.div
+          className="absolute top-1/3 right-1/4 w-3 h-3 rounded-full bg-primary/30"
+          style={{ x: useTransform(scrollYProgress, [0, 1], [0, -180]) }}
+        />
+        <motion.div
+          className="absolute bottom-1/3 left-1/3 w-1.5 h-1.5 rounded-full bg-primary/50"
+          style={{ x: useTransform(scrollYProgress, [0, 1], [0, 250]) }}
+        />
+      </div>
+      
+      {/* 3D Scene with parallax */}
+      <motion.div 
+        className="absolute inset-0"
+        style={{ x: x3DScene }}
       >
-        <span className="text-xs font-light tracking-[0.3em] text-slate-400 uppercase">
-          {language === 'ar' ? 'انزل للأسفل' : 'Scroll Down'}
-        </span>
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <ChevronDown className="w-5 h-5 text-slate-400" />
-        </motion.div>
+        <HeroScene />
       </motion.div>
+      
+      {/* Content overlay with subtle parallax */}
+      <motion.div 
+        className="relative z-10 w-full"
+        style={{ x: xContent }}
+      >
+        <HeroContent 
+          onBookClick={() => scrollToSection('booking')}
+          onContactClick={() => scrollToSection('contact')}
+        />
+      </motion.div>
+      
+      {/* Scroll indicator */}
+      <ScrollIndicator />
     </section>
   );
 };
