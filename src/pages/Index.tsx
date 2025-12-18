@@ -7,7 +7,7 @@ import { Booking } from "@/components/Booking";
 import { ContactMap } from "@/components/ContactMap";
 import { Footer } from "@/components/Footer";
 import { Chatbot } from "@/components/Chatbot";
-import { ImmersiveDentalScene } from "@/components/hero/ImmersiveDentalScene";
+import { HeroScene } from "@/components/hero/HeroScene";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useVisitorTracking } from "@/hooks/useVisitorTracking";
 import AdminAccessButton from "@/components/AdminAccessButton";
@@ -26,8 +26,8 @@ const Index = () => {
   
   return (
     <div className="min-h-screen relative">
-      {/* Immersive 3D dental scene - mont-fort style */}
-      <ImmersiveDentalScene />
+      {/* Photo-based immersive scene with scroll camera */}
+      <HeroScene />
       
       <Navigation />
       <AdminAccessButton />
