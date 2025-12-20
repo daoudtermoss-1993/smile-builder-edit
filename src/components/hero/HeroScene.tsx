@@ -25,53 +25,51 @@ export function HeroScene() {
     restDelta: 0.001,
   });
 
-  const travel = vh * 4; // Extended for pinned hero (4 screens like mont-fort)
+  const travel = vh * 4; // 4 screens total
 
-  // Base camera translation - moves through all scenes with parallax
-  const cameraY = useTransform(smoothScrollY, [0, travel], [0, -vh * 2.5], {
+  // === IMAGE 1: Stays fixed during hero section (first 1.5 screens), then moves ===
+  const scene1Y = useTransform(smoothScrollY, [0, vh * 1.5, travel], [0, 0, -vh * 1.5], {
+    clamp: true,
+  });
+  
+  // Zoom out effect on image 1 during hero section
+  const scene1Scale = useTransform(smoothScrollY, [0, vh * 1.5], [1.4, 1], {
     clamp: true,
   });
 
-  // Dolly zoom: starts zoomed in (1.5), zooms out dramatically as you scroll
-  const globalScale = useTransform(smoothScrollY, [0, travel * 0.6], [1.5, 1], {
+  // Image 1 fades out after hero section
+  const scene1Opacity = useTransform(smoothScrollY, [vh * 1.5, vh * 2.5], [1, 0], {
     clamp: true,
   });
 
-  // Slight vertical pan for cinematic feel
-  const cameraPanY = useTransform(smoothScrollY, [0, travel * 0.5], ["-5%", "0%"], {
+  // === IMAGES 2 & 3: Appear after hero section ===
+  const scene2Start = vh * 1.5;
+  const scene2End = vh * 3;
+  
+  const scene2Y = useTransform(smoothScrollY, [scene2Start, scene2End], [0, -vh], {
+    clamp: true,
+  });
+  
+  const scene2Opacity = useTransform(smoothScrollY, [scene2Start, scene2Start + vh * 0.3, scene2End], [0, 1, 0], {
+    clamp: true,
+  });
+  
+  const scene2Scale = useTransform(smoothScrollY, [scene2Start, scene2End], [1.2, 1], {
     clamp: true,
   });
 
-  // Cinematic transition specifically between scene 2 and 3
-  const t23Start = vh * 2;
-  const t23End = vh * 3.5;
-
-  const scene2Opacity = useTransform(smoothScrollY, [t23Start, t23End], [1, 0], {
+  // Scene 3
+  const scene3Start = vh * 2.5;
+  const scene3Opacity = useTransform(smoothScrollY, [scene3Start, scene3Start + vh * 0.5], [0, 1], {
     clamp: true,
   });
-  const scene3Opacity = useTransform(smoothScrollY, [t23Start, t23End], [0, 1], {
-    clamp: true,
-  });
-
-  const scene2Blur = useTransform(
-    smoothScrollY,
-    [t23Start, t23End],
-    ["blur(0px)", "blur(16px)"],
-    { clamp: true }
-  );
-  const scene3Blur = useTransform(
-    smoothScrollY,
-    [t23Start, t23End],
-    ["blur(16px)", "blur(0px)"],
-    { clamp: true }
-  );
-
-  const scene3Scale = useTransform(smoothScrollY, [t23Start, t23End], [1.25, 1], {
+  
+  const scene3Scale = useTransform(smoothScrollY, [scene3Start, travel], [1.15, 1], {
     clamp: true,
   });
 
-  // Light rays + haze that grows during the cinematic moment
-  const raysOpacity = useTransform(smoothScrollY, [vh * 0.3, t23End], [0.04, 0.3], {
+  // Light rays - subtle during hero, grows after
+  const raysOpacity = useTransform(smoothScrollY, [0, vh * 1.5, travel], [0.05, 0.1, 0.25], {
     clamp: true,
   });
 
@@ -81,67 +79,58 @@ export function HeroScene() {
       aria-hidden="true"
       style={{ perspective: 1200 }}
     >
+      {/* Scene 1 - Synced with hero content */}
       <motion.div
-        className="absolute left-0 top-0 w-full will-change-transform"
-        style={{
-          y: cameraY,
-          translateY: cameraPanY,
-          height: `${vh * 3.5}px`,
+        className="absolute inset-0 w-full h-full overflow-hidden"
+        style={{ 
+          y: scene1Y,
+          opacity: scene1Opacity,
         }}
       >
-        {/* Scene 1 */}
-        <div
-          className="absolute left-0 top-0 w-full overflow-hidden"
-          style={{ height: `${vh}px` }}
-        >
-          <motion.img
-            src={heroDentalEquipment}
-            alt="Équipement dentaire professionnel"
-            className="h-full w-full select-none object-cover"
-            draggable={false}
-            loading="eager"
-            decoding="async"
-            style={{ scale: globalScale }}
-          />
-        </div>
+        <motion.img
+          src={heroDentalEquipment}
+          alt="Équipement dentaire professionnel"
+          className="h-full w-full select-none object-cover"
+          draggable={false}
+          loading="eager"
+          decoding="async"
+          style={{ scale: scene1Scale }}
+        />
+      </motion.div>
 
-        {/* Scene 2 */}
-        <motion.div
-          className="absolute left-0 w-full overflow-hidden"
-          style={{ top: `${vh}px`, height: `${vh}px`, opacity: scene2Opacity }}
-        >
-          <motion.img
-            src={heroDentalChair}
-            alt="Fauteuil dentaire moderne"
-            className="h-full w-full select-none object-cover"
-            draggable={false}
-            loading="eager"
-            decoding="async"
-            style={{
-              scale: globalScale,
-              filter: scene2Blur,
-            }}
-          />
-        </motion.div>
+      {/* Scene 2 - Appears after hero */}
+      <motion.div
+        className="absolute inset-0 w-full h-full overflow-hidden"
+        style={{ 
+          y: scene2Y,
+          opacity: scene2Opacity,
+        }}
+      >
+        <motion.img
+          src={heroDentalChair}
+          alt="Fauteuil dentaire moderne"
+          className="h-full w-full select-none object-cover"
+          draggable={false}
+          loading="eager"
+          decoding="async"
+          style={{ scale: scene2Scale }}
+        />
+      </motion.div>
 
-        {/* Scene 3 */}
-        <motion.div
-          className="absolute left-0 w-full overflow-hidden"
-          style={{ top: `${vh * 2}px`, height: `${vh}px`, opacity: scene3Opacity }}
-        >
-          <motion.img
-            src={heroDentalTopview}
-            alt="Vue plongeante clinique dentaire"
-            className="h-full w-full select-none object-cover"
-            draggable={false}
-            loading="eager"
-            decoding="async"
-            style={{
-              scale: scene3Scale,
-              filter: scene3Blur,
-            }}
-          />
-        </motion.div>
+      {/* Scene 3 - Final scene */}
+      <motion.div
+        className="absolute inset-0 w-full h-full overflow-hidden"
+        style={{ opacity: scene3Opacity }}
+      >
+        <motion.img
+          src={heroDentalTopview}
+          alt="Vue plongeante clinique dentaire"
+          className="h-full w-full select-none object-cover"
+          draggable={false}
+          loading="eager"
+          decoding="async"
+          style={{ scale: scene3Scale }}
+        />
       </motion.div>
 
       {/* Light rays overlay */}
