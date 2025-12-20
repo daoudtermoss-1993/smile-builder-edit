@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
-import drYousifHero from "@/assets/dr-yousif-hero.jpg";
+import heroPanorama from "@/assets/hero-panorama.jpg";
 
 export function HeroScene() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -57,8 +57,8 @@ export function HeroScene() {
         }}
       >
         <motion.img
-          src={drYousifHero}
-          alt="Dr. Yousif German"
+          src={heroPanorama}
+          alt="Dental Clinic Panorama"
           className="w-full h-full object-cover"
           style={{
             filter: useTransform(
