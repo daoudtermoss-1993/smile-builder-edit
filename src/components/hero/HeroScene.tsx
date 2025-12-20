@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 
 // Images dentaires - Séquence style Mont-fort
@@ -6,6 +6,57 @@ import heroDentalEquipment from "@/assets/hero-dental-equipment.jpg";
 import heroDentalChair from "@/assets/hero-dental-chair.jpg";
 import heroDentalTopview from "@/assets/hero-dental-topview.jpg";
 import heroLightRays from "@/assets/hero-light-rays.jpg";
+
+// Floating light particles component
+function FloatingParticles({ scrollProgress }: { scrollProgress: number }) {
+  const particles = useMemo(() => {
+    return Array.from({ length: 35 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 4 + 2,
+      delay: Math.random() * 5,
+      duration: Math.random() * 8 + 6,
+      opacity: Math.random() * 0.4 + 0.2,
+    }));
+  }, []);
+
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      {particles.map((particle) => {
+        const yOffset = scrollProgress * 120 * (particle.size / 4);
+        const xDrift = Math.sin(scrollProgress * Math.PI * 2 + particle.delay) * 15;
+        
+        return (
+          <motion.div
+            key={particle.id}
+            className="absolute rounded-full"
+            style={{
+              left: `${particle.x}%`,
+              top: `${particle.y}%`,
+              width: particle.size,
+              height: particle.size,
+              background: `radial-gradient(circle, rgba(255,255,255,${particle.opacity}) 0%, transparent 70%)`,
+              boxShadow: `0 0 ${particle.size * 2}px rgba(255,255,255,${particle.opacity * 0.5})`,
+            }}
+            animate={{
+              y: [-20 - yOffset, 20 - yOffset, -20 - yOffset],
+              x: [xDrift - 10, xDrift + 10, xDrift - 10],
+              opacity: [particle.opacity * 0.5, particle.opacity, particle.opacity * 0.5],
+              scale: [0.8, 1.2, 0.8],
+            }}
+            transition={{
+              duration: particle.duration,
+              delay: particle.delay,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+}
 
 export function HeroScene() {
   const { scrollY } = useScroll();
@@ -112,6 +163,15 @@ export function HeroScene() {
     [0, 0.12, 0],
     { clamp: true }
   );
+
+  // Scroll progress for particles (0 to 1)
+  const scrollProgress = useTransform(smoothScrollY, [0, travel], [0, 1]);
+  const [particleProgress, setParticleProgress] = useState(0);
+  
+  useEffect(() => {
+    const unsubscribe = scrollProgress.on("change", (v) => setParticleProgress(v));
+    return () => unsubscribe();
+  }, [scrollProgress]);
 
   return (
     <div
@@ -242,7 +302,9 @@ export function HeroScene() {
         style={{ opacity: flash2Opacity }}
       />
 
-      {/* Film-ish grain (token-based) */}
+      {/* Floating light particles */}
+      <FloatingParticles scrollProgress={particleProgress} />
+
       <div
         className="pointer-events-none absolute inset-0"
         style={{
