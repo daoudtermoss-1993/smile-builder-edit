@@ -144,7 +144,7 @@ export const Booking = () => {
   };
 
   return (
-    <section className="py-32 md:py-40 overflow-hidden relative">
+    <section className="py-16 overflow-hidden relative">
       <div className="container mx-auto px-4 max-w-4xl relative z-10">
         <motion.div 
           className="text-center mb-12"

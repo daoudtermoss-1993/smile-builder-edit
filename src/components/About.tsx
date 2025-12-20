@@ -72,7 +72,7 @@ export const About = ({
   };
   
   return (
-    <section className="py-32 md:py-40 overflow-hidden relative">
+    <section className="py-16 overflow-hidden relative">
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid md:grid-cols-2 gap-16 items-center">
           <motion.div 

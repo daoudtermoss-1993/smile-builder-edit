@@ -42,7 +42,7 @@ export const Services = () => {
   };
   
   return (
-    <section id="services" className="py-32 md:py-40 overflow-hidden relative">
+    <section id="services" className="py-16 overflow-hidden relative">
       <div className="container mx-auto px-4 relative z-10">
         <motion.div 
           className="text-center mb-16"

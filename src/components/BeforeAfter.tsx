@@ -456,7 +456,7 @@ export const BeforeAfter = () => {
   };
 
   return (
-    <section className="py-32 md:py-40 overflow-hidden relative">
+    <section className="py-16 overflow-hidden relative">
       {/* Subtle gradient accent */}
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/[0.02] to-transparent pointer-events-none" />
       <div className="container mx-auto max-w-7xl px-4 relative z-10">
