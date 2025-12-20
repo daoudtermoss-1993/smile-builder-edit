@@ -11,36 +11,33 @@ export function HeroScene() {
   
   const { scrollYProgress } = useScroll();
 
-  // Spring fluide pour glissement doux
+  // Spring fluide pour effet "caméra qui tombe"
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 35,
-    damping: 35,
+    stiffness: 40,
+    damping: 30,
     restDelta: 0.0001
   });
 
   // ═══════════════════════════════════════════════════════════════
   // SCENE 1: Équipement dentaire (0% - 35%)
-  // Glisse vers le haut en disparaissant
+  // Glisse vers le HAUT (la caméra tombe, donc l'image monte)
   // ═══════════════════════════════════════════════════════════════
-  const scene1Scale = useTransform(smoothProgress, [0, 0.35], [1.0, 1.0]);
-  const scene1Y = useTransform(smoothProgress, [0, 0.35], ["0%", "-50%"]); // Glisse vers le haut
-  const scene1Opacity = useTransform(smoothProgress, [0, 0.20, 0.35], [1, 1, 0]);
+  const scene1Y = useTransform(smoothProgress, [0, 0.35], ["0%", "-100%"]); // Monte et sort par le haut
+  const scene1Opacity = useTransform(smoothProgress, [0, 0.30, 0.35], [1, 1, 0.8]);
 
   // ═══════════════════════════════════════════════════════════════
-  // SCENE 2: Fauteuil dentaire (25% - 65%)
-  // Entre du bas, glisse vers le haut, sort vers le haut
+  // SCENE 2: Fauteuil dentaire (0% - 70%)
+  // Fixe au début, puis glisse vers le haut quand révélée
   // ═══════════════════════════════════════════════════════════════
-  const scene2Scale = useTransform(smoothProgress, [0.20, 0.65], [1.0, 1.0]);
-  const scene2Y = useTransform(smoothProgress, [0.20, 0.35, 0.50, 0.65], ["50%", "0%", "0%", "-50%"]); // Entre du bas, sort vers haut
-  const scene2Opacity = useTransform(smoothProgress, [0.20, 0.32, 0.52, 0.65], [0, 1, 1, 0]);
+  const scene2Y = useTransform(smoothProgress, [0.30, 0.70], ["0%", "-100%"]); // Monte et sort
+  const scene2Opacity = useTransform(smoothProgress, [0.28, 0.35, 0.65, 0.70], [0, 1, 1, 0.8]);
 
   // ═══════════════════════════════════════════════════════════════
-  // SCENE 3: Vue plongeante (55% - 100%)
-  // Entre du bas avec fondu
+  // SCENE 3: Vue plongeante (60% - 100%)
+  // Fixe, révélée quand image 2 sort
   // ═══════════════════════════════════════════════════════════════
-  const scene3Scale = useTransform(smoothProgress, [0.55, 1], [1.0, 1.0]);
-  const scene3Y = useTransform(smoothProgress, [0.55, 0.75], ["50%", "0%"]); // Entre du bas
-  const scene3Opacity = useTransform(smoothProgress, [0.55, 0.72, 1], [0, 1, 1]);
+  const scene3Y = useTransform(smoothProgress, [0.65, 1], ["0%", "0%"]); // Reste en place
+  const scene3Opacity = useTransform(smoothProgress, [0.60, 0.72, 1], [0, 1, 1]);
 
   // ═══════════════════════════════════════════════════════════════
   // EFFETS CINÉMATIQUES ÉLÉGANTS
@@ -60,28 +57,26 @@ export function HeroScene() {
         zIndex: 0,
       }}
     >
-      {/* SCENE 1: Équipement dentaire (était image 2) */}
+      {/* SCENE 3: Vue plongeante - En arrière-plan, révélée en dernier */}
       <motion.div
         className="absolute inset-0 w-full h-full overflow-hidden"
         style={{
-          y: scene1Y,
-          scale: scene1Scale,
-          opacity: scene1Opacity,
+          y: scene3Y,
+          opacity: scene3Opacity,
         }}
       >
         <img
-          src={heroDentalEquipment}
-          alt="Équipement dentaire professionnel"
+          src={heroDentalTopview}
+          alt="Vue plongeante clinique dentaire"
           className="w-full h-full object-cover"
         />
       </motion.div>
 
-      {/* SCENE 2: Fauteuil dentaire (était image 1) */}
+      {/* SCENE 2: Fauteuil dentaire - Au milieu, révélée après scene 1 */}
       <motion.div
         className="absolute inset-0 w-full h-full overflow-hidden"
         style={{
           y: scene2Y,
-          scale: scene2Scale,
           opacity: scene2Opacity,
         }}
       >
@@ -92,18 +87,17 @@ export function HeroScene() {
         />
       </motion.div>
 
-      {/* SCENE 3: Vue plongeante */}
+      {/* SCENE 1: Équipement dentaire - Au premier plan, part en premier */}
       <motion.div
         className="absolute inset-0 w-full h-full overflow-hidden"
         style={{
-          y: scene3Y,
-          scale: scene3Scale,
-          opacity: scene3Opacity,
+          y: scene1Y,
+          opacity: scene1Opacity,
         }}
       >
         <img
-          src={heroDentalTopview}
-          alt="Vue plongeante clinique dentaire"
+          src={heroDentalEquipment}
+          alt="Équipement dentaire professionnel"
           className="w-full h-full object-cover"
         />
       </motion.div>
