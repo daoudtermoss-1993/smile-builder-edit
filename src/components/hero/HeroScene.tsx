@@ -1,5 +1,5 @@
-import { useRef } from "react";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { useEffect, useState } from "react";
+import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 
 // Images dentaires - Séquence style Mont-fort
 import heroDentalEquipment from "@/assets/hero-dental-equipment.jpg";
@@ -7,81 +7,88 @@ import heroDentalChair from "@/assets/hero-dental-chair.jpg";
 import heroDentalTopview from "@/assets/hero-dental-topview.jpg";
 
 export function HeroScene() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  
-  const { scrollYProgress } = useScroll();
+  const { scrollY } = useScroll();
+  const [vh, setVh] = useState(800);
 
-  // Spring fluide style Mont-fort
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 50,
-    damping: 35,
-    restDelta: 0.0001
+  useEffect(() => {
+    const update = () => setVh(window.innerHeight || 800);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  // Smooth camera-like motion
+  const smoothScrollY = useSpring(scrollY, {
+    stiffness: 55,
+    damping: 38,
+    restDelta: 0.0001,
   });
 
-  // ═══════════════════════════════════════════════════════════════
-  // Effet "caméra qui descend" - les images sont empilées verticalement
-  // et le viewport "descend" à travers elles
-  // ═══════════════════════════════════════════════════════════════
-  
-  // Container qui se déplace vers le HAUT (simule la caméra qui descend)
-  const containerY = useTransform(smoothProgress, [0, 1], ["0%", "-200%"]);
+  // Traverse exactly 2 viewports (3 scenes stacked) then clamp (no white gap)
+  const maxTravelPx = vh * 2;
+  const cameraTravel = useTransform(smoothScrollY, (y) => {
+    const clamped = Math.max(0, Math.min(y, maxTravelPx));
+    return -clamped;
+  });
 
   return (
-    <div 
-      ref={containerRef}
-      className="fixed inset-0 w-full h-full overflow-hidden"
-      style={{ 
-        zIndex: 0,
-      }}
+    <div
+      className="fixed inset-0 z-0 h-full w-full overflow-hidden bg-background"
+      aria-hidden="true"
     >
-      {/* Container de toutes les scènes - se déplace vers le haut */}
       <motion.div
-        className="absolute w-full"
+        className="absolute left-0 top-0 w-full will-change-transform"
         style={{
-          y: containerY,
-          height: "300%", // 3 images empilées
+          y: cameraTravel,
+          height: "300vh",
         }}
       >
-        {/* SCENE 1: Équipement dentaire - En haut */}
-        <div 
-          className="absolute w-full h-[33.33%] top-0 left-0 overflow-hidden"
-        >
+        <section className="absolute left-0 top-0 h-screen w-full overflow-hidden">
           <img
             src={heroDentalEquipment}
             alt="Équipement dentaire professionnel"
-            className="w-full h-full object-cover"
+            className="h-full w-full select-none object-cover"
+            draggable={false}
+            loading="eager"
+            decoding="async"
           />
-        </div>
+        </section>
 
-        {/* SCENE 2: Fauteuil dentaire - Au milieu */}
-        <div 
-          className="absolute w-full h-[33.33%] top-[33.33%] left-0 overflow-hidden"
+        <section
+          className="absolute left-0 h-screen w-full overflow-hidden"
+          style={{ top: "100vh" }}
         >
           <img
             src={heroDentalChair}
             alt="Fauteuil dentaire moderne"
-            className="w-full h-full object-cover"
+            className="h-full w-full select-none object-cover"
+            draggable={false}
+            loading="eager"
+            decoding="async"
           />
-        </div>
+        </section>
 
-        {/* SCENE 3: Vue plongeante - En bas */}
-        <div 
-          className="absolute w-full h-[33.33%] top-[66.66%] left-0 overflow-hidden"
+        <section
+          className="absolute left-0 h-screen w-full overflow-hidden"
+          style={{ top: "200vh" }}
         >
           <img
             src={heroDentalTopview}
             alt="Vue plongeante clinique dentaire"
-            className="w-full h-full object-cover"
+            className="h-full w-full select-none object-cover"
+            draggable={false}
+            loading="eager"
+            decoding="async"
           />
-        </div>
+        </section>
       </motion.div>
 
-      {/* Vignette cinématique */}
-      <div 
-        className="absolute inset-0 pointer-events-none"
+      {/* Vignette cinématique (tokens only) */}
+      <div
+        className="pointer-events-none absolute inset-0"
         style={{
-          background: "radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.2) 100%)",
-          zIndex: 10,
+          background:
+            "radial-gradient(ellipse at center, transparent 55%, hsl(var(--foreground) / 0.16) 100%)",
         }}
       />
     </div>
