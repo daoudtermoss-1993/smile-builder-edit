@@ -1,10 +1,8 @@
-import { Phone, Sparkles, Volume2, VolumeX } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EditableText } from "@/components/admin/EditableText";
 import { motion } from "framer-motion";
-import { useState, useRef } from "react";
-import { toast } from "sonner";
-import drGermanIntro from "@/assets/dr-german-intro.mp3";
+import clinicLogo from "@/assets/clinic-logo.png";
 
 interface HeroContentProps {
   onBookClick: () => void;
@@ -13,110 +11,83 @@ interface HeroContentProps {
 
 export function HeroContent({ onBookClick, onContactClick }: HeroContentProps) {
   const { t, language } = useLanguage();
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  const handlePlayDoctorInfo = () => {
-    // If already playing, stop it
-    if (isPlaying && audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      setIsPlaying(false);
-      return;
-    }
-
-    try {
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
-      
-      const audio = new Audio(drGermanIntro);
-      audioRef.current = audio;
-      
-      audio.onended = () => {
-        setIsPlaying(false);
-      };
-      
-      audio.onerror = () => {
-        setIsPlaying(false);
-        toast.error(language === 'ar' ? 'خطأ في تشغيل الصوت' : 'Error playing audio');
-      };
-      
-      audio.play();
-      setIsPlaying(true);
-    } catch (error) {
-      console.error('Audio error:', error);
-      toast.error(language === 'ar' ? 'خطأ في تشغيل الصوت' : 'Error playing audio');
-    }
-  };
 
   return (
-    <div className="relative z-10 container mx-auto px-4 text-center">
+    <div className="relative z-10 flex flex-col items-center justify-center h-screen px-4">
       
-      {/* Main title with gradient - white/teal for dark background */}
-      <motion.h1 
-        className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 tracking-tight"
-        initial={{ opacity: 0, y: 30 }}
+      {/* Centered Logo + Title - Mont-fort style */}
+      <motion.div
+        className="flex flex-col items-center gap-6"
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.4 }}
+        transition={{ duration: 1.2, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
       >
-        <EditableText 
-          sectionKey="hero" 
-          field="title" 
-          defaultValue={t('heroTitle')}
-          as="span"
-          className="bg-gradient-to-r from-white via-[hsl(180,100%,70%)] to-white bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient drop-shadow-[0_0_30px_rgba(0,180,180,0.4)]"
+        {/* Logo */}
+        <motion.img
+          src={clinicLogo}
+          alt="Dr. Yousif German Dental Clinic"
+          className="h-16 md:h-20 lg:h-24 w-auto object-contain drop-shadow-2xl"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
         />
-      </motion.h1>
-      
-      {/* Subtitle - light for dark background */}
-      <motion.p 
-        className="text-lg md:text-xl text-white/80 mb-12 max-w-2xl mx-auto leading-relaxed drop-shadow-lg"
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.6 }}
-      >
-        <EditableText 
-          sectionKey="hero" 
-          field="subtitle" 
-          defaultValue={t('heroSubtitle')}
-          as="span"
+
+        {/* Separator line */}
+        <motion.div 
+          className="w-px h-8 bg-white/40"
+          initial={{ scaleY: 0 }}
+          animate={{ scaleY: 1 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
         />
-      </motion.p>
-      
-      {/* CTA Buttons */}
-      <motion.div 
-        className="flex flex-col sm:flex-row gap-4 justify-center"
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.8 }}
+
+        {/* Main title - large, spaced letters like Mont-fort */}
+        <motion.h1 
+          className="text-3xl md:text-5xl lg:text-6xl font-light tracking-[0.3em] md:tracking-[0.4em] uppercase text-white drop-shadow-lg"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 1 }}
+        >
+          <EditableText 
+            sectionKey="hero" 
+            field="title" 
+            defaultValue={language === 'ar' ? 'د. يوسف جيرمان' : 'Dr. Yousif German'}
+            as="span"
+          />
+        </motion.h1>
+
+        {/* Subtitle */}
+        <motion.p 
+          className="text-sm md:text-base lg:text-lg font-light tracking-[0.15em] uppercase text-white/70 max-w-xl text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 1.3 }}
+        >
+          <EditableText 
+            sectionKey="hero" 
+            field="subtitle" 
+            defaultValue={language === 'ar' ? 'طب الأسنان التجميلي والترميمي' : 'Cosmetic & Restorative Dentistry'}
+            as="span"
+          />
+        </motion.p>
+      </motion.div>
+
+      {/* Scroll indicator at bottom - Mont-fort style */}
+      <motion.div
+        className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 cursor-pointer group"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1, delay: 1.8 }}
+        onClick={onContactClick}
       >
-        <button 
-          onClick={handlePlayDoctorInfo}
-          className="group relative overflow-hidden px-8 py-4 bg-[hsl(180,100%,40%)] text-white rounded-full font-semibold text-lg shadow-lg shadow-[hsl(180,100%,40%)]/40 hover:shadow-xl hover:shadow-[hsl(180,100%,40%)]/50 transition-all duration-300 hover:scale-105 backdrop-blur-sm"
+        <span className="text-xs md:text-sm font-light tracking-[0.2em] uppercase text-white/60 group-hover:text-white/90 transition-colors duration-300">
+          {language === 'ar' ? 'مرر للاكتشاف' : 'Scroll down to discover'}
+        </span>
+        <motion.div
+          animate={{ y: [0, 6, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         >
-          <span className="relative z-10 inline-flex items-center gap-2">
-            {isPlaying ? (
-              <VolumeX className="h-5 w-5 transition-transform group-hover:scale-110" />
-            ) : (
-              <Volume2 className="h-5 w-5 transition-transform group-hover:scale-110" />
-            )}
-            {isPlaying 
-              ? (language === 'ar' ? 'إيقاف' : 'Stop') 
-              : (language === 'ar' ? 'عن الدكتور' : 'About Dr.')}
-          </span>
-          <div className="absolute inset-0 bg-gradient-to-r from-[hsl(180,100%,45%)] via-[hsl(180,100%,50%)] to-[hsl(180,100%,45%)] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        </button>
-        
-        <button 
-          onClick={onContactClick}
-          className="group px-8 py-4 bg-white/10 backdrop-blur-md border border-white/30 text-white rounded-full font-semibold text-lg hover:border-white/50 hover:bg-white/20 transition-all duration-300 hover:scale-105"
-        >
-          <span className="inline-flex items-center gap-2">
-            <Phone className="h-5 w-5 transition-transform group-hover:rotate-12" />
-            {t('contactClinic')}
-          </span>
-        </button>
+          <ChevronDown className="h-5 w-5 text-white/50 group-hover:text-white/80 transition-colors duration-300" />
+        </motion.div>
       </motion.div>
     </div>
   );
