@@ -36,23 +36,24 @@ export function HeroScene() {
   const scene1Blur = useTransform(whipProgress, [0.18, 0.28, 0.38], [0, 10, 0]);
 
   // ═══════════════════════════════════════════════════════════════
-  // SCENE 2: Équipement dentaire (25% - 65%) - Arrive par whip pan
-  // Entre par la gauche rapidement
+  // SCENE 2: Équipement dentaire (25% - 65%) - Whip pan entrée/sortie
+  // Entre par gauche, zoom out léger, whip pan vers droite
   // ═══════════════════════════════════════════════════════════════
-  const scene2Scale = useTransform(smoothProgress, [0.20, 0.40, 0.65], [1.4, 1.2, 1.05]);
-  const scene2X = useTransform(whipProgress, [0.15, 0.30, 0.45], ["-120%", "0%", "5%"]); // Arrive de gauche
-  const scene2Y = useTransform(smoothProgress, [0.25, 0.65], ["5%", "-8%"]);
-  const scene2Opacity = useTransform(smoothProgress, [0.18, 0.30, 0.55, 0.70], [0, 1, 1, 0]);
-  const scene2Blur = useTransform(whipProgress, [0.15, 0.25, 0.35], [8, 0, 0]); // Motion blur à l'entrée
+  const scene2Scale = useTransform(smoothProgress, [0.20, 0.35, 0.50, 0.65], [1.1, 1.05, 1.0, 0.95]); // Normal puis zoom out
+  const scene2X = useTransform(whipProgress, [0.18, 0.32, 0.50, 0.68], ["-120%", "0%", "0%", "120%"]); // Whip in puis whip out
+  const scene2Y = useTransform(smoothProgress, [0.25, 0.65], ["0%", "-3%"]);
+  const scene2Opacity = useTransform(smoothProgress, [0.18, 0.30, 0.58, 0.72], [0, 1, 1, 0]);
+  const scene2Blur = useTransform(whipProgress, [0.18, 0.28, 0.32, 0.55, 0.62, 0.68], [10, 0, 0, 0, 8, 0]); // Blur entrée et sortie
 
   // ═══════════════════════════════════════════════════════════════
-  // SCENE 3: Vue plongeante (60% - 100%)
-  // Transition douce finale
+  // SCENE 3: Vue plongeante (60% - 100%) - Whip pan entrée
+  // Entre par gauche, reste stable
   // ═══════════════════════════════════════════════════════════════
-  const scene3Scale = useTransform(smoothProgress, [0.60, 0.80, 1], [1.35, 1.15, 1]);
-  const scene3X = useTransform(smoothProgress, [0.60, 0.80, 1], ["8%", "0%", "-3%"]);
-  const scene3Y = useTransform(smoothProgress, [0.60, 1], ["10%", "-5%"]);
+  const scene3Scale = useTransform(smoothProgress, [0.55, 0.72, 1], [1.1, 1.02, 1.0]); // Normal, léger ajustement
+  const scene3X = useTransform(whipProgress, [0.55, 0.72, 1], ["-120%", "0%", "0%"]); // Whip pan depuis gauche
+  const scene3Y = useTransform(smoothProgress, [0.60, 1], ["0%", "-2%"]);
   const scene3Opacity = useTransform(smoothProgress, [0.55, 0.70, 1], [0, 1, 1]);
+  const scene3Blur = useTransform(whipProgress, [0.55, 0.65, 0.72], [10, 2, 0]); // Motion blur à l'entrée
 
   return (
     <div 
@@ -131,7 +132,7 @@ export function HeroScene() {
           alt="Vue plongeante clinique dentaire"
           className="w-full h-full object-cover"
           style={{
-            filter: "brightness(1) contrast(1.02)",
+            filter: useTransform(scene3Blur, (b) => `blur(${b}px) brightness(1.02)`),
           }}
         />
       </motion.div>
