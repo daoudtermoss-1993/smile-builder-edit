@@ -60,7 +60,7 @@ export function HeroScene() {
         zIndex: 0,
       }}
     >
-      {/* SCENE 1: Fauteuil dentaire */}
+      {/* SCENE 1: Équipement dentaire (était image 2) */}
       <motion.div
         className="absolute inset-0 w-full h-full overflow-hidden"
         style={{
@@ -70,13 +70,13 @@ export function HeroScene() {
         }}
       >
         <img
-          src={heroDentalChair}
-          alt="Fauteuil dentaire moderne"
+          src={heroDentalEquipment}
+          alt="Équipement dentaire professionnel"
           className="w-full h-full object-cover"
         />
       </motion.div>
 
-      {/* SCENE 2: Équipement dentaire */}
+      {/* SCENE 2: Fauteuil dentaire (était image 1) */}
       <motion.div
         className="absolute inset-0 w-full h-full overflow-hidden"
         style={{
@@ -86,8 +86,8 @@ export function HeroScene() {
         }}
       >
         <img
-          src={heroDentalEquipment}
-          alt="Équipement dentaire professionnel"
+          src={heroDentalChair}
+          alt="Fauteuil dentaire moderne"
           className="w-full h-full object-cover"
         />
       </motion.div>
