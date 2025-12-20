@@ -1,70 +1,78 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
-import heroPanorama from "@/assets/hero-panorama.jpg";
-import heroLightTransition from "@/assets/hero-light-transition.jpg";
-import heroExterior from "@/assets/hero-clinic-exterior.jpg";
-import heroSilkTransition from "@/assets/hero-silk-transition.jpg";
-import heroInterior from "@/assets/hero-clinic-interior.jpg";
+
+// Images haute résolution 1920x1080 pour zoom sans perte
+import heroMountain from "@/assets/hero-scene-1-mountain.jpg";
+import heroClouds from "@/assets/hero-scene-2-clouds.jpg";
+import heroClinic from "@/assets/hero-scene-3-clinic.jpg";
+import heroLight from "@/assets/hero-scene-4-light.jpg";
+import heroInterior from "@/assets/hero-scene-5-interior.jpg";
 
 export function HeroScene() {
   const containerRef = useRef<HTMLDivElement>(null);
   
   const { scrollYProgress } = useScroll();
 
-  // Smooth spring for cinematic feel
+  // Spring très fluide comme mont-fort
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 50,
-    damping: 20,
-    restDelta: 0.001
+    stiffness: 40,
+    damping: 25,
+    restDelta: 0.0001
   });
 
-  // === SCENE 1: Panorama apaisant (0% - 30%) ===
-  // Effet: zoom arrière progressif avec panoramique
-  const img1X = useTransform(smoothProgress, [0, 0.15, 0.3], ["0%", "12%", "25%"]);
-  const img1Y = useTransform(smoothProgress, [0, 0.15, 0.3], ["0%", "-8%", "-20%"]);
-  const img1Scale = useTransform(smoothProgress, [0, 0.15, 0.3], [1.6, 1.35, 1.1]);
-  const img1Opacity = useTransform(smoothProgress, [0, 0.22, 0.32], [1, 1, 0]);
-  const img1RotateY = useTransform(smoothProgress, [0, 0.3], [4, -2]);
-  const img1RotateX = useTransform(smoothProgress, [0, 0.3], [-2, 1]);
+  // ═══════════════════════════════════════════════════════════════
+  // SCENE 1: Montagne majestueuse (0% - 25%)
+  // Style mont-fort: zoom progressif avec rotation 3D subtile
+  // ═══════════════════════════════════════════════════════════════
+  const scene1Scale = useTransform(smoothProgress, [0, 0.12, 0.25], [1.8, 1.4, 1.1]);
+  const scene1X = useTransform(smoothProgress, [0, 0.12, 0.25], ["0%", "8%", "15%"]);
+  const scene1Y = useTransform(smoothProgress, [0, 0.12, 0.25], ["0%", "-5%", "-12%"]);
+  const scene1RotateY = useTransform(smoothProgress, [0, 0.25], [3, -2]);
+  const scene1RotateX = useTransform(smoothProgress, [0, 0.25], [-2, 1]);
+  const scene1Opacity = useTransform(smoothProgress, [0, 0.18, 0.28], [1, 1, 0]);
+  const scene1Brightness = useTransform(smoothProgress, [0, 0.25], [1.05, 0.9]);
 
-  // === TRANSITION 1: Lumière éclatante (25% - 42%) ===
-  // Représente le sourire lumineux, la pureté dentaire
-  const light1Opacity = useTransform(smoothProgress, [0.22, 0.3, 0.38, 0.45], [0, 1, 1, 0]);
-  const light1Scale = useTransform(smoothProgress, [0.22, 0.35, 0.45], [1.4, 1.15, 1]);
-  const light1Y = useTransform(smoothProgress, [0.22, 0.45], ["15%", "-25%"]);
-  const light1Brightness = useTransform(smoothProgress, [0.22, 0.35, 0.45], [0.9, 1.3, 1.1]);
+  // ═══════════════════════════════════════════════════════════════
+  // TRANSITION 1: Nuages (20% - 40%) - comme mont-fort
+  // ═══════════════════════════════════════════════════════════════
+  const clouds1Opacity = useTransform(smoothProgress, [0.18, 0.25, 0.35, 0.42], [0, 1, 1, 0]);
+  const clouds1Scale = useTransform(smoothProgress, [0.18, 0.30, 0.42], [1.5, 1.2, 1]);
+  const clouds1Y = useTransform(smoothProgress, [0.18, 0.42], ["25%", "-30%"]);
+  const clouds1X = useTransform(smoothProgress, [0.18, 0.42], ["-5%", "5%"]);
 
-  // === SCENE 2: Clinique extérieur (38% - 65%) ===
-  // L'arrivée à la clinique moderne
-  const img2X = useTransform(smoothProgress, [0.38, 0.52, 0.65], ["-15%", "0%", "18%"]);
-  const img2Y = useTransform(smoothProgress, [0.38, 0.52, 0.65], ["12%", "0%", "-15%"]);
-  const img2Scale = useTransform(smoothProgress, [0.38, 0.52, 0.65], [1.5, 1.25, 1.1]);
-  const img2Opacity = useTransform(smoothProgress, [0.35, 0.42, 0.58, 0.68], [0, 1, 1, 0]);
-  const img2RotateY = useTransform(smoothProgress, [0.38, 0.65], [-4, 4]);
-  const img2RotateX = useTransform(smoothProgress, [0.38, 0.65], [2, -1]);
+  // ═══════════════════════════════════════════════════════════════
+  // SCENE 2: Clinique extérieur (35% - 55%)
+  // Émergence de la brume vers le bâtiment
+  // ═══════════════════════════════════════════════════════════════
+  const scene2Scale = useTransform(smoothProgress, [0.35, 0.45, 0.55], [1.6, 1.3, 1.1]);
+  const scene2X = useTransform(smoothProgress, [0.35, 0.45, 0.55], ["-12%", "0%", "10%"]);
+  const scene2Y = useTransform(smoothProgress, [0.35, 0.45, 0.55], ["10%", "0%", "-10%"]);
+  const scene2RotateY = useTransform(smoothProgress, [0.35, 0.55], [-3, 3]);
+  const scene2RotateX = useTransform(smoothProgress, [0.35, 0.55], [2, -1]);
+  const scene2Opacity = useTransform(smoothProgress, [0.32, 0.40, 0.50, 0.60], [0, 1, 1, 0]);
+  const scene2Brightness = useTransform(smoothProgress, [0.35, 0.55], [1.1, 0.95]);
 
-  // === TRANSITION 2: Soie fluide (60% - 78%) ===
-  // Représente le confort, l'élégance, l'accueil premium
-  const silk2Opacity = useTransform(smoothProgress, [0.58, 0.66, 0.74, 0.82], [0, 1, 1, 0]);
-  const silk2Scale = useTransform(smoothProgress, [0.58, 0.7, 0.82], [1.3, 1.1, 0.95]);
-  const silk2Y = useTransform(smoothProgress, [0.58, 0.82], ["20%", "-18%"]);
-  const silk2X = useTransform(smoothProgress, [0.58, 0.82], ["-8%", "8%"]);
-  const silk2Rotate = useTransform(smoothProgress, [0.58, 0.82], [-2, 2]);
+  // ═══════════════════════════════════════════════════════════════
+  // TRANSITION 2: Lumière éclatante (52% - 72%)
+  // Représente le sourire lumineux
+  // ═══════════════════════════════════════════════════════════════
+  const light2Opacity = useTransform(smoothProgress, [0.52, 0.60, 0.68, 0.75], [0, 1, 1, 0]);
+  const light2Scale = useTransform(smoothProgress, [0.52, 0.65, 0.75], [1.4, 1.15, 0.95]);
+  const light2Y = useTransform(smoothProgress, [0.52, 0.75], ["20%", "-25%"]);
+  const light2Brightness = useTransform(smoothProgress, [0.52, 0.65, 0.75], [0.95, 1.25, 1.1]);
 
-  // === SCENE 3: Clinique intérieur (72% - 100%) ===
-  // L'expérience de soin premium
-  const img3X = useTransform(smoothProgress, [0.72, 0.86, 1], ["10%", "-3%", "-12%"]);
-  const img3Y = useTransform(smoothProgress, [0.72, 0.86, 1], ["12%", "0%", "-8%"]);
-  const img3Scale = useTransform(smoothProgress, [0.72, 0.86, 1], [1.45, 1.18, 1]);
-  const img3Opacity = useTransform(smoothProgress, [0.7, 0.78, 1], [0, 1, 1]);
-  const img3RotateY = useTransform(smoothProgress, [0.72, 1], [3, -1]);
-  const img3RotateX = useTransform(smoothProgress, [0.72, 1], [-1, 0.5]);
-
-  // Effets de luminosité dynamiques
-  const brightness1 = useTransform(smoothProgress, [0, 0.3], [1.08, 0.92]);
-  const brightness2 = useTransform(smoothProgress, [0.38, 0.65], [1.1, 0.95]);
-  const brightness3 = useTransform(smoothProgress, [0.72, 1], [1.08, 0.88]);
-  const blur3 = useTransform(smoothProgress, [0.92, 1], [0, 2.5]);
+  // ═══════════════════════════════════════════════════════════════
+  // SCENE 3: Clinique intérieur (68% - 100%)
+  // Destination finale - l'expérience premium
+  // ═══════════════════════════════════════════════════════════════
+  const scene3Scale = useTransform(smoothProgress, [0.68, 0.82, 1], [1.5, 1.2, 1]);
+  const scene3X = useTransform(smoothProgress, [0.68, 0.82, 1], ["8%", "-3%", "-10%"]);
+  const scene3Y = useTransform(smoothProgress, [0.68, 0.82, 1], ["12%", "0%", "-8%"]);
+  const scene3RotateY = useTransform(smoothProgress, [0.68, 1], [2, -1]);
+  const scene3RotateX = useTransform(smoothProgress, [0.68, 1], [-1, 0.5]);
+  const scene3Opacity = useTransform(smoothProgress, [0.65, 0.75, 1], [0, 1, 1]);
+  const scene3Brightness = useTransform(smoothProgress, [0.68, 1], [1.08, 0.88]);
+  const scene3Blur = useTransform(smoothProgress, [0.92, 1], [0, 2]);
 
   return (
     <div 
@@ -76,114 +84,113 @@ export function HeroScene() {
         perspectiveOrigin: "50% 50%"
       }}
     >
-      {/* SCENE 1: Panorama apaisant - Premier contact visuel */}
+      {/* SCENE 1: Montagne majestueuse - Premier impact visuel */}
       <motion.div
-        className="absolute w-[200%] h-[200%]"
+        className="absolute w-[220%] h-[220%]"
         style={{
-          top: "-50%",
-          left: "-50%",
-          x: img1X,
-          y: img1Y,
-          scale: img1Scale,
-          opacity: img1Opacity,
-          rotateY: img1RotateY,
-          rotateX: img1RotateX,
+          top: "-60%",
+          left: "-60%",
+          x: scene1X,
+          y: scene1Y,
+          scale: scene1Scale,
+          opacity: scene1Opacity,
+          rotateY: scene1RotateY,
+          rotateX: scene1RotateX,
           transformStyle: "preserve-3d",
           transformOrigin: "center center",
         }}
       >
         <motion.img
-          src={heroPanorama}
-          alt="Atmosphère apaisante"
+          src={heroMountain}
+          alt="Montagne majestueuse"
           className="w-full h-full object-cover"
           style={{
-            filter: useTransform(brightness1, (b) => `brightness(${b})`),
+            filter: useTransform(scene1Brightness, (b) => `brightness(${b})`),
           }}
         />
       </motion.div>
 
-      {/* TRANSITION 1: Lumière éclatante - Sourire lumineux */}
+      {/* TRANSITION 1: Nuages - Voyage à travers la brume */}
+      <motion.div
+        className="absolute w-[200%] h-[200%]"
+        style={{
+          top: "-50%",
+          left: "-50%",
+          x: clouds1X,
+          y: clouds1Y,
+          scale: clouds1Scale,
+          opacity: clouds1Opacity,
+          transformOrigin: "center center",
+        }}
+      >
+        <img
+          src={heroClouds}
+          alt="Nuages de transition"
+          className="w-full h-full object-cover"
+          style={{ filter: "brightness(1.1)" }}
+        />
+      </motion.div>
+
+      {/* SCENE 2: Clinique extérieur - Émergence */}
+      <motion.div
+        className="absolute w-[220%] h-[220%]"
+        style={{
+          top: "-60%",
+          left: "-60%",
+          x: scene2X,
+          y: scene2Y,
+          scale: scene2Scale,
+          opacity: scene2Opacity,
+          rotateY: scene2RotateY,
+          rotateX: scene2RotateX,
+          transformStyle: "preserve-3d",
+          transformOrigin: "center center",
+        }}
+      >
+        <motion.img
+          src={heroClinic}
+          alt="Clinique dentaire extérieur"
+          className="w-full h-full object-cover"
+          style={{
+            filter: useTransform(scene2Brightness, (b) => `brightness(${b})`),
+          }}
+        />
+      </motion.div>
+
+      {/* TRANSITION 2: Lumière éclatante - Sourire lumineux */}
       <motion.div
         className="absolute w-[180%] h-[180%]"
         style={{
           top: "-40%",
           left: "-40%",
-          y: light1Y,
-          scale: light1Scale,
-          opacity: light1Opacity,
+          y: light2Y,
+          scale: light2Scale,
+          opacity: light2Opacity,
           transformOrigin: "center center",
         }}
       >
         <motion.img
-          src={heroLightTransition}
+          src={heroLight}
           alt="Transition lumineuse"
           className="w-full h-full object-cover"
           style={{
-            filter: useTransform(light1Brightness, (b) => `brightness(${b})`),
+            filter: useTransform(light2Brightness, (b) => `brightness(${b})`),
           }}
         />
       </motion.div>
 
-      {/* SCENE 2: Clinique extérieur - L'arrivée */}
+      {/* SCENE 3: Clinique intérieur - Destination finale */}
       <motion.div
-        className="absolute w-[200%] h-[200%]"
+        className="absolute w-[220%] h-[220%]"
         style={{
-          top: "-50%",
-          left: "-50%",
-          x: img2X,
-          y: img2Y,
-          scale: img2Scale,
-          opacity: img2Opacity,
-          rotateY: img2RotateY,
-          rotateX: img2RotateX,
-          transformStyle: "preserve-3d",
-          transformOrigin: "center center",
-        }}
-      >
-        <motion.img
-          src={heroExterior}
-          alt="Clinique dentaire extérieur"
-          className="w-full h-full object-cover"
-          style={{
-            filter: useTransform(brightness2, (b) => `brightness(${b})`),
-          }}
-        />
-      </motion.div>
-
-      {/* TRANSITION 2: Soie fluide - Confort & Élégance */}
-      <motion.div
-        className="absolute w-[170%] h-[170%]"
-        style={{
-          top: "-35%",
-          left: "-35%",
-          x: silk2X,
-          y: silk2Y,
-          scale: silk2Scale,
-          opacity: silk2Opacity,
-          rotate: silk2Rotate,
-          transformOrigin: "center center",
-        }}
-      >
-        <img
-          src={heroSilkTransition}
-          alt="Transition élégante"
-          className="w-full h-full object-cover"
-          style={{ filter: "brightness(1.05)" }}
-        />
-      </motion.div>
-
-      {/* SCENE 3: Clinique intérieur - L'expérience premium */}
-      <motion.div
-        className="absolute w-[200%] h-[200%]"
-        style={{
-          top: "-50%",
-          left: "-50%",
-          x: img3X,
-          y: img3Y,
-          scale: img3Scale,
-          opacity: img3Opacity,
-          rotateY: img3RotateY,
-          rotateX: img3RotateX,
+          top: "-60%",
+          left: "-60%",
+          x: scene3X,
+          y: scene3Y,
+          scale: scene3Scale,
+          opacity: scene3Opacity,
+          rotateY: scene3RotateY,
+          rotateX: scene3RotateX,
           transformStyle: "preserve-3d",
           transformOrigin: "center center",
         }}
@@ -194,18 +201,18 @@ export function HeroScene() {
           className="w-full h-full object-cover"
           style={{
             filter: useTransform(
-              [brightness3, blur3],
+              [scene3Brightness, scene3Blur],
               ([b, bl]) => `brightness(${b}) blur(${bl}px)`
             ),
           }}
         />
       </motion.div>
 
-      {/* Vignette subtile pour la profondeur */}
+      {/* Vignette cinématique */}
       <div 
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: "radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.12) 100%)"
+          background: "radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.15) 100%)"
         }}
       />
     </div>
