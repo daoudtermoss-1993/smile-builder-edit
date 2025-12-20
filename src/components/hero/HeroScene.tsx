@@ -17,19 +17,20 @@ export function HeroScene() {
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  // Smooth camera-like motion
+  // Smooth camera-like motion with more responsive spring
   const smoothScrollY = useSpring(scrollY, {
-    stiffness: 55,
-    damping: 38,
-    restDelta: 0.0001,
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001,
   });
 
-  // Traverse exactly 2 viewports (3 scenes stacked) then clamp (no white gap)
-  const maxTravelPx = vh * 2;
-  const cameraTravel = useTransform(smoothScrollY, (y) => {
-    const clamped = Math.max(0, Math.min(y, maxTravelPx));
-    return -clamped;
-  });
+  // Camera travels down through 3 viewports (2vh total distance)
+  // Scroll range: 0 to 2*vh moves camera from scene 1 to scene 3
+  const cameraY = useTransform(
+    smoothScrollY,
+    [0, vh * 2],
+    [0, -vh * 2]
+  );
 
   return (
     <div
@@ -39,11 +40,15 @@ export function HeroScene() {
       <motion.div
         className="absolute left-0 top-0 w-full will-change-transform"
         style={{
-          y: cameraTravel,
-          height: "300vh",
+          y: cameraY,
+          height: `${vh * 3}px`,
         }}
       >
-        <section className="absolute left-0 top-0 h-screen w-full overflow-hidden">
+        {/* Scene 1 - Equipment */}
+        <div 
+          className="absolute left-0 top-0 w-full overflow-hidden"
+          style={{ height: `${vh}px` }}
+        >
           <img
             src={heroDentalEquipment}
             alt="Équipement dentaire professionnel"
@@ -52,11 +57,12 @@ export function HeroScene() {
             loading="eager"
             decoding="async"
           />
-        </section>
+        </div>
 
-        <section
-          className="absolute left-0 h-screen w-full overflow-hidden"
-          style={{ top: "100vh" }}
+        {/* Scene 2 - Chair */}
+        <div 
+          className="absolute left-0 w-full overflow-hidden"
+          style={{ top: `${vh}px`, height: `${vh}px` }}
         >
           <img
             src={heroDentalChair}
@@ -66,11 +72,12 @@ export function HeroScene() {
             loading="eager"
             decoding="async"
           />
-        </section>
+        </div>
 
-        <section
-          className="absolute left-0 h-screen w-full overflow-hidden"
-          style={{ top: "200vh" }}
+        {/* Scene 3 - Top view */}
+        <div 
+          className="absolute left-0 w-full overflow-hidden"
+          style={{ top: `${vh * 2}px`, height: `${vh}px` }}
         >
           <img
             src={heroDentalTopview}
@@ -80,10 +87,10 @@ export function HeroScene() {
             loading="eager"
             decoding="async"
           />
-        </section>
+        </div>
       </motion.div>
 
-      {/* Vignette cinématique (tokens only) */}
+      {/* Vignette cinématique */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
