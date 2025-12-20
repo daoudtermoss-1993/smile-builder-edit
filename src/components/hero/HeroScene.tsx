@@ -25,68 +25,91 @@ export function HeroScene() {
     restDelta: 0.001,
   });
 
-  const travel = vh * 2; // 3 scenes stacked -> 2vh travel
+  const travel = vh * 2.5; // Extended travel for smoother combined zone
 
   // Base camera translation
-  const cameraY = useTransform(smoothScrollY, [0, travel], [0, -travel], {
+  const cameraY = useTransform(smoothScrollY, [0, travel], [0, -vh * 2.2], {
     clamp: true,
   });
 
-  // Global “dolly” feeling (subtle zoom out as you scroll)
-  const globalScale = useTransform(smoothScrollY, [0, travel], [1.06, 1], {
+  // Global "dolly" feeling (subtle zoom out as you scroll)
+  const globalScale = useTransform(smoothScrollY, [0, travel], [1.08, 1], {
     clamp: true,
   });
 
-  // Cinematic transition specifically between scene 2 and 3
-  const t23Start = vh * 1.05;
-  const t23End = vh * 1.85;
+  // Transition from scene 1 to combined zone (starts at middle of scene 1)
+  const t12Start = vh * 0.5;
+  const t12End = vh * 1.2;
 
-  const scene2Opacity = useTransform(smoothScrollY, [t23Start, t23End], [1, 0], {
-    clamp: true,
-  });
-  const scene3Opacity = useTransform(smoothScrollY, [t23Start, t23End], [0, 1], {
+  const scene1Opacity = useTransform(smoothScrollY, [t12Start, t12End], [1, 0], {
     clamp: true,
   });
 
-  const scene2Blur = useTransform(
+  // Combined zone 2+3: Image 2 starts visible, Image 3 fades in gradually
+  // No hard edges - both images blend together
+  const combinedZoneStart = vh * 0.8;
+  const combinedZoneMid = vh * 1.5;
+  const combinedZoneEnd = vh * 2.2;
+
+  // Image 2 stays visible longer, then fades out smoothly
+  const image2Opacity = useTransform(
     smoothScrollY,
-    [t23Start, t23End],
-    ["blur(0px)", "blur(14px)"],
+    [combinedZoneStart, combinedZoneMid, combinedZoneEnd],
+    [0, 1, 0.3],
     { clamp: true }
   );
-  const scene3Blur = useTransform(
+
+  // Image 3 fades in from the middle of the combined zone
+  const image3Opacity = useTransform(
     smoothScrollY,
-    [t23Start, t23End],
-    ["blur(14px)", "blur(0px)"],
+    [combinedZoneMid * 0.9, combinedZoneMid, combinedZoneEnd],
+    [0, 0.4, 1],
     { clamp: true }
   );
 
-  const scene3Scale = useTransform(smoothScrollY, [t23Start, t23End], [1.14, 1], {
+  // Subtle blur transitions for cinematic feel
+  const image2Blur = useTransform(
+    smoothScrollY,
+    [combinedZoneMid, combinedZoneEnd],
+    ["blur(0px)", "blur(8px)"],
+    { clamp: true }
+  );
+
+  const image3Blur = useTransform(
+    smoothScrollY,
+    [combinedZoneMid * 0.9, combinedZoneMid * 1.1],
+    ["blur(6px)", "blur(0px)"],
+    { clamp: true }
+  );
+
+  // Scale effects for depth
+  const image2Scale = useTransform(smoothScrollY, [combinedZoneStart, combinedZoneEnd], [1.05, 0.98], {
     clamp: true,
   });
 
-  // Light rays + haze that grows a bit during the cinematic moment
-  const raysOpacity = useTransform(smoothScrollY, [vh * 0.2, t23End], [0.06, 0.26], {
+  const image3Scale = useTransform(smoothScrollY, [combinedZoneMid, combinedZoneEnd], [1.12, 1], {
     clamp: true,
   });
 
-  // White flash during transition peaks
-  const t12Start = vh * 0.4;
-  const t12Peak = vh * 0.7;
-  const t12End = vh * 1.0;
+  // Light rays + haze
+  const raysOpacity = useTransform(smoothScrollY, [vh * 0.2, combinedZoneEnd], [0.05, 0.28], {
+    clamp: true,
+  });
 
+  // White flash during transition peaks (more cinematic)
+  const flash1Peak = (t12Start + t12End) / 2;
   const flash1Opacity = useTransform(
     smoothScrollY,
-    [t12Start, t12Peak, t12End],
-    [0, 0.18, 0],
+    [t12Start, flash1Peak, t12End],
+    [0, 0.15, 0],
     { clamp: true }
   );
 
-  const t23Peak = (t23Start + t23End) / 2;
+  const flash2Peak = combinedZoneMid;
   const flash2Opacity = useTransform(
     smoothScrollY,
-    [t23Start, t23Peak, t23End],
-    [0, 0.22, 0],
+    [combinedZoneMid * 0.85, flash2Peak, combinedZoneMid * 1.15],
+    [0, 0.12, 0],
     { clamp: true }
   );
 
@@ -103,10 +126,10 @@ export function HeroScene() {
           height: `${vh * 3}px`,
         }}
       >
-        {/* Scene 1 */}
-        <div
+        {/* Scene 1 - Equipment */}
+        <motion.div
           className="absolute left-0 top-0 w-full overflow-hidden"
-          style={{ height: `${vh}px` }}
+          style={{ height: `${vh * 1.3}px`, opacity: scene1Opacity }}
         >
           <motion.img
             src={heroDentalEquipment}
@@ -117,45 +140,75 @@ export function HeroScene() {
             decoding="async"
             style={{ scale: globalScale }}
           />
+          {/* Gradient fade to blend into combined zone */}
+          <div
+            className="pointer-events-none absolute bottom-0 left-0 w-full"
+            style={{
+              height: "40%",
+              background: "linear-gradient(to bottom, transparent 0%, hsl(var(--background)) 100%)",
+            }}
+          />
+        </motion.div>
+
+        {/* Combined Zone: Images 2 + 3 layered seamlessly */}
+        <div
+          className="absolute left-0 w-full"
+          style={{ top: `${vh * 0.9}px`, height: `${vh * 2.1}px` }}
+        >
+          {/* Image 3 (back layer - revealed gradually) */}
+          <motion.div
+            className="absolute inset-0 overflow-hidden"
+            style={{ opacity: image3Opacity }}
+          >
+            <motion.img
+              src={heroDentalTopview}
+              alt="Vue plongeante clinique dentaire"
+              className="h-full w-full select-none object-cover"
+              draggable={false}
+              loading="eager"
+              decoding="async"
+              style={{
+                scale: image3Scale,
+                filter: image3Blur,
+              }}
+            />
+          </motion.div>
+
+          {/* Image 2 (front layer - fades out to reveal image 3) */}
+          <motion.div
+            className="absolute inset-0 overflow-hidden"
+            style={{ opacity: image2Opacity }}
+          >
+            <motion.img
+              src={heroDentalChair}
+              alt="Fauteuil dentaire moderne"
+              className="h-full w-full select-none object-cover"
+              draggable={false}
+              loading="eager"
+              decoding="async"
+              style={{
+                scale: image2Scale,
+                filter: image2Blur,
+              }}
+            />
+            {/* Soft radial gradient to blend edges */}
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{
+                background: "radial-gradient(ellipse at center 60%, transparent 40%, hsl(var(--background) / 0.4) 100%)",
+              }}
+            />
+          </motion.div>
+
+          {/* Cinematic light streaks between images */}
+          <motion.div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              opacity: flash2Opacity,
+              background: "linear-gradient(180deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%)",
+            }}
+          />
         </div>
-
-        {/* Scene 2 */}
-        <motion.div
-          className="absolute left-0 w-full overflow-hidden"
-          style={{ top: `${vh}px`, height: `${vh}px`, opacity: scene2Opacity }}
-        >
-          <motion.img
-            src={heroDentalChair}
-            alt="Fauteuil dentaire moderne"
-            className="h-full w-full select-none object-cover"
-            draggable={false}
-            loading="eager"
-            decoding="async"
-            style={{
-              scale: globalScale,
-              filter: scene2Blur,
-            }}
-          />
-        </motion.div>
-
-        {/* Scene 3 */}
-        <motion.div
-          className="absolute left-0 w-full overflow-hidden"
-          style={{ top: `${vh * 2}px`, height: `${vh}px`, opacity: scene3Opacity }}
-        >
-          <motion.img
-            src={heroDentalTopview}
-            alt="Vue plongeante clinique dentaire"
-            className="h-full w-full select-none object-cover"
-            draggable={false}
-            loading="eager"
-            decoding="async"
-            style={{
-              scale: scene3Scale,
-              filter: scene3Blur,
-            }}
-          />
-        </motion.div>
       </motion.div>
 
       {/* Light rays overlay */}
