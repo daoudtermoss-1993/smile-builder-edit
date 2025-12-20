@@ -11,36 +11,36 @@ export function HeroScene() {
   
   const { scrollYProgress } = useScroll();
 
-  // Spring fluide pour effet cinématique élégant (style Mont-fort)
+  // Spring très fluide style Mont-fort Capital (transitions ultra-douces)
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 50,
-    damping: 30,
+    stiffness: 25,
+    damping: 45,
     restDelta: 0.0001
   });
 
   // ═══════════════════════════════════════════════════════════════
-  // SCENE 1: Fauteuil dentaire (0% - 40%)
+  // SCENE 1: Équipement dentaire (0% - 40%)
   // Parallaxe subtil + crossfade élégant
   // ═══════════════════════════════════════════════════════════════
-  const scene1Scale = useTransform(smoothProgress, [0, 0.40], [1.0, 1.08]); // Zoom très léger
-  const scene1Y = useTransform(smoothProgress, [0, 0.40], ["0%", "-15%"]); // Parallaxe vers le haut
-  const scene1Opacity = useTransform(smoothProgress, [0, 0.25, 0.40], [1, 1, 0]); // Crossfade doux
+  const scene1Scale = useTransform(smoothProgress, [0, 0.42], [1.0, 1.06]);
+  const scene1Y = useTransform(smoothProgress, [0, 0.42], ["0%", "-12%"]);
+  const scene1Opacity = useTransform(smoothProgress, [0, 0.30, 0.45], [1, 1, 0]);
 
   // ═══════════════════════════════════════════════════════════════
-  // SCENE 2: Équipement dentaire (30% - 70%)
-  // Fondu enchaîné + parallaxe
+  // SCENE 2: Fauteuil dentaire (32% - 72%)
+  // Style Mont-fort Capital: fondu très lent et parallaxe doux
   // ═══════════════════════════════════════════════════════════════
-  const scene2Scale = useTransform(smoothProgress, [0.25, 0.70], [1.0, 1.08]);
-  const scene2Y = useTransform(smoothProgress, [0.25, 0.70], ["10%", "-15%"]); // Entre légèrement du bas
-  const scene2Opacity = useTransform(smoothProgress, [0.25, 0.38, 0.55, 0.70], [0, 1, 1, 0]);
+  const scene2Scale = useTransform(smoothProgress, [0.30, 0.75], [1.0, 1.06]);
+  const scene2Y = useTransform(smoothProgress, [0.30, 0.75], ["6%", "-12%"]);
+  const scene2Opacity = useTransform(smoothProgress, [0.30, 0.45, 0.60, 0.75], [0, 1, 1, 0]);
 
   // ═══════════════════════════════════════════════════════════════
-  // SCENE 3: Vue plongeante (60% - 100%)
-  // Entrée élégante finale
+  // SCENE 3: Vue plongeante (62% - 100%)
+  // Transition Mont-fort style: crossfade très lent et élégant
   // ═══════════════════════════════════════════════════════════════
-  const scene3Scale = useTransform(smoothProgress, [0.55, 1], [1.0, 1.05]);
-  const scene3Y = useTransform(smoothProgress, [0.55, 1], ["8%", "-5%"]);
-  const scene3Opacity = useTransform(smoothProgress, [0.55, 0.72, 1], [0, 1, 1]);
+  const scene3Scale = useTransform(smoothProgress, [0.60, 1], [1.0, 1.04]);
+  const scene3Y = useTransform(smoothProgress, [0.60, 1], ["6%", "-6%"]);
+  const scene3Opacity = useTransform(smoothProgress, [0.60, 0.80, 1], [0, 1, 1]);
 
   // ═══════════════════════════════════════════════════════════════
   // EFFETS CINÉMATIQUES ÉLÉGANTS
