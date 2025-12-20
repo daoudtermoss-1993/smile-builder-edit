@@ -4,7 +4,7 @@ import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 // Images haute résolution 1920x1088 - Séquence narrative clinique dentaire
 import heroExterior from "@/assets/hero-dental-exterior.jpg";
 import heroLight from "@/assets/hero-dental-light.jpg";
-import heroTreatment from "@/assets/hero-dental-treatment.jpg";
+import heroInterior from "@/assets/hero-dental-interior.jpg";
 import heroSilk from "@/assets/hero-dental-silk.jpg";
 import heroSmile from "@/assets/hero-dental-smile.jpg";
 
@@ -149,7 +149,7 @@ export function HeroScene() {
         }}
       >
         <motion.img
-          src={heroTreatment}
+          src={heroInterior}
           alt="Salle de traitement moderne"
           className="w-full h-full object-cover"
           style={{
