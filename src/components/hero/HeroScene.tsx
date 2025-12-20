@@ -11,48 +11,48 @@ export function HeroScene() {
   
   const { scrollYProgress } = useScroll();
 
-  // Spring rapide pour whip pan effect
+  // Spring très rapide pour whip pan dramatique
   const whipProgress = useSpring(scrollYProgress, {
-    stiffness: 80,
-    damping: 20,
+    stiffness: 150,
+    damping: 18,
     restDelta: 0.0001
   });
 
-  // Spring fluide pour autres transitions
+  // Spring fluide pour autres effets
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 40,
-    damping: 30,
+    stiffness: 60,
+    damping: 25,
     restDelta: 0.0001
   });
 
   // ═══════════════════════════════════════════════════════════════
-  // SCENE 1: Fauteuil dentaire (0% - 30%) - Sort vers le bas
+  // SCENE 1: Fauteuil dentaire (0% - 28%) - Sort vers le haut
   // ═══════════════════════════════════════════════════════════════
-  const scene1Scale = useTransform(smoothProgress, [0, 0.30], [1.0, 1.0]);
-  const scene1X = useTransform(smoothProgress, [0, 0.30], ["0%", "0%"]);
-  const scene1Y = useTransform(whipProgress, [0.15, 0.35], ["0%", "100%"]); // Sort vers le bas
-  const scene1Opacity = useTransform(smoothProgress, [0, 0.20, 0.38], [1, 1, 0]);
+  const scene1Scale = useTransform(smoothProgress, [0, 0.28], [1.0, 1.0]);
+  const scene1X = useTransform(smoothProgress, [0, 0.28], ["0%", "0%"]);
+  const scene1Y = useTransform(whipProgress, [0.12, 0.25], ["0%", "-100%"]); // Sort vers le HAUT
+  const scene1Opacity = useTransform(smoothProgress, [0, 0.15, 0.28], [1, 1, 0]);
 
   // ═══════════════════════════════════════════════════════════════
-  // SCENE 2: Équipement dentaire (25% - 60%) - Transition verticale
-  // Entre du haut, sort vers le bas
+  // SCENE 2: Équipement dentaire (22% - 58%) - Transition verticale rapide
+  // Entre du bas, sort vers le haut
   // ═══════════════════════════════════════════════════════════════
-  const scene2Scale = useTransform(smoothProgress, [0.20, 0.60], [1.0, 1.0]);
-  const scene2X = useTransform(smoothProgress, [0.20, 0.60], ["0%", "0%"]);
-  const scene2Y = useTransform(whipProgress, [0.15, 0.32, 0.48, 0.65], ["-100%", "0%", "0%", "100%"]);
-  const scene2Opacity = useTransform(smoothProgress, [0.18, 0.30, 0.55, 0.68], [0, 1, 1, 0]);
+  const scene2Scale = useTransform(smoothProgress, [0.18, 0.58], [1.0, 1.0]);
+  const scene2X = useTransform(smoothProgress, [0.18, 0.58], ["0%", "0%"]);
+  const scene2Y = useTransform(whipProgress, [0.12, 0.22, 0.42, 0.52], ["100%", "0%", "0%", "-100%"]);
+  const scene2Opacity = useTransform(smoothProgress, [0.15, 0.22, 0.48, 0.55], [0, 1, 1, 0]);
 
   // ═══════════════════════════════════════════════════════════════
-  // SCENE 3: Vue plongeante (55% - 100%) - Entre du haut
-  // Photo prise du haut - transition verticale élégante
+  // SCENE 3: Vue plongeante (48% - 100%) - Entre du bas dramatique
+  // Photo prise du haut - whip pan vertical élégant
   // ═══════════════════════════════════════════════════════════════
-  const scene3Scale = useTransform(smoothProgress, [0.50, 1], [1.0, 1.0]);
-  const scene3X = useTransform(smoothProgress, [0.50, 1], ["0%", "0%"]);
-  const scene3Y = useTransform(whipProgress, [0.50, 0.70], ["-100%", "0%"]); // Entre du haut
-  const scene3Opacity = useTransform(smoothProgress, [0.50, 0.65, 1], [0, 1, 1]);
+  const scene3Scale = useTransform(smoothProgress, [0.45, 1], [1.0, 1.0]);
+  const scene3X = useTransform(smoothProgress, [0.45, 1], ["0%", "0%"]);
+  const scene3Y = useTransform(whipProgress, [0.42, 0.55], ["100%", "0%"]); // Entre du BAS
+  const scene3Opacity = useTransform(smoothProgress, [0.42, 0.55, 1], [0, 1, 1]);
   
-  // Effet lignes cinématique - Plus visible et intense
-  const linesIntensity = useTransform(whipProgress, [0.12, 0.22, 0.35, 0.45, 0.55, 0.70], [0, 1, 0, 0, 1, 0]);
+  // Effet lignes cinématique - Rapide et intense
+  const linesIntensity = useTransform(whipProgress, [0.10, 0.18, 0.25, 0.40, 0.48, 0.56], [0, 1, 0, 0, 1, 0]);
 
   return (
     <div 
