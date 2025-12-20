@@ -26,7 +26,7 @@ const Index = () => {
   
   return (
     <div className="min-h-screen relative">
-      {/* Photo-based immersive scene with scroll camera */}
+      {/* Photo-based immersive scene with scroll camera - pinned */}
       <HeroScene />
       
       <Navigation />
@@ -34,13 +34,16 @@ const Index = () => {
       <AdminEditToggle />
       <AdminEditConfirmDialog />
       
-      <div id="home">
-        <Hero
-          backgroundImage={heroImage}
-          title={doctorName}
-          subtitle={language === 'ar' ? 'رعاية أسنان متقدمة بدقة وراحة.' : 'Advanced dental care with precision and comfort.'}
-          badge={language === 'ar' ? 'طبيب أسنان' : 'Dentist'}
-        />
+      {/* Spacer to "pin" the hero for ~3 viewports of scroll before content */}
+      <div className="relative z-10" style={{ height: '300vh' }}>
+        <div id="home" className="sticky top-0 h-screen">
+          <Hero
+            backgroundImage={heroImage}
+            title={doctorName}
+            subtitle={language === 'ar' ? 'رعاية أسنان متقدمة بدقة وراحة.' : 'Advanced dental care with precision and comfort.'}
+            badge={language === 'ar' ? 'طبيب أسنان' : 'Dentist'}
+          />
+        </div>
       </div>
       
       <div id="about">
