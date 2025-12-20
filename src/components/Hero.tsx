@@ -1,6 +1,6 @@
 import { useLanguage } from "@/contexts/LanguageContext";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { useEffect, useState } from "react";
 import { HeroContent } from "./hero/HeroContent";
 import { ScrollIndicator } from "./hero/ScrollIndicator";
 
@@ -25,29 +25,41 @@ export const Hero = ({
   badge
 }: HeroProps) => {
   const { t } = useLanguage();
-  const containerRef = useRef<HTMLElement>(null);
+  const [vh, setVh] = useState(800);
   
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end start"]
+  useEffect(() => {
+    const update = () => setVh(window.innerHeight || 800);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  const { scrollY } = useScroll();
+  
+  // Smooth scroll for synchronized animation with HeroScene
+  const smoothScrollY = useSpring(scrollY, {
+    stiffness: 85,
+    damping: 28,
+    restDelta: 0.001,
   });
   
-  // Opacity fade as user scrolls
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const yContent = useTransform(scrollYProgress, [0, 1], [0, 100]);
+  // Content fades out during scene 1 only (first ~1.5vh of scroll)
+  const fadeOutEnd = vh * 1.2;
+  const opacity = useTransform(smoothScrollY, [0, fadeOutEnd], [1, 0], { clamp: true });
+  const yContent = useTransform(smoothScrollY, [0, fadeOutEnd], [0, -80], { clamp: true });
+  const scale = useTransform(smoothScrollY, [0, fadeOutEnd], [1, 0.95], { clamp: true });
   
   return (
     <section 
-      ref={containerRef}
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
     >
       {/* Subtle gradient overlay for text readability */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/30 pointer-events-none" />
       
-      {/* Content overlay */}
+      {/* Content overlay - synchronized with image 1 only */}
       <motion.div 
         className="relative z-10 w-full"
-        style={{ opacity, y: yContent }}
+        style={{ opacity, y: yContent, scale }}
       >
         <HeroContent 
           onBookClick={() => scrollToSection('booking')}
@@ -55,8 +67,10 @@ export const Hero = ({
         />
       </motion.div>
       
-      {/* Scroll indicator */}
-      <ScrollIndicator />
+      {/* Scroll indicator - also fades with content */}
+      <motion.div style={{ opacity }}>
+        <ScrollIndicator />
+      </motion.div>
     </section>
   );
 };
