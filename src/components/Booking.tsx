@@ -145,8 +145,6 @@ export const Booking = () => {
 
   return (
     <section className="py-16 overflow-hidden relative">
-      <div className="absolute inset-0 bg-black/55 backdrop-blur-xl" />
-      <div className="absolute inset-0 bg-gradient-to-t from-[hsl(180,50%,10%)]/80 via-black/65 to-[hsl(180,50%,8%)]/80" />
       <div className="container mx-auto px-4 max-w-4xl relative z-10">
         <motion.div 
           className="text-center mb-12"

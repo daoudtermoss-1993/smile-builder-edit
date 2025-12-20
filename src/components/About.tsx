@@ -73,9 +73,6 @@ export const About = ({
   
   return (
     <section className="py-16 overflow-hidden relative">
-      {/* Glass panel background for readability */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-xl" />
-      <div className="absolute inset-0 bg-gradient-to-b from-[hsl(180,50%,10%)]/80 via-black/70 to-[hsl(180,50%,8%)]/80" />
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid md:grid-cols-2 gap-16 items-center">
           <motion.div 
