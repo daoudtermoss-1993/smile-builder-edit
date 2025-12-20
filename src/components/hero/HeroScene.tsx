@@ -70,6 +70,26 @@ export function HeroScene() {
     clamp: true,
   });
 
+  // White flash during transition peaks
+  const t12Start = vh * 0.4;
+  const t12Peak = vh * 0.7;
+  const t12End = vh * 1.0;
+
+  const flash1Opacity = useTransform(
+    smoothScrollY,
+    [t12Start, t12Peak, t12End],
+    [0, 0.18, 0],
+    { clamp: true }
+  );
+
+  const t23Peak = (t23Start + t23End) / 2;
+  const flash2Opacity = useTransform(
+    smoothScrollY,
+    [t23Start, t23Peak, t23End],
+    [0, 0.22, 0],
+    { clamp: true }
+  );
+
   return (
     <div
       className="fixed inset-0 z-0 h-full w-full overflow-hidden bg-background"
@@ -157,6 +177,16 @@ export function HeroScene() {
           background:
             "radial-gradient(ellipse at 65% 20%, hsl(var(--background) / 0.22) 0%, transparent 55%)",
         }}
+      />
+
+      {/* White flash during transitions */}
+      <motion.div
+        className="pointer-events-none absolute inset-0 bg-white"
+        style={{ opacity: flash1Opacity }}
+      />
+      <motion.div
+        className="pointer-events-none absolute inset-0 bg-white"
+        style={{ opacity: flash2Opacity }}
       />
 
       {/* Film-ish grain (token-based) */}
