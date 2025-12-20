@@ -10,22 +10,22 @@ import heroLightRays from "@/assets/hero-light-rays.jpg";
 // Floating light particles component
 function FloatingParticles({ scrollProgress }: { scrollProgress: number }) {
   const particles = useMemo(() => {
-    return Array.from({ length: 35 }, (_, i) => ({
+    return Array.from({ length: 40 }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
       y: Math.random() * 100,
-      size: Math.random() * 4 + 2,
+      size: Math.random() * 5 + 2,
       delay: Math.random() * 5,
-      duration: Math.random() * 8 + 6,
-      opacity: Math.random() * 0.4 + 0.2,
+      duration: Math.random() * 10 + 8,
+      opacity: Math.random() * 0.5 + 0.2,
     }));
   }, []);
 
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
       {particles.map((particle) => {
-        const yOffset = scrollProgress * 120 * (particle.size / 4);
-        const xDrift = Math.sin(scrollProgress * Math.PI * 2 + particle.delay) * 15;
+        const yOffset = scrollProgress * 150 * (particle.size / 4);
+        const xDrift = Math.sin(scrollProgress * Math.PI * 3 + particle.delay) * 20;
         
         return (
           <motion.div
@@ -37,13 +37,13 @@ function FloatingParticles({ scrollProgress }: { scrollProgress: number }) {
               width: particle.size,
               height: particle.size,
               background: `radial-gradient(circle, rgba(255,255,255,${particle.opacity}) 0%, transparent 70%)`,
-              boxShadow: `0 0 ${particle.size * 2}px rgba(255,255,255,${particle.opacity * 0.5})`,
+              boxShadow: `0 0 ${particle.size * 3}px rgba(255,255,255,${particle.opacity * 0.6})`,
             }}
             animate={{
-              y: [-20 - yOffset, 20 - yOffset, -20 - yOffset],
-              x: [xDrift - 10, xDrift + 10, xDrift - 10],
-              opacity: [particle.opacity * 0.5, particle.opacity, particle.opacity * 0.5],
-              scale: [0.8, 1.2, 0.8],
+              y: [-30 - yOffset, 30 - yOffset, -30 - yOffset],
+              x: [xDrift - 15, xDrift + 15, xDrift - 15],
+              opacity: [particle.opacity * 0.4, particle.opacity, particle.opacity * 0.4],
+              scale: [0.7, 1.3, 0.7],
             }}
             transition={{
               duration: particle.duration,
@@ -61,110 +61,137 @@ function FloatingParticles({ scrollProgress }: { scrollProgress: number }) {
 export function HeroScene() {
   const { scrollY } = useScroll();
   const [vh, setVh] = useState(800);
+  const [docHeight, setDocHeight] = useState(5000);
 
   useEffect(() => {
-    const update = () => setVh(window.innerHeight || 800);
+    const update = () => {
+      setVh(window.innerHeight || 800);
+      setDocHeight(document.documentElement.scrollHeight || 5000);
+    };
     update();
     window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, []);
+    // Update on scroll to catch dynamic content
+    const scrollUpdate = () => {
+      const newHeight = document.documentElement.scrollHeight;
+      if (newHeight !== docHeight) setDocHeight(newHeight);
+    };
+    window.addEventListener("scroll", scrollUpdate, { passive: true });
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", scrollUpdate);
+    };
+  }, [docHeight]);
 
-  // Smooth camera-like motion
+  // Smooth camera-like motion (Mont-fort style)
   const smoothScrollY = useSpring(scrollY, {
-    stiffness: 85,
-    damping: 28,
+    stiffness: 60,
+    damping: 25,
     restDelta: 0.001,
   });
 
-  const travel = vh * 2.5; // Extended travel for smoother combined zone
+  // Travel covers entire document for full-site background
+  const travel = docHeight - vh;
 
-  // Base camera translation
-  const cameraY = useTransform(smoothScrollY, [0, travel], [0, -vh * 2.2], {
+  // Camera moves through all 3 images across the entire site scroll
+  const cameraY = useTransform(smoothScrollY, [0, travel], [0, -vh * 2.5], {
     clamp: true,
   });
 
-  // Global "dolly" feeling (subtle zoom out as you scroll)
-  const globalScale = useTransform(smoothScrollY, [0, travel], [1.08, 1], {
+  // Global "dolly" zoom effect (cinematic pull-back)
+  const globalScale = useTransform(smoothScrollY, [0, travel * 0.5, travel], [1.15, 1.05, 1], {
     clamp: true,
   });
 
-  // Transition from scene 1 to combined zone (starts at middle of scene 1)
-  const t12Start = vh * 0.5;
-  const t12End = vh * 1.2;
-
-  const scene1Opacity = useTransform(smoothScrollY, [t12Start, t12End], [1, 0], {
+  // === SCENE 1: First third of scroll ===
+  const scene1End = travel * 0.35;
+  const scene1Opacity = useTransform(smoothScrollY, [0, scene1End * 0.7, scene1End], [1, 1, 0], {
     clamp: true,
   });
-
-  // Combined zone 2+3: Image 2 starts visible, Image 3 fades in gradually
-  // No hard edges - both images blend together
-  const combinedZoneStart = vh * 0.8;
-  const combinedZoneMid = vh * 1.5;
-  const combinedZoneEnd = vh * 2.2;
-
-  // Image 2 stays visible longer, then fades out smoothly
-  const image2Opacity = useTransform(
+  const scene1Blur = useTransform(
     smoothScrollY,
-    [combinedZoneStart, combinedZoneMid, combinedZoneEnd],
-    [0, 1, 0.3],
+    [scene1End * 0.6, scene1End],
+    ["blur(0px)", "blur(12px)"],
     { clamp: true }
   );
 
-  // Image 3 fades in from the middle of the combined zone
-  const image3Opacity = useTransform(
+  // === SCENE 2 & 3: Combined cinematic zone ===
+  const scene2Start = travel * 0.25;
+  const scene2Mid = travel * 0.5;
+  const scene2End = travel * 0.75;
+
+  // Scene 2 fades in, peaks, then fades for scene 3
+  const scene2Opacity = useTransform(
     smoothScrollY,
-    [combinedZoneMid * 0.9, combinedZoneMid, combinedZoneEnd],
-    [0, 0.4, 1],
+    [scene2Start, scene2Start + travel * 0.1, scene2Mid, scene2End],
+    [0, 1, 1, 0.2],
+    { clamp: true }
+  );
+  const scene2Blur = useTransform(
+    smoothScrollY,
+    [scene2Mid, scene2End],
+    ["blur(0px)", "blur(10px)"],
+    { clamp: true }
+  );
+  const scene2Scale = useTransform(
+    smoothScrollY,
+    [scene2Start, scene2End],
+    [1.1, 0.95],
     { clamp: true }
   );
 
-  // Subtle blur transitions for cinematic feel
-  const image2Blur = useTransform(
+  // Scene 3 emerges from scene 2
+  const scene3Start = travel * 0.45;
+  const scene3Opacity = useTransform(
     smoothScrollY,
-    [combinedZoneMid, combinedZoneEnd],
-    ["blur(0px)", "blur(8px)"],
+    [scene3Start, scene3Start + travel * 0.15, travel],
+    [0, 0.6, 1],
+    { clamp: true }
+  );
+  const scene3Blur = useTransform(
+    smoothScrollY,
+    [scene3Start, scene3Start + travel * 0.2],
+    ["blur(8px)", "blur(0px)"],
+    { clamp: true }
+  );
+  const scene3Scale = useTransform(
+    smoothScrollY,
+    [scene3Start, travel],
+    [1.15, 1],
     { clamp: true }
   );
 
-  const image3Blur = useTransform(
-    smoothScrollY,
-    [combinedZoneMid * 0.9, combinedZoneMid * 1.1],
-    ["blur(6px)", "blur(0px)"],
-    { clamp: true }
-  );
-
-  // Scale effects for depth
-  const image2Scale = useTransform(smoothScrollY, [combinedZoneStart, combinedZoneEnd], [1.05, 0.98], {
+  // === CINEMATIC EFFECTS ===
+  // Light rays intensity grows through scroll
+  const raysOpacity = useTransform(smoothScrollY, [0, travel * 0.3, travel], [0.04, 0.2, 0.35], {
     clamp: true,
   });
 
-  const image3Scale = useTransform(smoothScrollY, [combinedZoneMid, combinedZoneEnd], [1.12, 1], {
-    clamp: true,
-  });
-
-  // Light rays + haze
-  const raysOpacity = useTransform(smoothScrollY, [vh * 0.2, combinedZoneEnd], [0.05, 0.28], {
-    clamp: true,
-  });
-
-  // White flash during transition peaks (more cinematic)
-  const flash1Peak = (t12Start + t12End) / 2;
+  // White flash at transition points (Mont-fort style)
+  const flash1Peak = scene1End * 0.85;
   const flash1Opacity = useTransform(
     smoothScrollY,
-    [t12Start, flash1Peak, t12End],
+    [flash1Peak - travel * 0.08, flash1Peak, flash1Peak + travel * 0.08],
+    [0, 0.2, 0],
+    { clamp: true }
+  );
+
+  const flash2Peak = scene2Mid;
+  const flash2Opacity = useTransform(
+    smoothScrollY,
+    [flash2Peak - travel * 0.06, flash2Peak, flash2Peak + travel * 0.06],
     [0, 0.15, 0],
     { clamp: true }
   );
 
-  const flash2Peak = combinedZoneMid;
-  const flash2Opacity = useTransform(
+  const flash3Peak = travel * 0.7;
+  const flash3Opacity = useTransform(
     smoothScrollY,
-    [combinedZoneMid * 0.85, flash2Peak, combinedZoneMid * 1.15],
+    [flash3Peak - travel * 0.05, flash3Peak, flash3Peak + travel * 0.05],
     [0, 0.12, 0],
     { clamp: true }
   );
 
-  // Scroll progress for particles (0 to 1)
+  // Scroll progress for particles
   const scrollProgress = useTransform(smoothScrollY, [0, travel], [0, 1]);
   const [particleProgress, setParticleProgress] = useState(0);
   
@@ -177,19 +204,23 @@ export function HeroScene() {
     <div
       className="fixed inset-0 z-0 h-full w-full overflow-hidden bg-background"
       aria-hidden="true"
-      style={{ perspective: 1200 }}
+      style={{ perspective: 1400 }}
     >
       <motion.div
         className="absolute left-0 top-0 w-full will-change-transform"
         style={{
           y: cameraY,
-          height: `${vh * 3}px`,
+          height: `${vh * 3.5}px`,
         }}
       >
-        {/* Scene 1 - Equipment */}
+        {/* Scene 1 - Equipment (top layer initially) */}
         <motion.div
           className="absolute left-0 top-0 w-full overflow-hidden"
-          style={{ height: `${vh * 1.3}px`, opacity: scene1Opacity }}
+          style={{ 
+            height: `${vh * 1.4}px`, 
+            opacity: scene1Opacity,
+            zIndex: 3,
+          }}
         >
           <motion.img
             src={heroDentalEquipment}
@@ -198,27 +229,34 @@ export function HeroScene() {
             draggable={false}
             loading="eager"
             decoding="async"
-            style={{ scale: globalScale }}
+            style={{ 
+              scale: globalScale,
+              filter: scene1Blur,
+            }}
           />
-          {/* Gradient fade to blend into combined zone */}
+          {/* Soft gradient fade */}
           <div
             className="pointer-events-none absolute bottom-0 left-0 w-full"
             style={{
-              height: "40%",
-              background: "linear-gradient(to bottom, transparent 0%, hsl(var(--background)) 100%)",
+              height: "50%",
+              background: "linear-gradient(to bottom, transparent 0%, hsl(var(--background) / 0.6) 70%, hsl(var(--background)) 100%)",
             }}
           />
         </motion.div>
 
-        {/* Combined Zone: Images 2 + 3 layered seamlessly */}
+        {/* Combined Zone: Scenes 2 + 3 blended */}
         <div
           className="absolute left-0 w-full"
-          style={{ top: `${vh * 0.9}px`, height: `${vh * 2.1}px` }}
+          style={{ 
+            top: `${vh * 0.8}px`, 
+            height: `${vh * 2.7}px`,
+            zIndex: 2,
+          }}
         >
-          {/* Image 3 (back layer - revealed gradually) */}
+          {/* Scene 3 (back layer - revealed progressively) */}
           <motion.div
             className="absolute inset-0 overflow-hidden"
-            style={{ opacity: image3Opacity }}
+            style={{ opacity: scene3Opacity }}
           >
             <motion.img
               src={heroDentalTopview}
@@ -228,16 +266,16 @@ export function HeroScene() {
               loading="eager"
               decoding="async"
               style={{
-                scale: image3Scale,
-                filter: image3Blur,
+                scale: scene3Scale,
+                filter: scene3Blur,
               }}
             />
           </motion.div>
 
-          {/* Image 2 (front layer - fades out to reveal image 3) */}
+          {/* Scene 2 (front layer - fades to reveal scene 3) */}
           <motion.div
             className="absolute inset-0 overflow-hidden"
-            style={{ opacity: image2Opacity }}
+            style={{ opacity: scene2Opacity }}
           >
             <motion.img
               src={heroDentalChair}
@@ -247,31 +285,31 @@ export function HeroScene() {
               loading="eager"
               decoding="async"
               style={{
-                scale: image2Scale,
-                filter: image2Blur,
+                scale: scene2Scale,
+                filter: scene2Blur,
               }}
             />
-            {/* Soft radial gradient to blend edges */}
+            {/* Radial blend for seamless transition */}
             <div
               className="pointer-events-none absolute inset-0"
               style={{
-                background: "radial-gradient(ellipse at center 60%, transparent 40%, hsl(var(--background) / 0.4) 100%)",
+                background: "radial-gradient(ellipse at center 55%, transparent 35%, hsl(var(--background) / 0.5) 100%)",
               }}
             />
           </motion.div>
 
-          {/* Cinematic light streaks between images */}
+          {/* Cinematic light streaks during blend */}
           <motion.div
             className="pointer-events-none absolute inset-0"
             style={{
               opacity: flash2Opacity,
-              background: "linear-gradient(180deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%)",
+              background: "linear-gradient(175deg, transparent 20%, rgba(255,255,255,0.35) 50%, transparent 80%)",
             }}
           />
         </div>
       </motion.div>
 
-      {/* Light rays overlay */}
+      {/* Light rays overlay (full screen, fixed) */}
       <motion.img
         src={heroLightRays}
         alt="Effet de rayons lumineux cinématique"
@@ -282,17 +320,17 @@ export function HeroScene() {
         style={{ opacity: raysOpacity }}
       />
 
-      {/* Soft haze */}
+      {/* Atmospheric haze */}
       <motion.div
         className="pointer-events-none absolute inset-0"
         style={{
           opacity: raysOpacity,
           background:
-            "radial-gradient(ellipse at 65% 20%, hsl(var(--background) / 0.22) 0%, transparent 55%)",
+            "radial-gradient(ellipse at 60% 25%, hsl(var(--background) / 0.25) 0%, transparent 60%)",
         }}
       />
 
-      {/* White flash during transitions */}
+      {/* White flash transitions */}
       <motion.div
         className="pointer-events-none absolute inset-0 bg-white"
         style={{ opacity: flash1Opacity }}
@@ -301,25 +339,30 @@ export function HeroScene() {
         className="pointer-events-none absolute inset-0 bg-white"
         style={{ opacity: flash2Opacity }}
       />
+      <motion.div
+        className="pointer-events-none absolute inset-0 bg-white"
+        style={{ opacity: flash3Opacity }}
+      />
 
       {/* Floating light particles */}
       <FloatingParticles scrollProgress={particleProgress} />
 
+      {/* Film grain texture */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
-          opacity: 0.22,
+          opacity: 0.18,
           backgroundImage:
-            "repeating-linear-gradient(0deg, hsl(var(--foreground) / 0.035) 0 1px, transparent 1px 4px), repeating-linear-gradient(90deg, hsl(var(--foreground) / 0.02) 0 1px, transparent 1px 6px)",
+            "repeating-linear-gradient(0deg, hsl(var(--foreground) / 0.04) 0 1px, transparent 1px 4px), repeating-linear-gradient(90deg, hsl(var(--foreground) / 0.025) 0 1px, transparent 1px 5px)",
         }}
       />
 
-      {/* Vignette cinématique (tokens only) */}
+      {/* Cinematic vignette */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse at center, transparent 52%, hsl(var(--foreground) / 0.18) 100%)",
+            "radial-gradient(ellipse at center, transparent 48%, hsl(var(--foreground) / 0.22) 100%)",
         }}
       />
     </div>
