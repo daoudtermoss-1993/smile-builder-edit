@@ -54,8 +54,9 @@ export function HeroScene() {
   // Effet lignes cinématique - Rapide et intense
   const linesIntensity = useTransform(whipProgress, [0.10, 0.18, 0.25, 0.40, 0.48, 0.56], [0, 1, 0, 0, 1, 0]);
   
-  // Flash blanc subtil pendant transitions
-  const flashIntensity = useTransform(whipProgress, [0.14, 0.19, 0.24, 0.44, 0.50, 0.54], [0, 0.7, 0, 0, 0.7, 0]);
+  // Flash blanc intense - même direction que transition (bas vers haut)
+  const flashIntensity = useTransform(whipProgress, [0.14, 0.19, 0.24, 0.44, 0.50, 0.54], [0, 1, 0, 0, 1, 0]);
+  const flashY = useTransform(whipProgress, [0.14, 0.24, 0.44, 0.54], ["100%", "-100%", "100%", "-100%"]);
 
   return (
     <div 
@@ -127,12 +128,13 @@ export function HeroScene() {
         />
       </motion.div>
 
-      {/* Flash blanc subtil pendant transitions */}
+      {/* Flash blanc intense - monte de bas en haut */}
       <motion.div
         className="absolute inset-0 pointer-events-none"
         style={{
           opacity: flashIntensity,
-          background: "white",
+          y: flashY,
+          background: "linear-gradient(to top, white 0%, rgba(255,255,255,0.8) 50%, transparent 100%)",
         }}
       />
 
