@@ -26,35 +26,32 @@ export function HeroScene() {
   });
 
   // ═══════════════════════════════════════════════════════════════
-  // SCENE 1: Fauteuil dentaire (0% - 30%) - Image de départ
-  // Commence à échelle normale, léger zoom out puis whip pan
+  // SCENE 1: Fauteuil dentaire (0% - 30%) - Échelle normale
   // ═══════════════════════════════════════════════════════════════
-  const scene1Scale = useTransform(smoothProgress, [0, 0.15, 0.30], [1.1, 1.0, 0.95]); // Zoom out léger
-  const scene1X = useTransform(whipProgress, [0, 0.18, 0.38], ["0%", "0%", "120%"]); // Whip pan après
-  const scene1Y = useTransform(smoothProgress, [0, 0.30], ["0%", "-3%"]);
+  const scene1Scale = useTransform(smoothProgress, [0, 0.15, 0.30], [1.0, 1.0, 0.98]);
+  const scene1X = useTransform(whipProgress, [0, 0.18, 0.38], ["0%", "0%", "100%"]);
+  const scene1Y = useTransform(smoothProgress, [0, 0.30], ["0%", "0%"]);
   const scene1Opacity = useTransform(smoothProgress, [0, 0.25, 0.40], [1, 1, 0]);
   const scene1Blur = useTransform(whipProgress, [0.18, 0.28, 0.38], [0, 10, 0]);
 
   // ═══════════════════════════════════════════════════════════════
-  // SCENE 2: Équipement dentaire (25% - 65%) - Zoom out vers normal
-  // Sort vers le bas avec effet lignes
+  // SCENE 2: Équipement dentaire (25% - 65%) - Échelle normale
   // ═══════════════════════════════════════════════════════════════
-  const scene2Scale = useTransform(smoothProgress, [0.20, 0.45, 0.65], [1.15, 1.0, 1.0]); // Zoom out vers normal
-  const scene2X = useTransform(whipProgress, [0.18, 0.35], ["-100%", "0%"]); // Whip pan entrée
-  const scene2Y = useTransform(whipProgress, [0.52, 0.68], ["0%", "100%"]); // Sort vers le bas
+  const scene2Scale = useTransform(smoothProgress, [0.20, 0.45, 0.65], [1.0, 1.0, 1.0]);
+  const scene2X = useTransform(whipProgress, [0.18, 0.35], ["-100%", "0%"]);
+  const scene2Y = useTransform(whipProgress, [0.52, 0.68], ["0%", "100%"]);
   const scene2Opacity = useTransform(smoothProgress, [0.20, 0.32, 0.58, 0.70], [0, 1, 1, 0]);
-  const scene2Blur = useTransform(whipProgress, [0.18, 0.30, 0.35], [12, 3, 0]); // Blur entrée seulement
+  const scene2Blur = useTransform(whipProgress, [0.18, 0.30, 0.35], [12, 3, 0]);
 
   // ═══════════════════════════════════════════════════════════════
-  // SCENE 3: Vue plongeante (60% - 100%) - Zoom out dès le début
-  // Entre du haut rapidement avec effet lignes cinématique
+  // SCENE 3: Vue plongeante (60% - 100%) - Échelle normale
   // ═══════════════════════════════════════════════════════════════
-  const scene3Scale = useTransform(smoothProgress, [0.55, 0.72, 1], [1.12, 1.0, 1.0]); // Zoom out vers normal
-  const scene3Y = useTransform(whipProgress, [0.55, 0.72], ["-100%", "0%"]); // Entre du haut
-  const scene3X = useTransform(smoothProgress, [0.55, 1], ["0%", "0%"]); // Stable horizontalement
+  const scene3Scale = useTransform(smoothProgress, [0.55, 1], [1.0, 1.0]);
+  const scene3Y = useTransform(whipProgress, [0.55, 0.72], ["-100%", "0%"]);
+  const scene3X = useTransform(smoothProgress, [0.55, 1], ["0%", "0%"]);
   const scene3Opacity = useTransform(smoothProgress, [0.55, 0.68, 1], [0, 1, 1]);
   
-  // Effet lignes cinématique (intensité des lignes pendant transition verticale)
+  // Effet lignes cinématique
   const linesIntensity = useTransform(whipProgress, [0.52, 0.60, 0.72], [0, 1, 0]);
 
   return (
@@ -69,16 +66,12 @@ export function HeroScene() {
     >
       {/* SCENE 1: Fauteuil dentaire - Point de départ */}
       <motion.div
-        className="absolute w-[200%] h-[200%]"
+        className="absolute inset-0 w-full h-full overflow-hidden"
         style={{
-          top: "-50%",
-          left: "-50%",
           x: scene1X,
           y: scene1Y,
           scale: scene1Scale,
           opacity: scene1Opacity,
-          transformStyle: "preserve-3d",
-          transformOrigin: "center center",
         }}
       >
         <motion.img
@@ -93,16 +86,12 @@ export function HeroScene() {
 
       {/* SCENE 2: Équipement dentaire - Whip pan depuis la gauche */}
       <motion.div
-        className="absolute w-[200%] h-[200%]"
+        className="absolute inset-0 w-full h-full overflow-hidden"
         style={{
-          top: "-50%",
-          left: "-50%",
           x: scene2X,
           y: scene2Y,
           scale: scene2Scale,
           opacity: scene2Opacity,
-          transformStyle: "preserve-3d",
-          transformOrigin: "center center",
         }}
       >
         <motion.img
@@ -111,6 +100,26 @@ export function HeroScene() {
           className="w-full h-full object-cover"
           style={{
             filter: useTransform(scene2Blur, (b) => `blur(${b}px) brightness(1.02)`),
+          }}
+        />
+      </motion.div>
+
+      {/* SCENE 3: Vue plongeante - Entre du haut */}
+      <motion.div
+        className="absolute inset-0 w-full h-full overflow-hidden"
+        style={{
+          x: scene3X,
+          y: scene3Y,
+          scale: scene3Scale,
+          opacity: scene3Opacity,
+        }}
+      >
+        <motion.img
+          src={heroDentalTopview}
+          alt="Vue plongeante clinique dentaire"
+          className="w-full h-full object-cover"
+          style={{
+            filter: "brightness(1.02)",
           }}
         />
       </motion.div>
