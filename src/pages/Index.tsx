@@ -34,8 +34,8 @@ const Index = () => {
       <AdminEditToggle />
       <AdminEditConfirmDialog />
       
-      {/* Hero content - pinned during full cinematic scroll */}
-      <div className="relative z-10" style={{ height: '350vh' }}>
+      {/* Spacer to "pin" the hero for ~3 viewports of scroll before content */}
+      <div className="relative z-10" style={{ height: '300vh' }}>
         <div id="home" className="sticky top-0 h-screen">
           <Hero
             backgroundImage={heroImage}
