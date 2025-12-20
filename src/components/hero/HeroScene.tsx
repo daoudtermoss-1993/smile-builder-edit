@@ -3,7 +3,6 @@ import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 
 // Images dentaires - Séquence style Mont-fort
 import heroDentalEquipment from "@/assets/hero-dental-equipment.jpg";
-import heroDentalChair from "@/assets/hero-dental-chair.jpg";
 import heroDentalTopview from "@/assets/hero-dental-topview.jpg";
 import heroLightRays from "@/assets/hero-light-rays.jpg";
 
@@ -37,35 +36,19 @@ export function HeroScene() {
     clamp: true,
   });
 
-  // Image 1 fades out with smooth crossfade
-  const scene1Opacity = useTransform(smoothScrollY, [vh * 1.3, vh * 1.8], [1, 0], {
+  // Image 1 fades out with smooth crossfade to image 2
+  const scene1Opacity = useTransform(smoothScrollY, [vh * 1.3, vh * 2], [1, 0], {
     clamp: true,
   });
 
-  // === IMAGE 2: Smooth crossfade from image 1 ===
-  const scene2Start = vh * 1.2;
-  const scene2End = vh * 2.8;
+  // === IMAGE 2 (final): Smooth crossfade from image 1 ===
+  const scene2Start = vh * 1.5;
   
-  // Image 2 fades in as image 1 fades out (crossfade effect)
-  const scene2Opacity = useTransform(smoothScrollY, [scene2Start, vh * 1.6, scene2End - vh * 0.3, scene2End], [0, 1, 1, 0], {
+  const scene2Opacity = useTransform(smoothScrollY, [scene2Start, vh * 2.2], [0, 1], {
     clamp: true,
   });
   
-  const scene2Y = useTransform(smoothScrollY, [scene2Start, scene2End], [vh * 0.1, -vh * 0.3], {
-    clamp: true,
-  });
-  
-  const scene2Scale = useTransform(smoothScrollY, [scene2Start, scene2End], [1.15, 1], {
-    clamp: true,
-  });
-
-  // Scene 3
-  const scene3Start = vh * 2.5;
-  const scene3Opacity = useTransform(smoothScrollY, [scene3Start, scene3Start + vh * 0.5], [0, 1], {
-    clamp: true,
-  });
-  
-  const scene3Scale = useTransform(smoothScrollY, [scene3Start, travel], [1.15, 1], {
+  const scene2Scale = useTransform(smoothScrollY, [scene2Start, travel], [1.15, 1], {
     clamp: true,
   });
 
@@ -99,29 +82,10 @@ export function HeroScene() {
         />
       </motion.div>
 
-      {/* Scene 2 - Appears after hero */}
+      {/* Scene 2 - Final scene */}
       <motion.div
         className="absolute inset-0 w-full h-full overflow-hidden"
-        style={{ 
-          y: scene2Y,
-          opacity: scene2Opacity,
-        }}
-      >
-        <motion.img
-          src={heroDentalChair}
-          alt="Fauteuil dentaire moderne"
-          className="h-full w-full select-none object-cover"
-          draggable={false}
-          loading="eager"
-          decoding="async"
-          style={{ scale: scene2Scale }}
-        />
-      </motion.div>
-
-      {/* Scene 3 - Final scene */}
-      <motion.div
-        className="absolute inset-0 w-full h-full overflow-hidden"
-        style={{ opacity: scene3Opacity }}
+        style={{ opacity: scene2Opacity }}
       >
         <motion.img
           src={heroDentalTopview}
@@ -130,7 +94,7 @@ export function HeroScene() {
           draggable={false}
           loading="eager"
           decoding="async"
-          style={{ scale: scene3Scale }}
+          style={{ scale: scene2Scale }}
         />
       </motion.div>
 
