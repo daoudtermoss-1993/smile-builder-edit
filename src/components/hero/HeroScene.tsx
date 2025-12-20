@@ -37,24 +37,25 @@ export function HeroScene() {
     clamp: true,
   });
 
-  // Image 1 fades out after hero section
-  const scene1Opacity = useTransform(smoothScrollY, [vh * 1.5, vh * 2.5], [1, 0], {
+  // Image 1 fades out with smooth crossfade
+  const scene1Opacity = useTransform(smoothScrollY, [vh * 1.3, vh * 1.8], [1, 0], {
     clamp: true,
   });
 
-  // === IMAGES 2 & 3: Appear after hero section ===
-  const scene2Start = vh * 1.5;
-  const scene2End = vh * 3;
+  // === IMAGE 2: Smooth crossfade from image 1 ===
+  const scene2Start = vh * 1.2;
+  const scene2End = vh * 2.8;
   
-  const scene2Y = useTransform(smoothScrollY, [scene2Start, scene2End], [0, -vh], {
+  // Image 2 fades in as image 1 fades out (crossfade effect)
+  const scene2Opacity = useTransform(smoothScrollY, [scene2Start, vh * 1.6, scene2End - vh * 0.3, scene2End], [0, 1, 1, 0], {
     clamp: true,
   });
   
-  const scene2Opacity = useTransform(smoothScrollY, [scene2Start, scene2Start + vh * 0.3, scene2End], [0, 1, 0], {
+  const scene2Y = useTransform(smoothScrollY, [scene2Start, scene2End], [vh * 0.1, -vh * 0.3], {
     clamp: true,
   });
   
-  const scene2Scale = useTransform(smoothScrollY, [scene2Start, scene2End], [1.2, 1], {
+  const scene2Scale = useTransform(smoothScrollY, [scene2Start, scene2End], [1.15, 1], {
     clamp: true,
   });
 
