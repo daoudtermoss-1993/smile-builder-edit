@@ -55,7 +55,7 @@ export function HeroScene() {
   const linesIntensity = useTransform(whipProgress, [0.10, 0.18, 0.25, 0.40, 0.48, 0.56], [0, 1, 0, 0, 1, 0]);
   
   // Flash blanc subtil pendant transitions
-  const flashIntensity = useTransform(whipProgress, [0.14, 0.19, 0.24, 0.44, 0.50, 0.54], [0, 0.3, 0, 0, 0.3, 0]);
+  const flashIntensity = useTransform(whipProgress, [0.14, 0.19, 0.24, 0.44, 0.50, 0.54], [0, 0.7, 0, 0, 0.7, 0]);
 
   return (
     <div 
