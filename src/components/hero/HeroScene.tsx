@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 
 // Images haute résolution 1920x1080 - Séquence narrative professionnelle
-import heroFacade from "@/assets/hero-clinic-facade.jpg";
+import heroDentalEquipment from "@/assets/hero-dental-equipment.jpg";
 import heroLightRays from "@/assets/hero-light-rays.jpg";
 import heroTreatmentRoom from "@/assets/hero-treatment-room.jpg";
 import heroSilkWhite from "@/assets/hero-silk-white.jpg";
@@ -101,8 +101,8 @@ export function HeroScene() {
         }}
       >
         <motion.img
-          src={heroFacade}
-          alt="Clinique dentaire moderne"
+          src={heroDentalEquipment}
+          alt="Équipement dentaire professionnel"
           className="w-full h-full object-cover"
           style={{
             filter: useTransform(scene1Brightness, (b) => `brightness(${b}) saturate(1.05)`),
