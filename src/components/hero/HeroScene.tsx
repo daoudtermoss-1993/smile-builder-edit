@@ -19,25 +19,22 @@ export function HeroScene() {
   });
 
   // ═══════════════════════════════════════════════════════════════
-  // SCENE 1: Équipement dentaire (0% - 35%)
-  // Glisse vers le HAUT (la caméra tombe, donc l'image monte)
+  // SCENE 1: Équipement dentaire (0% - 40%)
+  // Monte et sort par le haut, révèle image 2 en dessous
   // ═══════════════════════════════════════════════════════════════
-  const scene1Y = useTransform(smoothProgress, [0, 0.35], ["0%", "-100%"]); // Monte et sort par le haut
-  const scene1Opacity = useTransform(smoothProgress, [0, 0.30, 0.35], [1, 1, 0.8]);
+  const scene1Y = useTransform(smoothProgress, [0, 0.40], ["0%", "-100%"]);
 
   // ═══════════════════════════════════════════════════════════════
-  // SCENE 2: Fauteuil dentaire (0% - 70%)
-  // Fixe au début, puis glisse vers le haut quand révélée
+  // SCENE 2: Fauteuil dentaire (35% - 75%)
+  // Fixe derrière image 1, puis monte pour révéler image 3
   // ═══════════════════════════════════════════════════════════════
-  const scene2Y = useTransform(smoothProgress, [0.30, 0.70], ["0%", "-100%"]); // Monte et sort
-  const scene2Opacity = useTransform(smoothProgress, [0.28, 0.35, 0.65, 0.70], [0, 1, 1, 0.8]);
+  const scene2Y = useTransform(smoothProgress, [0.35, 0.75], ["0%", "-100%"]);
 
   // ═══════════════════════════════════════════════════════════════
-  // SCENE 3: Vue plongeante (60% - 100%)
-  // Fixe, révélée quand image 2 sort
+  // SCENE 3: Vue plongeante (70% - 100%)
+  // Fixe tout en arrière, révélée quand image 2 sort
   // ═══════════════════════════════════════════════════════════════
-  const scene3Y = useTransform(smoothProgress, [0.65, 1], ["0%", "0%"]); // Reste en place
-  const scene3Opacity = useTransform(smoothProgress, [0.60, 0.72, 1], [0, 1, 1]);
+  const scene3Y = useTransform(smoothProgress, [0.70, 1], ["0%", "0%"]); // Reste fixe
 
   // ═══════════════════════════════════════════════════════════════
   // EFFETS CINÉMATIQUES ÉLÉGANTS
@@ -57,13 +54,10 @@ export function HeroScene() {
         zIndex: 0,
       }}
     >
-      {/* SCENE 3: Vue plongeante - En arrière-plan, révélée en dernier */}
+      {/* SCENE 3: Vue plongeante - Tout en arrière (z-index le plus bas) */}
       <motion.div
         className="absolute inset-0 w-full h-full overflow-hidden"
-        style={{
-          y: scene3Y,
-          opacity: scene3Opacity,
-        }}
+        style={{ zIndex: 1 }}
       >
         <img
           src={heroDentalTopview}
@@ -72,12 +66,12 @@ export function HeroScene() {
         />
       </motion.div>
 
-      {/* SCENE 2: Fauteuil dentaire - Au milieu, révélée après scene 1 */}
+      {/* SCENE 2: Fauteuil dentaire - Au milieu (z-index moyen) */}
       <motion.div
         className="absolute inset-0 w-full h-full overflow-hidden"
         style={{
           y: scene2Y,
-          opacity: scene2Opacity,
+          zIndex: 2,
         }}
       >
         <img
@@ -87,12 +81,12 @@ export function HeroScene() {
         />
       </motion.div>
 
-      {/* SCENE 1: Équipement dentaire - Au premier plan, part en premier */}
+      {/* SCENE 1: Équipement dentaire - Au premier plan (z-index le plus haut) */}
       <motion.div
         className="absolute inset-0 w-full h-full overflow-hidden"
         style={{
           y: scene1Y,
-          opacity: scene1Opacity,
+          zIndex: 3,
         }}
       >
         <img
