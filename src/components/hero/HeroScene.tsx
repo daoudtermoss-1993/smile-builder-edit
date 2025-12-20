@@ -36,24 +36,26 @@ export function HeroScene() {
   const scene1Blur = useTransform(whipProgress, [0.18, 0.28, 0.38], [0, 10, 0]);
 
   // ═══════════════════════════════════════════════════════════════
-  // SCENE 2: Équipement dentaire (25% - 65%) - Cinematic whip pan
-  // Échelle normale, mouvement fluide cinématique
+  // SCENE 2: Équipement dentaire (25% - 65%) - Zoom out vers normal
+  // Sort vers le bas avec effet lignes
   // ═══════════════════════════════════════════════════════════════
-  const scene2Scale = useTransform(smoothProgress, [0.20, 0.45, 0.65], [1.0, 1.0, 0.98]); // Reste normal
-  const scene2X = useTransform(whipProgress, [0.18, 0.35, 0.52, 0.70], ["-100%", "0%", "0%", "100%"]);
-  const scene2Y = useTransform(smoothProgress, [0.25, 0.65], ["0%", "-2%"]);
-  const scene2Opacity = useTransform(smoothProgress, [0.20, 0.32, 0.58, 0.72], [0, 1, 1, 0]);
-  const scene2Blur = useTransform(whipProgress, [0.18, 0.30, 0.35, 0.55, 0.65, 0.70], [12, 3, 0, 0, 3, 12]);
+  const scene2Scale = useTransform(smoothProgress, [0.20, 0.45, 0.65], [1.15, 1.0, 1.0]); // Zoom out vers normal
+  const scene2X = useTransform(whipProgress, [0.18, 0.35], ["-100%", "0%"]); // Whip pan entrée
+  const scene2Y = useTransform(whipProgress, [0.52, 0.68], ["0%", "100%"]); // Sort vers le bas
+  const scene2Opacity = useTransform(smoothProgress, [0.20, 0.32, 0.58, 0.70], [0, 1, 1, 0]);
+  const scene2Blur = useTransform(whipProgress, [0.18, 0.30, 0.35], [12, 3, 0]); // Blur entrée seulement
 
   // ═══════════════════════════════════════════════════════════════
-  // SCENE 3: Vue plongeante (60% - 100%) - Cinematic finale
-  // Échelle normale, entrée dramatique
+  // SCENE 3: Vue plongeante (60% - 100%) - Zoom out dès le début
+  // Entre du haut rapidement avec effet lignes cinématique
   // ═══════════════════════════════════════════════════════════════
-  const scene3Scale = useTransform(smoothProgress, [0.58, 0.75, 1], [1.0, 1.0, 1.0]); // Reste normal
-  const scene3X = useTransform(whipProgress, [0.58, 0.78, 1], ["-100%", "0%", "0%"]);
-  const scene3Y = useTransform(smoothProgress, [0.65, 1], ["0%", "-1%"]);
-  const scene3Opacity = useTransform(smoothProgress, [0.58, 0.75, 1], [0, 1, 1]);
-  const scene3Blur = useTransform(whipProgress, [0.58, 0.70, 0.78], [12, 3, 0]);
+  const scene3Scale = useTransform(smoothProgress, [0.55, 0.72, 1], [1.12, 1.0, 1.0]); // Zoom out vers normal
+  const scene3Y = useTransform(whipProgress, [0.55, 0.72], ["-100%", "0%"]); // Entre du haut
+  const scene3X = useTransform(smoothProgress, [0.55, 1], ["0%", "0%"]); // Stable horizontalement
+  const scene3Opacity = useTransform(smoothProgress, [0.55, 0.68, 1], [0, 1, 1]);
+  
+  // Effet lignes cinématique (intensité des lignes pendant transition verticale)
+  const linesIntensity = useTransform(whipProgress, [0.52, 0.60, 0.72], [0, 1, 0]);
 
   return (
     <div 
@@ -113,7 +115,7 @@ export function HeroScene() {
         />
       </motion.div>
 
-      {/* SCENE 3: Vue plongeante - Transition finale */}
+      {/* SCENE 3: Vue plongeante - Entre du haut */}
       <motion.div
         className="absolute w-[200%] h-[200%]"
         style={{
@@ -132,10 +134,25 @@ export function HeroScene() {
           alt="Vue plongeante clinique dentaire"
           className="w-full h-full object-cover"
           style={{
-            filter: useTransform(scene3Blur, (b) => `blur(${b}px) brightness(1.02)`),
+            filter: "brightness(1.02)",
           }}
         />
       </motion.div>
+
+      {/* Effet lignes cinématique pendant transition verticale */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          opacity: linesIntensity,
+          background: `repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 3px,
+            rgba(255,255,255,0.08) 3px,
+            rgba(255,255,255,0.08) 6px
+          )`,
+        }}
+      />
 
       {/* Vignette cinématique subtile */}
       <div 
