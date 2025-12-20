@@ -27,13 +27,13 @@ export function HeroScene() {
 
   // ═══════════════════════════════════════════════════════════════
   // SCENE 1: Fauteuil dentaire (0% - 30%) - Image de départ
-  // Whip pan vers la droite pour sortir
+  // Zoom out puis whip pan vers la droite
   // ═══════════════════════════════════════════════════════════════
-  const scene1Scale = useTransform(smoothProgress, [0, 0.15, 0.30], [1.3, 1.15, 1.05]);
-  const scene1X = useTransform(whipProgress, [0, 0.15, 0.35], ["0%", "0%", "120%"]); // Whip pan vers droite
+  const scene1Scale = useTransform(smoothProgress, [0, 0.12, 0.30], [1.8, 1.3, 1.1]); // Zoom out d'abord
+  const scene1X = useTransform(whipProgress, [0, 0.18, 0.38], ["0%", "0%", "120%"]); // Whip pan après zoom
   const scene1Y = useTransform(smoothProgress, [0, 0.30], ["0%", "-5%"]);
-  const scene1Opacity = useTransform(smoothProgress, [0, 0.20, 0.35], [1, 1, 0]);
-  const scene1Blur = useTransform(whipProgress, [0.15, 0.25, 0.35], [0, 8, 0]); // Motion blur
+  const scene1Opacity = useTransform(smoothProgress, [0, 0.25, 0.40], [1, 1, 0]);
+  const scene1Blur = useTransform(whipProgress, [0.18, 0.28, 0.38], [0, 10, 0]); // Motion blur
 
   // ═══════════════════════════════════════════════════════════════
   // SCENE 2: Équipement dentaire (25% - 65%) - Arrive par whip pan
