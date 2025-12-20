@@ -1,5 +1,5 @@
-import { useRef, useEffect, useState } from "react";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { useRef, useEffect, useState, useCallback } from "react";
+import { motion, useScroll, useTransform, useSpring, useMotionValueEvent } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 // Images fallback pour mobile
@@ -15,38 +15,55 @@ export function HeroScene() {
   const isMobile = useIsMobile();
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [videoDuration, setVideoDuration] = useState(0);
+  const lastTimeRef = useRef(0);
   
   const { scrollYProgress } = useScroll();
 
-  // Spring très fluide
+  // Spring pour le scroll fluide
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 35,
-    damping: 28,
-    restDelta: 0.0001
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
   });
 
-  // Scroll-driven video pour desktop
-  useEffect(() => {
-    if (isMobile || !videoRef.current || !videoLoaded || videoDuration === 0) return;
+  // Contrôle scroll-driven video avec requestAnimationFrame pour fluidité
+  const updateVideoTime = useCallback((progress: number) => {
+    if (!videoRef.current || !videoLoaded || videoDuration === 0) return;
+    
+    const targetTime = progress * videoDuration;
+    const diff = Math.abs(targetTime - lastTimeRef.current);
+    
+    // Seulement mettre à jour si le changement est significatif (évite le jitter)
+    if (diff > 0.016) { // ~60fps threshold
+      videoRef.current.currentTime = targetTime;
+      lastTimeRef.current = targetTime;
+    }
+  }, [videoLoaded, videoDuration]);
 
-    const unsubscribe = smoothProgress.on("change", (latest) => {
-      if (videoRef.current && videoDuration > 0) {
-        // Map scroll progress (0-1) to video duration
-        const targetTime = latest * videoDuration;
-        videoRef.current.currentTime = Math.min(Math.max(targetTime, 0), videoDuration);
-      }
-    });
-
-    return () => unsubscribe();
-  }, [smoothProgress, isMobile, videoLoaded, videoDuration]);
+  // Écouter les changements de scroll
+  useMotionValueEvent(smoothProgress, "change", (latest) => {
+    if (!isMobile) {
+      updateVideoTime(latest);
+    }
+  });
 
   const handleVideoLoad = () => {
     if (videoRef.current) {
-      setVideoDuration(videoRef.current.duration);
+      const duration = videoRef.current.duration;
+      console.log("Video loaded, duration:", duration);
+      setVideoDuration(duration);
       setVideoLoaded(true);
-      videoRef.current.pause(); // S'assurer que la vidéo ne joue pas automatiquement
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
     }
   };
+
+  // Précharger la vidéo
+  useEffect(() => {
+    if (!isMobile && videoRef.current) {
+      videoRef.current.load();
+    }
+  }, [isMobile]);
 
   // ═══════════════════════════════════════════════════════════════
   // ANIMATIONS POUR IMAGES (Mobile fallback)
@@ -85,9 +102,8 @@ export function HeroScene() {
   const scene3Opacity = useTransform(smoothProgress, [0.68, 0.78, 1], [0, 1, 1]);
   const scene3Brightness = useTransform(smoothProgress, [0.70, 0.90, 1], [1.08, 1, 0.92]);
 
-  // Video scale et effets
-  const videoScale = useTransform(smoothProgress, [0, 0.5, 1], [1.15, 1.05, 1]);
-  const videoOpacity = useTransform(smoothProgress, [0, 0.05], [0, 1]);
+  // Video effects
+  const videoScale = useTransform(smoothProgress, [0, 0.5, 1], [1.1, 1.03, 1]);
 
   return (
     <div 
@@ -107,25 +123,30 @@ export function HeroScene() {
           className="absolute inset-0 w-full h-full"
           style={{
             scale: videoScale,
-            opacity: videoOpacity,
           }}
         >
           <video
             ref={videoRef}
             className="w-full h-full object-cover"
-            src="/videos/hero-scroll-video.mp4"
             muted
             playsInline
             preload="auto"
             onLoadedMetadata={handleVideoLoad}
+            onCanPlayThrough={() => console.log("Video can play through")}
             style={{
               filter: "brightness(1.02) saturate(1.05)",
             }}
-          />
+          >
+            <source src="/videos/hero-scroll-video.mp4" type="video/mp4" />
+          </video>
+          
           {/* Loader pendant le chargement */}
           {!videoLoaded && (
-            <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
-              <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+            <div className="absolute inset-0 bg-background flex items-center justify-center">
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-10 h-10 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                <span className="text-sm text-muted-foreground">Chargement...</span>
+              </div>
             </div>
           )}
         </motion.div>
