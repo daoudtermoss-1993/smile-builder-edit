@@ -1,12 +1,12 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 
-// Images haute résolution 1920x1088 - Séquence narrative clinique dentaire
-import heroExterior from "@/assets/hero-dental-exterior.jpg";
-import heroLight from "@/assets/hero-dental-light.jpg";
-import heroInterior from "@/assets/hero-dental-interior.jpg";
-import heroSilk from "@/assets/hero-dental-silk.jpg";
-import heroSmile from "@/assets/hero-dental-smile.jpg";
+// Images haute résolution 1920x1080 - Séquence narrative professionnelle
+import heroFacade from "@/assets/hero-clinic-facade.jpg";
+import heroLightRays from "@/assets/hero-light-rays.jpg";
+import heroTreatmentRoom from "@/assets/hero-treatment-room.jpg";
+import heroSilkWhite from "@/assets/hero-silk-white.jpg";
+import heroPerfectSmile from "@/assets/hero-perfect-smile.jpg";
 
 export function HeroScene() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -101,7 +101,7 @@ export function HeroScene() {
         }}
       >
         <motion.img
-          src={heroExterior}
+          src={heroFacade}
           alt="Clinique dentaire moderne"
           className="w-full h-full object-cover"
           style={{
@@ -123,7 +123,7 @@ export function HeroScene() {
         }}
       >
         <motion.img
-          src={heroLight}
+          src={heroLightRays}
           alt="Transition lumineuse"
           className="w-full h-full object-cover"
           style={{
@@ -149,7 +149,7 @@ export function HeroScene() {
         }}
       >
         <motion.img
-          src={heroInterior}
+          src={heroTreatmentRoom}
           alt="Salle de traitement moderne"
           className="w-full h-full object-cover"
           style={{
@@ -172,7 +172,7 @@ export function HeroScene() {
         }}
       >
         <img
-          src={heroSilk}
+          src={heroSilkWhite}
           alt="Transition soie"
           className="w-full h-full object-cover"
           style={{ filter: "brightness(1.08)" }}
@@ -196,7 +196,7 @@ export function HeroScene() {
         }}
       >
         <motion.img
-          src={heroSmile}
+          src={heroPerfectSmile}
           alt="Sourire parfait"
           className="w-full h-full object-cover"
           style={{
