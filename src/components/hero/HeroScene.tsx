@@ -124,30 +124,6 @@ export function HeroScene() {
         />
       </motion.div>
 
-      {/* SCENE 3: Vue plongeante - Entre du haut */}
-      <motion.div
-        className="absolute w-[200%] h-[200%]"
-        style={{
-          top: "-50%",
-          left: "-50%",
-          x: scene3X,
-          y: scene3Y,
-          scale: scene3Scale,
-          opacity: scene3Opacity,
-          transformStyle: "preserve-3d",
-          transformOrigin: "center center",
-        }}
-      >
-        <motion.img
-          src={heroDentalTopview}
-          alt="Vue plongeante clinique dentaire"
-          className="w-full h-full object-cover"
-          style={{
-            filter: "brightness(1.02)",
-          }}
-        />
-      </motion.div>
-
       {/* Effet lignes cinématique pendant transition verticale */}
       <motion.div
         className="absolute inset-0 pointer-events-none"
