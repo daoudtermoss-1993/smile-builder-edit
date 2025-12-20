@@ -244,69 +244,61 @@ export function HeroScene() {
           />
         </motion.div>
 
-        {/* Combined Zone: Scenes 2 + 3 blended */}
-        <div
-          className="absolute left-0 w-full"
+        {/* Scene 2 - Chair (positioned below scene 1) */}
+        <motion.div
+          className="absolute left-0 w-full overflow-hidden"
           style={{ 
-            top: `${vh * 0.8}px`, 
-            height: `${vh * 2.7}px`,
+            top: `${vh}px`, 
+            height: `${vh * 1.2}px`,
+            opacity: scene2Opacity,
             zIndex: 2,
           }}
         >
-          {/* Scene 3 (back layer - revealed progressively) */}
-          <motion.div
-            className="absolute inset-0 overflow-hidden"
-            style={{ opacity: scene3Opacity }}
-          >
-            <motion.img
-              src={heroDentalTopview}
-              alt="Vue plongeante clinique dentaire"
-              className="h-full w-full select-none object-cover"
-              draggable={false}
-              loading="eager"
-              decoding="async"
-              style={{
-                scale: scene3Scale,
-                filter: scene3Blur,
-              }}
-            />
-          </motion.div>
-
-          {/* Scene 2 (front layer - fades to reveal scene 3) */}
-          <motion.div
-            className="absolute inset-0 overflow-hidden"
-            style={{ opacity: scene2Opacity }}
-          >
-            <motion.img
-              src={heroDentalChair}
-              alt="Fauteuil dentaire moderne"
-              className="h-full w-full select-none object-cover"
-              draggable={false}
-              loading="eager"
-              decoding="async"
-              style={{
-                scale: scene2Scale,
-                filter: scene2Blur,
-              }}
-            />
-            {/* Radial blend for seamless transition */}
-            <div
-              className="pointer-events-none absolute inset-0"
-              style={{
-                background: "radial-gradient(ellipse at center 55%, transparent 35%, hsl(var(--background) / 0.5) 100%)",
-              }}
-            />
-          </motion.div>
-
-          {/* Cinematic light streaks during blend */}
-          <motion.div
-            className="pointer-events-none absolute inset-0"
+          <motion.img
+            src={heroDentalChair}
+            alt="Fauteuil dentaire moderne"
+            className="h-full w-full select-none object-cover"
+            draggable={false}
+            loading="eager"
+            decoding="async"
             style={{
-              opacity: flash2Opacity,
-              background: "linear-gradient(175deg, transparent 20%, rgba(255,255,255,0.35) 50%, transparent 80%)",
+              scale: scene2Scale,
+              filter: scene2Blur,
             }}
           />
-        </div>
+          {/* Gradient fade to blend into scene 3 */}
+          <div
+            className="pointer-events-none absolute bottom-0 left-0 w-full"
+            style={{
+              height: "45%",
+              background: "linear-gradient(to bottom, transparent 0%, hsl(var(--background) / 0.5) 60%, hsl(var(--background)) 100%)",
+            }}
+          />
+        </motion.div>
+
+        {/* Scene 3 - Top view (positioned below scene 2) */}
+        <motion.div
+          className="absolute left-0 w-full overflow-hidden"
+          style={{ 
+            top: `${vh * 2}px`, 
+            height: `${vh * 1.5}px`,
+            opacity: scene3Opacity,
+            zIndex: 1,
+          }}
+        >
+          <motion.img
+            src={heroDentalTopview}
+            alt="Vue plongeante clinique dentaire"
+            className="h-full w-full select-none object-cover"
+            draggable={false}
+            loading="eager"
+            decoding="async"
+            style={{
+              scale: scene3Scale,
+              filter: scene3Blur,
+            }}
+          />
+        </motion.div>
       </motion.div>
 
       {/* Light rays overlay (full screen, fixed) */}
