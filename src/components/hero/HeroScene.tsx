@@ -25,21 +25,26 @@ export function HeroScene() {
     restDelta: 0.001,
   });
 
-  const travel = vh * 3; // Extended for pinned hero (3 screens)
+  const travel = vh * 4; // Extended for pinned hero (4 screens like mont-fort)
 
-  // Base camera translation - moves through all scenes
-  const cameraY = useTransform(smoothScrollY, [0, travel], [0, -vh * 2], {
+  // Base camera translation - moves through all scenes with parallax
+  const cameraY = useTransform(smoothScrollY, [0, travel], [0, -vh * 2.5], {
     clamp: true,
   });
 
-  // Dolly zoom: starts zoomed in (1.3), zooms out to normal (1) as you scroll
-  const globalScale = useTransform(smoothScrollY, [0, travel * 0.7], [1.3, 1], {
+  // Dolly zoom: starts zoomed in (1.5), zooms out dramatically as you scroll
+  const globalScale = useTransform(smoothScrollY, [0, travel * 0.6], [1.5, 1], {
+    clamp: true,
+  });
+
+  // Slight vertical pan for cinematic feel
+  const cameraPanY = useTransform(smoothScrollY, [0, travel * 0.5], ["-5%", "0%"], {
     clamp: true,
   });
 
   // Cinematic transition specifically between scene 2 and 3
-  const t23Start = vh * 1.5;
-  const t23End = vh * 2.5;
+  const t23Start = vh * 2;
+  const t23End = vh * 3.5;
 
   const scene2Opacity = useTransform(smoothScrollY, [t23Start, t23End], [1, 0], {
     clamp: true,
@@ -51,22 +56,22 @@ export function HeroScene() {
   const scene2Blur = useTransform(
     smoothScrollY,
     [t23Start, t23End],
-    ["blur(0px)", "blur(14px)"],
+    ["blur(0px)", "blur(16px)"],
     { clamp: true }
   );
   const scene3Blur = useTransform(
     smoothScrollY,
     [t23Start, t23End],
-    ["blur(14px)", "blur(0px)"],
+    ["blur(16px)", "blur(0px)"],
     { clamp: true }
   );
 
-  const scene3Scale = useTransform(smoothScrollY, [t23Start, t23End], [1.2, 1], {
+  const scene3Scale = useTransform(smoothScrollY, [t23Start, t23End], [1.25, 1], {
     clamp: true,
   });
 
-  // Light rays + haze that grows a bit during the cinematic moment
-  const raysOpacity = useTransform(smoothScrollY, [vh * 0.2, t23End], [0.06, 0.26], {
+  // Light rays + haze that grows during the cinematic moment
+  const raysOpacity = useTransform(smoothScrollY, [vh * 0.3, t23End], [0.04, 0.3], {
     clamp: true,
   });
 
@@ -80,7 +85,8 @@ export function HeroScene() {
         className="absolute left-0 top-0 w-full will-change-transform"
         style={{
           y: cameraY,
-          height: `${vh * 3}px`,
+          translateY: cameraPanY,
+          height: `${vh * 3.5}px`,
         }}
       >
         {/* Scene 1 */}

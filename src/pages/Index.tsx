@@ -34,8 +34,8 @@ const Index = () => {
       <AdminEditToggle />
       <AdminEditConfirmDialog />
       
-      {/* Spacer to "pin" the hero for ~3 viewports of scroll before content */}
-      <div className="relative z-10" style={{ height: '300vh' }}>
+      {/* Spacer to "pin" the hero for ~4 viewports of scroll like mont-fort */}
+      <div className="relative z-10" style={{ height: '400vh' }}>
         <div id="home" className="sticky top-0 h-screen">
           <Hero
             backgroundImage={heroImage}
