@@ -25,21 +25,21 @@ export function HeroScene() {
     restDelta: 0.001,
   });
 
-  const travel = vh * 2; // 3 scenes stacked -> 2vh travel
+  const travel = vh * 3; // Extended for pinned hero (3 screens)
 
-  // Base camera translation
-  const cameraY = useTransform(smoothScrollY, [0, travel], [0, -travel], {
+  // Base camera translation - moves through all scenes
+  const cameraY = useTransform(smoothScrollY, [0, travel], [0, -vh * 2], {
     clamp: true,
   });
 
-  // Global “dolly” feeling (subtle zoom out as you scroll)
-  const globalScale = useTransform(smoothScrollY, [0, travel], [1.06, 1], {
+  // Dolly zoom: starts zoomed in (1.3), zooms out to normal (1) as you scroll
+  const globalScale = useTransform(smoothScrollY, [0, travel * 0.7], [1.3, 1], {
     clamp: true,
   });
 
   // Cinematic transition specifically between scene 2 and 3
-  const t23Start = vh * 1.05;
-  const t23End = vh * 1.85;
+  const t23Start = vh * 1.5;
+  const t23End = vh * 2.5;
 
   const scene2Opacity = useTransform(smoothScrollY, [t23Start, t23End], [1, 0], {
     clamp: true,
@@ -61,7 +61,7 @@ export function HeroScene() {
     { clamp: true }
   );
 
-  const scene3Scale = useTransform(smoothScrollY, [t23Start, t23End], [1.14, 1], {
+  const scene3Scale = useTransform(smoothScrollY, [t23Start, t23End], [1.2, 1], {
     clamp: true,
   });
 
