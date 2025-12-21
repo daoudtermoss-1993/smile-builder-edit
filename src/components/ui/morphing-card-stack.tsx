@@ -187,9 +187,9 @@ export function MorphingCardStack({
 
   return (
     <div className={cn("space-y-4", className)}>
-      {/* Layout Toggle with premium styling */}
+      {/* Layout Toggle with clean styling */}
       <motion.div 
-        className="flex items-center justify-center gap-1 rounded-full bg-white p-1.5 w-fit mx-auto shadow-lg border border-gold/20"
+        className="flex items-center justify-center gap-1 rounded-full bg-white p-1.5 w-fit mx-auto shadow-lg border border-primary/10"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
@@ -241,13 +241,13 @@ export function MorphingCardStack({
                   key={card.id}
                   className={cn(
                     "cursor-pointer rounded-2xl bg-white p-5 shadow-xl",
-                    "border border-gold/10 hover:border-gold/30 transition-all duration-300",
-                    "hover:shadow-2xl hover:shadow-gold/10",
+                    "border border-primary/10 hover:border-primary/30 transition-all duration-300",
+                    "hover:shadow-2xl hover:shadow-primary/10",
                     layout === "stack" && "absolute w-56 h-48",
                     layout === "stack" && isTopCard && "cursor-grab active:cursor-grabbing",
                     layout === "grid" && "w-full aspect-square",
                     layout === "list" && "w-full",
-                    isExpanded && "ring-2 ring-gold ring-offset-2 ring-offset-white",
+                    isExpanded && "ring-2 ring-primary ring-offset-2 ring-offset-white",
                   )}
                   style={{
                     backgroundColor: card.color || undefined,
@@ -324,7 +324,7 @@ export function MorphingCardStack({
 
                   {/* Premium indicator */}
                   <div className="absolute top-3 right-3">
-                    <div className="w-1.5 h-1.5 bg-gold rounded-full animate-pulse" />
+                    <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
                   </div>
                 </TiltCard>
               )
@@ -333,7 +333,7 @@ export function MorphingCardStack({
         </motion.div>
       </LayoutGroup>
 
-      {/* Animated pagination dots with gold accent */}
+      {/* Animated pagination dots with teal accent */}
       <AnimatePresence>
         {layout === "stack" && cards.length > 1 && (
           <motion.div 
@@ -350,8 +350,8 @@ export function MorphingCardStack({
                 className={cn(
                   "h-2 rounded-full transition-colors",
                   index === activeIndex 
-                    ? "bg-gradient-to-r from-gold to-gold-light" 
-                    : "bg-muted-foreground/20 hover:bg-gold/40",
+                    ? "bg-gradient-to-r from-primary to-primary/70" 
+                    : "bg-muted-foreground/20 hover:bg-primary/40",
                 )}
                 animate={{ 
                   width: index === activeIndex ? 20 : 8,

@@ -23,34 +23,34 @@ section .text-muted-foreground {
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 60 20% 99%;
     --foreground: 200 25% 10%;
 
-    --card: 0 0% 100%;
+    --card: 60 30% 99%;
     --card-foreground: 200 25% 10%;
 
-    --popover: 0 0% 100%;
+    --popover: 60 20% 99%;
     --popover-foreground: 200 25% 10%;
 
     /* Primary: Teal - élégant et médical */
     --primary: 175 85% 35%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 175 20% 96%;
+    --secondary: 60 15% 96%;
     --secondary-foreground: 200 25% 10%;
 
-    --muted: 45 10% 96%;
+    --muted: 60 10% 94%;
     --muted-foreground: 200 15% 40%;
 
-    /* Accent: Or/Doré - luxueux et premium */
-    --accent: 42 90% 55%;
+    /* Accent: Blanc Cassé / Ivoire - minimaliste et pur */
+    --accent: 60 30% 96%;
     --accent-foreground: 200 25% 10%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 45 15% 88%;
-    --input: 45 15% 88%;
+    --border: 60 15% 90%;
+    --input: 60 15% 90%;
     --ring: 175 85% 35%;
 
     --radius: 0.75rem;
@@ -59,7 +59,7 @@ section .text-muted-foreground {
     --terminal: 180 30% 10%;
     --terminal-dark: 180 35% 6%;
     --terminal-muted: 180 20% 18%;
-    --terminal-accent: 42 85% 55%;
+    --terminal-accent: 175 85% 45%;
     --terminal-grid: 180 25% 12%;
 
     /* Vibe colors - Teal spectrum */
@@ -67,20 +67,26 @@ section .text-muted-foreground {
     --vibe-cyan: 180 80% 40%;
     --vibe-blue: 190 75% 40%;
     
-    /* Gold accent colors */
-    --gold: 42 90% 55%;
-    --gold-light: 45 95% 65%;
-    --gold-dark: 38 85% 45%;
+    /* Ivory/Cream accent colors */
+    --gold: 60 30% 96%;
+    --gold-light: 60 50% 98%;
+    --gold-dark: 60 20% 90%;
+    
+    /* Ivory palette */
+    --ivory: 60 30% 96%;
+    --ivory-light: 60 50% 99%;
+    --ivory-dark: 60 20% 88%;
+    --cream: 45 40% 94%;
     
     --gradient-vibe: linear-gradient(135deg, hsl(175 85% 35%), hsl(180 80% 40%));
-    --gradient-gold: linear-gradient(135deg, hsl(42 90% 55%), hsl(45 95% 65%));
-    --gradient-hero: linear-gradient(180deg, hsl(180 30% 97%) 0%, hsl(0 0% 100%) 100%);
-    --gradient-section-alt: linear-gradient(180deg, hsl(45 20% 97%) 0%, hsl(45 15% 99%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(45 20% 98%));
+    --gradient-gold: linear-gradient(135deg, hsl(175 85% 35%), hsl(175 70% 45%));
+    --gradient-hero: linear-gradient(180deg, hsl(60 30% 99%) 0%, hsl(0 0% 100%) 100%);
+    --gradient-section-alt: linear-gradient(180deg, hsl(60 20% 98%) 0%, hsl(60 15% 99%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(60 30% 99%), hsl(60 20% 97%));
     
     --shadow-glow: 0 0 40px hsl(175 85% 35% / 0.15);
     --shadow-glow-hover: 0 0 60px hsl(175 85% 35% / 0.25);
-    --shadow-gold: 0 0 30px hsl(42 90% 55% / 0.2);
+    --shadow-gold: 0 0 30px hsl(175 85% 35% / 0.15);
     --shadow-soft: 0 4px 20px hsl(200 20% 50% / 0.08);
     --shadow-medium: 0 8px 30px hsl(200 20% 50% / 0.12);
     --shadow-elevated: 0 20px 60px hsl(200 20% 50% / 0.15);

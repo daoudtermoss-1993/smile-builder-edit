@@ -22,18 +22,18 @@ export const Services = () => {
   });
   
   return (
-    <section id="services" className="py-24 overflow-hidden relative bg-white">
+    <section id="services" className="py-24 overflow-hidden relative bg-ivory">
       {/* Decorative background elements */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Subtle grid pattern */}
-        <div className="absolute inset-0 opacity-[0.03]" style={{
+        <div className="absolute inset-0 opacity-[0.02]" style={{
           backgroundImage: `linear-gradient(hsl(var(--primary)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary)) 1px, transparent 1px)`,
           backgroundSize: '60px 60px'
         }} />
         
         {/* Decorative orbs */}
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-gold/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/3 rounded-full blur-3xl" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-radial from-primary/3 to-transparent rounded-full" />
       </div>
       
@@ -48,20 +48,20 @@ export const Services = () => {
         >
           {/* Premium badge */}
           <motion.div
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 to-gold/10 border border-gold/20 mb-6"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-primary/10 shadow-sm mb-6"
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <Sparkles className="w-4 h-4 text-gold" />
+            <Sparkles className="w-4 h-4 text-primary" />
             <span className="text-sm font-medium text-primary tracking-wide">
               {language === 'ar' ? 'خدمات متميزة' : 'Premium Services'}
             </span>
           </motion.div>
           
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold leading-tight mb-6">
-            <span className="bg-gradient-to-r from-primary via-primary to-gold bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
               <EditableText 
                 sectionKey="services" 
                 field="title" 
@@ -84,9 +84,9 @@ export const Services = () => {
           
           {/* Decorative line */}
           <div className="flex items-center justify-center gap-2 mt-8">
-            <div className="w-12 h-0.5 bg-gradient-to-r from-transparent to-gold/50 rounded-full" />
-            <div className="w-2 h-2 bg-gold rounded-full" />
-            <div className="w-12 h-0.5 bg-gradient-to-l from-transparent to-gold/50 rounded-full" />
+            <div className="w-12 h-0.5 bg-gradient-to-r from-transparent to-primary/30 rounded-full" />
+            <div className="w-2 h-2 bg-primary rounded-full" />
+            <div className="w-12 h-0.5 bg-gradient-to-l from-transparent to-primary/30 rounded-full" />
           </div>
         </motion.div>
 
