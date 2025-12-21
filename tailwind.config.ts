@@ -64,6 +64,12 @@ export default {
           light: "hsl(var(--gold-light))",
           dark: "hsl(var(--gold-dark))",
         },
+        ivory: {
+          DEFAULT: "hsl(var(--ivory))",
+          light: "hsl(var(--ivory-light))",
+          dark: "hsl(var(--ivory-dark))",
+        },
+        cream: "hsl(var(--cream))",
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
