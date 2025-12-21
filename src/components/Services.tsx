@@ -94,13 +94,11 @@ export const Services = () => {
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <div className="bg-white/5 backdrop-blur-sm rounded-[2rem] p-8 border border-white/10">
-              <MorphingCardStack 
-                cards={morphingCards}
-                defaultLayout="stack"
-                className="w-full max-w-md"
-              />
-            </div>
+            <MorphingCardStack 
+              cards={morphingCards}
+              defaultLayout="stack"
+              className="w-full max-w-md"
+            />
           </motion.div>
         </div>
       </div>
