@@ -2,9 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-// Cabinet dentaire images - solide blanc et wireframe
-const CABINET_SOLID_URL = "https://a.lovart.ai/artifacts/agent/eCYhzwystv5TzpHS.png";
-const CABINET_WIRE_URL = "https://a.lovart.ai/artifacts/agent/UhM1KsXb5FdhwtEw.png";
+// Import cabinet images
+import cabinetScene1 from "@/assets/cabinet-scene-1.jpg";
+import cabinetScene2 from "@/assets/cabinet-scene-2.jpg";
+import cabinetScene3 from "@/assets/cabinet-scene-3.jpg";
+import cabinetChair from "@/assets/cabinet-chair.png";
 
 // Utility functions
 const lerp = (start: number, end: number, factor: number) => start + (end - start) * factor;
@@ -67,39 +69,38 @@ export function DentalChair3D() {
 
   const p = smoothedProgress;
   
-  // Rotation - rotation complète sur scroll
-  const rotateY = p * 360;
-  const rotateX = Math.sin(p * Math.PI * 2) * 15;
+  // Card 1: 0-50% of scroll (cinematic cabinet transitions)
+  // Card 2: 50-100% of scroll (wireframe transformation)
+  const isCard1 = p < 0.5;
+  const card1Progress = clamp(mapRange(p, 0, 0.5, 0, 1), 0, 1);
+  const card2Progress = clamp(mapRange(p, 0.5, 1, 0, 1), 0, 1);
   
-  // Scale - démarre grand, reste stable
-  const scale = mapRange(p, 0, 1, 1.0, 0.85);
+  // Cabinet transitions within Card 1 (cinematic crossfade between 3 cabinets)
+  // Cabinet 1: 0-33%, Cabinet 2: 33-66%, Cabinet 3: 66-100%
+  let cabinet1Opacity = 0;
+  let cabinet2Opacity = 0;
+  let cabinet3Opacity = 0;
   
-  // TranslateZ pour l'effet de profondeur
-  const translateZ = mapRange(p, 0, 1, 0, -100);
-  
-  // Crossfade entre solide (blanc) et wireframe (lignes)
-  let solidOpacity: number;
-  let wireOpacity: number;
-  
-  if (p < 0.25) {
-    solidOpacity = 1;
-    wireOpacity = 0;
-  } else if (p > 0.75) {
-    solidOpacity = 0;
-    wireOpacity = 1;
+  if (card1Progress < 0.33) {
+    cabinet1Opacity = 1;
+    cabinet2Opacity = mapRange(card1Progress, 0.2, 0.33, 0, 0.3);
+  } else if (card1Progress < 0.66) {
+    cabinet1Opacity = mapRange(card1Progress, 0.33, 0.45, 1, 0);
+    cabinet2Opacity = 1;
+    cabinet3Opacity = mapRange(card1Progress, 0.55, 0.66, 0, 0.3);
   } else {
-    const fadeProgress = mapRange(p, 0.25, 0.75, 0, 1);
-    solidOpacity = 1 - fadeProgress;
-    wireOpacity = fadeProgress;
+    cabinet2Opacity = mapRange(card1Progress, 0.66, 0.8, 1, 0);
+    cabinet3Opacity = 1;
   }
   
-  // Parallax background
-  const parallaxY = p * 150;
+  // Chair rotation and scale
+  const rotateY = p * 180;
+  const rotateX = Math.sin(p * Math.PI) * 10;
+  const scale = isCard1 ? mapRange(card1Progress, 0, 1, 0.9, 1.1) : mapRange(card2Progress, 0, 1, 1.1, 0.9);
   
-  // Text visibility based on scroll
-  const text1Visible = p > 0.05 && p < 0.3;
-  const text2Visible = p > 0.35 && p < 0.6;
-  const text3Visible = p > 0.7 && p < 0.95;
+  // Crossfade to wireframe in Card 2
+  const solidOpacity = isCard1 ? 1 : mapRange(card2Progress, 0, 0.6, 1, 0);
+  const wireOpacity = isCard1 ? 0 : mapRange(card2Progress, 0.3, 0.8, 0, 1);
   
   // Scroll indicator fade
   const scrollIndicatorOpacity = useTransform(smoothScrollY, [0, 200], [1, 0]);
@@ -117,60 +118,83 @@ export function DentalChair3D() {
       {/* Main 3D Hero Section */}
       <section 
         ref={containerRef}
-        className="h-[500vh] relative z-0"
+        className="h-[400vh] relative z-0"
         id="hero-3d"
       >
         <div className="sticky top-0 h-screen w-full overflow-hidden flex justify-center items-center" style={{ perspective: '1200px' }}>
-          {/* Gradient Background - like terminal-industries */}
+          {/* Dark Background - Original colors */}
           <div 
-            className="absolute inset-0 transition-all duration-700"
+            className="absolute inset-0"
             style={{
-              background: `linear-gradient(180deg, 
-                hsl(40 ${30 + p * 20}% ${75 - p * 30}%) 0%, 
-                hsl(30 ${25 + p * 15}% ${60 - p * 35}%) 50%,
-                hsl(20 ${20 + p * 10}% ${15 - p * 10}%) 100%
-              )`
+              background: 'radial-gradient(circle at center, hsl(180 20% 8%) 0%, hsl(180 30% 3%) 70%)'
             }}
           />
           
-          {/* Ground Shadow */}
-          <div 
-            className="absolute bottom-0 left-0 right-0 h-1/3"
-            style={{
-              background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%)'
-            }}
-          />
-          
-          {/* Floating particles */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            {[...Array(20)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute w-1 h-1 bg-white/20 rounded-full"
-                style={{
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                }}
-                animate={{
-                  y: [-20, 20],
-                  opacity: [0.2, 0.5, 0.2],
-                }}
-                transition={{
-                  duration: 3 + Math.random() * 2,
-                  repeat: Infinity,
-                  delay: Math.random() * 2,
+          {/* Background Cabinet Scenes - Cinematic transitions */}
+          <div className="absolute inset-0 overflow-hidden">
+            {/* Cabinet Scene 1 */}
+            <motion.div 
+              className="absolute inset-0"
+              style={{ opacity: cabinet1Opacity }}
+            >
+              <img 
+                src={cabinetScene1}
+                alt="Cabinet Scene 1"
+                className="w-full h-full object-cover"
+                style={{ 
+                  transform: `scale(${1 + card1Progress * 0.1})`,
+                  filter: `brightness(${0.6 + (1 - cabinet1Opacity) * 0.2})`
                 }}
               />
-            ))}
+            </motion.div>
+            
+            {/* Cabinet Scene 2 */}
+            <motion.div 
+              className="absolute inset-0"
+              style={{ opacity: cabinet2Opacity }}
+            >
+              <img 
+                src={cabinetScene2}
+                alt="Cabinet Scene 2"
+                className="w-full h-full object-cover"
+                style={{ 
+                  transform: `scale(${1 + card1Progress * 0.05})`,
+                  filter: `brightness(${0.6 + (1 - cabinet2Opacity) * 0.2})`
+                }}
+              />
+            </motion.div>
+            
+            {/* Cabinet Scene 3 */}
+            <motion.div 
+              className="absolute inset-0"
+              style={{ opacity: cabinet3Opacity }}
+            >
+              <img 
+                src={cabinetScene3}
+                alt="Cabinet Scene 3"
+                className="w-full h-full object-cover"
+                style={{ 
+                  transform: `scale(${1 + card1Progress * 0.03})`,
+                  filter: `brightness(${0.5 + cabinet3Opacity * 0.3})`
+                }}
+              />
+            </motion.div>
           </div>
+          
+          {/* Vignette overlay */}
+          <div 
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: 'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.5) 100%)'
+            }}
+          />
 
-          {/* 3D Cabinet Scene */}
+          {/* 3D Chair Element */}
           <div 
             className="relative z-10 flex items-center justify-center"
             style={{ 
               transformStyle: 'preserve-3d',
-              width: '80vw',
-              height: '80vh',
+              opacity: isCard1 ? 0 : card2Progress,
             }}
           >
             <div 
@@ -179,34 +203,38 @@ export function DentalChair3D() {
                 transform: `
                   scale(${scale})
                   rotateX(${rotateX}deg) 
-                  rotateY(${rotateY}deg) 
-                  translateZ(${translateZ}px)
+                  rotateY(${rotateY}deg)
                 `,
                 transformStyle: 'preserve-3d',
               }}
             >
-              {/* Solid White Cabinet */}
+              {/* Solid Chair */}
               <img 
-                src={CABINET_SOLID_URL}
+                src={cabinetChair}
                 alt="Cabinet Dentaire"
-                className="w-auto h-[60vh] max-w-[80vw] object-contain drop-shadow-2xl"
+                className="w-auto h-[50vh] max-w-[70vw] object-contain drop-shadow-2xl"
                 style={{ 
                   opacity: solidOpacity,
-                  filter: `brightness(${1 + (1 - p) * 0.2})`,
+                  filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.5))',
                 }}
                 draggable={false}
               />
-              {/* Wireframe Cabinet - positioned absolutely to overlay */}
-              <img 
-                src={CABINET_WIRE_URL}
-                alt="Cabinet Dentaire Wireframe"
-                className="absolute top-0 left-0 w-auto h-[60vh] max-w-[80vw] object-contain"
-                style={{ 
-                  opacity: wireOpacity,
-                  filter: 'drop-shadow(0 0 20px rgba(0,200,255,0.3))',
-                }}
-                draggable={false}
-              />
+              {/* Wireframe effect overlay */}
+              <div
+                className="absolute inset-0 flex items-center justify-center"
+                style={{ opacity: wireOpacity }}
+              >
+                <img 
+                  src={cabinetChair}
+                  alt="Cabinet Dentaire Wireframe"
+                  className="w-auto h-[50vh] max-w-[70vw] object-contain"
+                  style={{ 
+                    filter: 'invert(1) brightness(2) contrast(1.5) drop-shadow(0 0 20px rgba(0,200,255,0.5))',
+                    mixBlendMode: 'screen',
+                  }}
+                  draggable={false}
+                />
+              </div>
             </div>
           </div>
 
@@ -218,46 +246,46 @@ export function DentalChair3D() {
               transition={{ duration: 1, delay: 0.3 }}
               className="inline-block"
             >
-              <h1 className="text-3xl md:text-5xl lg:text-6xl font-light tracking-[0.2em] uppercase text-foreground/90 mb-2">
+              <p className="text-primary text-sm md:text-base tracking-[0.3em] uppercase mb-2">
+                {language === 'ar' ? 'الدقة الرقمية والعناية' : 'Digital Precision & Care'}
+              </p>
+              <h1 className="text-3xl md:text-5xl lg:text-6xl font-light tracking-[0.2em] uppercase text-white/90">
                 {language === 'ar' ? 'د. يوسف جيرمان' : 'Dr. Yousif German'}
               </h1>
-              <p className="text-primary text-sm md:text-base tracking-[0.3em] uppercase">
-                {language === 'ar' ? 'طب الأسنان الرقمي' : 'Digital Dentistry'}
-              </p>
             </motion.div>
           </div>
 
-          {/* Floating Feature Text */}
+          {/* Phase indicators */}
           <motion.div 
-            className={`absolute left-8 md:left-16 top-1/3 max-w-xs transition-all duration-500 ${text1Visible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}
+            className={`absolute left-8 md:left-16 bottom-1/3 max-w-xs transition-all duration-700 ${isCard1 && card1Progress > 0.1 && card1Progress < 0.35 ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}
           >
             <span className="text-primary text-xs tracking-[0.2em] uppercase mb-2 block">
               {language === 'ar' ? 'المرحلة ٠١' : 'Phase 01'}
             </span>
-            <h3 className="text-xl md:text-2xl font-light text-foreground">
-              {language === 'ar' ? 'تصميم مريح متطور' : 'Advanced Ergonomic Design'}
+            <h3 className="text-xl md:text-2xl font-light text-white">
+              {language === 'ar' ? 'بيئة مريحة' : 'Comfortable Environment'}
             </h3>
           </motion.div>
 
           <motion.div 
-            className={`absolute right-8 md:right-16 top-1/2 max-w-xs text-right transition-all duration-500 ${text2Visible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}
+            className={`absolute right-8 md:right-16 bottom-1/3 max-w-xs text-right transition-all duration-700 ${isCard1 && card1Progress > 0.4 && card1Progress < 0.7 ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}
           >
             <span className="text-primary text-xs tracking-[0.2em] uppercase mb-2 block">
               {language === 'ar' ? 'المرحلة ٠٢' : 'Phase 02'}
             </span>
-            <h3 className="text-xl md:text-2xl font-light text-foreground">
-              {language === 'ar' ? 'التكامل الرقمي الكامل' : 'Full Digital Integration'}
+            <h3 className="text-xl md:text-2xl font-light text-white">
+              {language === 'ar' ? 'تقنية متقدمة' : 'Advanced Technology'}
             </h3>
           </motion.div>
 
           <motion.div 
-            className={`absolute left-8 md:left-16 bottom-1/4 max-w-xs transition-all duration-500 ${text3Visible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}
+            className={`absolute left-8 md:left-16 bottom-1/4 max-w-xs transition-all duration-700 ${!isCard1 && card2Progress > 0.3 ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}
           >
             <span className="text-primary text-xs tracking-[0.2em] uppercase mb-2 block">
-              {language === 'ar' ? 'المرحلة النهائية' : 'Final Phase'}
+              {language === 'ar' ? 'التحول الرقمي' : 'Digital Transformation'}
             </span>
-            <h3 className="text-xl md:text-2xl font-light text-foreground">
-              {language === 'ar' ? 'مستعد للمستقبل' : 'Future Ready Experience'}
+            <h3 className="text-xl md:text-2xl font-light text-white">
+              {language === 'ar' ? 'مستعد للمستقبل' : 'Future Ready'}
             </h3>
           </motion.div>
 
@@ -266,14 +294,14 @@ export function DentalChair3D() {
             className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3"
             style={{ opacity: scrollIndicatorOpacity }}
           >
-            <div className="w-[30px] h-[50px] border-2 border-foreground/30 rounded-[15px] relative">
+            <div className="w-[30px] h-[50px] border-2 border-white/30 rounded-[15px] relative">
               <motion.div 
                 className="w-1 h-2 bg-primary rounded-sm absolute left-1/2 -translate-x-1/2"
                 animate={{ top: [8, 28, 8], opacity: [1, 0.3, 1] }}
                 transition={{ duration: 1.5, repeat: Infinity }}
               />
             </div>
-            <span className="text-xs tracking-[0.2em] uppercase text-foreground/60">
+            <span className="text-xs tracking-[0.2em] uppercase text-white/60">
               {language === 'ar' ? 'مرر للاستكشاف' : 'Scroll to Explore'}
             </span>
           </motion.div>
