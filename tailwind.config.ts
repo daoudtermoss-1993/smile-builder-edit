@@ -59,6 +59,11 @@ export default {
           accent: "hsl(var(--terminal-accent))",
           grid: "hsl(var(--terminal-grid))",
         },
+        gold: {
+          DEFAULT: "hsl(var(--gold))",
+          light: "hsl(var(--gold-light))",
+          dark: "hsl(var(--gold-dark))",
+        },
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
