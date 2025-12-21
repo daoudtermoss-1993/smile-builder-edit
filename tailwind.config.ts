@@ -52,6 +52,11 @@ export default {
           cyan: "hsl(var(--vibe-cyan))",
           blue: "hsl(var(--vibe-blue))",
         },
+        terminal: {
+          dark: "hsl(var(--terminal-dark))",
+          accent: "hsl(var(--terminal-accent))",
+          grid: "hsl(var(--terminal-grid))",
+        },
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

@@ -116,7 +116,7 @@ export function DentalChair3D() {
   return (
     <>
       {/* Progress Bar */}
-      <div className="fixed top-0 left-0 w-full h-1 bg-white/10 z-50">
+      <div className="fixed top-0 left-0 w-full h-1 bg-terminal-dark/50 z-50">
         <motion.div 
           className="h-full bg-primary shadow-[0_0_10px_hsl(var(--primary))]"
           style={{ width: `${scrollProgress * 100}%` }}
