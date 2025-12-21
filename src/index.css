@@ -32,8 +32,8 @@ section .text-muted-foreground {
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    --primary: 75 80% 50%;
-    --primary-foreground: 222 47% 11%;
+    --primary: 180 100% 35%;
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 180 30% 96%;
     --secondary-foreground: 222 47% 11%;
@@ -41,34 +41,34 @@ section .text-muted-foreground {
     --muted: 180 20% 96%;
     --muted-foreground: 215 20% 40%;
 
-    --accent: 75 80% 50%;
-    --accent-foreground: 222 47% 11%;
+    --accent: 180 100% 35%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 180 20% 90%;
     --input: 180 20% 90%;
-    --ring: 75 80% 50%;
+    --ring: 180 100% 35%;
 
     --radius: 0.75rem;
 
     /* Terminal Industries Style Colors */
     --terminal-dark: 180 30% 8%;
-    --terminal-accent: 75 80% 50%;
+    --terminal-accent: 180 100% 35%;
     --terminal-grid: 180 20% 15%;
 
     --vibe-teal: 180 100% 35%;
     --vibe-cyan: 190 100% 45%;
     --vibe-blue: 200 90% 45%;
     
-    --gradient-vibe: linear-gradient(135deg, hsl(75 80% 50%), hsl(85 70% 45%));
+    --gradient-vibe: linear-gradient(135deg, hsl(180 100% 35%), hsl(190 100% 45%));
     --gradient-hero: linear-gradient(180deg, hsl(180 50% 98%) 0%, hsl(0 0% 100%) 100%);
     --gradient-section-alt: linear-gradient(180deg, hsl(180 40% 97%) 0%, hsl(180 30% 99%) 100%);
     --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(180 30% 98%));
     
-    --shadow-glow: 0 0 40px hsl(75 80% 50% / 0.15);
-    --shadow-glow-hover: 0 0 60px hsl(75 80% 50% / 0.25);
+    --shadow-glow: 0 0 40px hsl(180 100% 35% / 0.15);
+    --shadow-glow-hover: 0 0 60px hsl(180 100% 35% / 0.25);
     --shadow-soft: 0 4px 20px hsl(180 30% 50% / 0.08);
     --shadow-medium: 0 8px 30px hsl(180 30% 50% / 0.12);
     --shadow-elevated: 0 20px 60px hsl(180 30% 50% / 0.15);
