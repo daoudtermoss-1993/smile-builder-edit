@@ -4,6 +4,7 @@ import { Services } from "@/components/Services";
 import { BeforeAfter } from "@/components/BeforeAfter";
 import { Booking } from "@/components/Booking";
 import { ContactMap } from "@/components/ContactMap";
+import { CTASection } from "@/components/CTASection";
 import { Footer } from "@/components/Footer";
 import { Chatbot } from "@/components/Chatbot";
 import { DentalChair3D } from "@/components/hero/DentalChair3D";
@@ -70,6 +71,7 @@ const Index = () => {
         />
       </div>
       
+      <CTASection />
       <Footer />
       <Chatbot />
     </div>
