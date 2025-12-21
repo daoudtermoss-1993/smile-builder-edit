@@ -23,7 +23,7 @@ const Index = () => {
   const doctorName = language === 'ar' ? 'د. يوسف جيرمان' : 'Dr. Yousif German';
   
   return (
-    <div className="min-h-screen relative bg-[hsl(180_30%_3%)]">
+    <div className="min-h-screen relative bg-background">
       <Navigation />
       <AdminAccessButton />
       <AdminEditToggle />

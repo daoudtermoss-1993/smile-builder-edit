@@ -16,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { SectionTransition, GridPattern } from "@/components/ui/SectionTransition";
 
 interface AboutProps {
   doctorImage?: string;
@@ -72,114 +73,117 @@ export const About = ({
   };
   
   return (
-    <section className="py-16 overflow-hidden relative">
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="grid md:grid-cols-2 gap-16 items-center">
-          <motion.div 
-            className="relative"
-            initial={{ opacity: 0, x: -60 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl blur-3xl -z-10" />
-            <div className="relative overflow-hidden rounded-3xl shadow-elevated border border-primary/10 group">
-              <EditableImage
-                sectionKey="about"
-                field="doctorImage"
-                defaultSrc={doctorImage}
-                alt={doctorName}
-                className="aspect-square transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-            </div>
-          </motion.div>
-          
-          <motion.div 
-            className="space-y-6"
-            initial={{ opacity: 0, x: 60 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          >
+    <>
+      {/* Transition from dark hero to light section */}
+      <SectionTransition variant="dark-to-white" />
+      
+      <section className="py-20 overflow-hidden relative bg-background">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-0 items-stretch min-h-[700px]">
+            {/* Left side - Text content on white */}
             <motion.div 
-              className="inline-block px-6 py-2 glass-teal rounded-full"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
+              className="flex flex-col justify-center space-y-8 lg:pr-16"
+              initial={{ opacity: 0, x: -60 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
             >
-              <EditableText 
-                sectionKey="about" 
-                field="badge" 
-                defaultValue={language === 'ar' ? 'عن عيادتنا' : 'About Our Clinic'}
-                className="text-sm font-semibold text-primary"
-              />
+              <motion.span 
+                className="text-sm font-medium text-muted-foreground tracking-widest uppercase"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                0 1
+              </motion.span>
+              
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-foreground leading-tight">
+                <EditableText 
+                  sectionKey="about" 
+                  field="title" 
+                  defaultValue={language === 'ar' ? `تعرف على ${doctorName}` : `Meet ${doctorName}`}
+                  as="span"
+                />
+              </h2>
+              
+              <p className="text-lg text-muted-foreground leading-relaxed max-w-xl">
+                <EditableText 
+                  sectionKey="about" 
+                  field="description" 
+                  defaultValue={language === 'ar' ? 'مع سنوات من الخبرة في طب الأسنان التجميلي والترميمي، الدكتور يوسف جيرمان ملتزم بتقديم رعاية أسنان استثنائية في بيئة مريحة وترحيبية.' : description}
+                  as="span"
+                />
+              </p>
+              
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-6 pt-8 border-t border-border">
+                {statItems.map((stat, index) => {
+                  const Icon = iconMap[stat.iconType] || Award;
+                  return (
+                    <motion.div 
+                      key={stat.id}
+                      className="text-center relative group"
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
+                    >
+                      {isEditMode && (
+                        <div className="absolute -top-2 -right-2 z-10">
+                          <DeleteContentButton onConfirm={() => deleteItem(stat.id)} itemName="cette statistique" />
+                        </div>
+                      )}
+                      <div className="text-3xl md:text-4xl font-bold text-primary mb-2">
+                        {stat.value}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {language === 'ar' ? stat.labelAr : stat.labelEn}
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+
+              {isEditMode && (
+                <div className="flex justify-start">
+                  <AddContentButton 
+                    onClick={() => setShowAddDialog(true)} 
+                    label={language === 'ar' ? 'إضافة إحصائية' : 'Add Statistic'}
+                  />
+                </div>
+              )}
             </motion.div>
             
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground">
-              <EditableText 
-                sectionKey="about" 
-                field="title" 
-                defaultValue={language === 'ar' ? `تعرف على ${doctorName}` : `Meet ${doctorName}`}
-                as="span"
-              />
-            </h2>
-            
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              <EditableText 
-                sectionKey="about" 
-                field="description" 
-                defaultValue={language === 'ar' ? 'مع سنوات من الخبرة في طب الأسنان التجميلي والترميمي، الدكتور يوسف جيرمان ملتزم بتقديم رعاية أسنان استثنائية في بيئة مريحة وترحيبية. تجمع عيادتنا بين أحدث التقنيات واللمسة الشخصية لضمان أفضل النتائج الممكنة لابتسامتك.' : description}
-                as="span"
-              />
-            </p>
-            
-            {/* Dynamic Stats grid */}
-            <div className="grid grid-cols-3 gap-4 pt-6">
-              {statItems.map((stat, index) => {
-                const Icon = iconMap[stat.iconType] || Award;
-                return (
-                  <motion.div 
-                    key={stat.id}
-                    className="vibe-card text-center group cursor-pointer relative"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
-                    whileHover={{ y: -8, scale: 1.02 }}
-                  >
-                    {isEditMode && (
-                      <div className="absolute -top-2 -right-2 z-10">
-                        <DeleteContentButton onConfirm={() => deleteItem(stat.id)} itemName="cette statistique" />
-                      </div>
-                    )}
-                    <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
-                      <Icon className="h-6 w-6 text-primary" />
-                    </div>
-                    <div className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">
-                      {stat.value}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {language === 'ar' ? stat.labelAr : stat.labelEn}
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-
-            {/* Add stat button */}
-            {isEditMode && (
-              <div className="flex justify-center pt-4">
-                <AddContentButton 
-                  onClick={() => setShowAddDialog(true)} 
-                  label={language === 'ar' ? 'إضافة إحصائية' : 'Add Statistic'}
-                />
+            {/* Right side - Image in dark container with rounded corners */}
+            <motion.div 
+              className="relative"
+              initial={{ opacity: 0, x: 60 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+            >
+              <div className="relative h-full min-h-[500px] rounded-[2rem] lg:rounded-[3rem] overflow-hidden bg-terminal-dark">
+                <GridPattern />
+                <div className="relative z-10 h-full p-8 flex items-center justify-center">
+                  <div className="relative w-full max-w-md">
+                    <EditableImage
+                      sectionKey="about"
+                      field="doctorImage"
+                      defaultSrc={doctorImage}
+                      alt={doctorName}
+                      className="rounded-2xl shadow-2xl"
+                    />
+                  </div>
+                </div>
               </div>
-            )}
-          </motion.div>
+            </motion.div>
+          </div>
         </div>
-      </div>
+      </section>
+
+      {/* Transition to dark section */}
+      <SectionTransition variant="white-to-dark" />
 
       {/* Add Stat Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
@@ -216,6 +220,6 @@ export const About = ({
           </div>
         </DialogContent>
       </Dialog>
-    </section>
+    </>
   );
 };
