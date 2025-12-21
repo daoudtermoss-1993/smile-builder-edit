@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Globe, Shield } from "lucide-react";
+import { Menu, X, Globe, Shield, Sparkles } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
@@ -28,9 +28,10 @@ const MenuItem: React.FC<MenuItemProps> = ({ setActive, active, item, href, chil
       <motion.a
         href={href}
         transition={{ duration: 0.3 }}
-        className="cursor-pointer text-foreground hover:text-primary font-medium"
+        className="cursor-pointer text-foreground/80 hover:text-gold font-medium transition-colors duration-300 relative group"
       >
         {item}
+        <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-gold to-gold-light group-hover:w-full transition-all duration-300" />
       </motion.a>
       {active !== null && children && (
         <motion.div
@@ -43,7 +44,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ setActive, active, item, href, chil
               <motion.div
                 transition={transition}
                 layoutId="active"
-                className="bg-background/95 backdrop-blur-xl rounded-2xl overflow-hidden border border-border shadow-xl"
+                className="bg-card/95 backdrop-blur-xl rounded-2xl overflow-hidden border border-gold/20 shadow-xl shadow-gold/10"
               >
                 <motion.div layout className="w-max h-full p-4">
                   {children}
@@ -66,7 +67,7 @@ const NavMenu: React.FC<NavMenuProps> = ({ setActive, children }) => {
   return (
     <nav
       onMouseLeave={() => setActive(null)}
-      className="relative flex items-center space-x-6"
+      className="relative flex items-center space-x-8"
     >
       {children}
     </nav>
@@ -77,7 +78,7 @@ const HoveredLink: React.FC<{ children: React.ReactNode; href: string }> = ({ ch
   return (
     <a 
       href={href} 
-      className="block text-muted-foreground hover:text-primary transition-colors duration-200 py-1"
+      className="block text-muted-foreground hover:text-gold transition-colors duration-200 py-1"
     >
       {children}
     </a>
@@ -96,11 +97,14 @@ export const Navigation = () => {
     <div className="relative w-full">
       <div className="fixed top-6 inset-x-0 max-w-5xl mx-auto z-50 px-4">
         <motion.div 
-          className="flex items-center justify-between px-6 py-4 bg-background/90 backdrop-blur-xl rounded-full shadow-lg border border-border"
+          className="relative flex items-center justify-between px-6 py-4 bg-card/80 backdrop-blur-xl rounded-full border border-gold/20 shadow-2xl shadow-primary/10"
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
+          {/* Gradient border effect */}
+          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-gold/20 via-primary/10 to-gold/20 -z-10 blur-sm" />
+          
           {/* Logo */}
           <motion.a
             href="#home"
@@ -124,39 +128,50 @@ export const Navigation = () => {
                 className="drop-shadow-lg"
               >
                 <defs>
-                  <linearGradient id="tooth-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="hsl(180, 100%, 40%)" />
-                    <stop offset="50%" stopColor="hsl(180, 100%, 35%)" />
-                    <stop offset="100%" stopColor="hsl(180, 80%, 30%)" />
+                  <linearGradient id="tooth-gradient-nav" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="hsl(var(--primary))" />
+                    <stop offset="100%" stopColor="hsl(175, 85%, 25%)" />
                   </linearGradient>
-                  <linearGradient id="tooth-shine" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="white" stopOpacity="0.9" />
-                    <stop offset="50%" stopColor="hsl(180, 20%, 95%)" stopOpacity="0.8" />
-                    <stop offset="100%" stopColor="hsl(180, 10%, 90%)" stopOpacity="0.6" />
+                  <linearGradient id="tooth-shine-nav" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="white" stopOpacity="0.95" />
+                    <stop offset="50%" stopColor="hsl(42, 90%, 95%)" stopOpacity="0.9" />
+                    <stop offset="100%" stopColor="hsl(42, 80%, 85%)" stopOpacity="0.7" />
                   </linearGradient>
-                  <filter id="tooth-shadow" x="-20%" y="-20%" width="140%" height="140%">
-                    <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="hsl(180, 100%, 25%)" floodOpacity="0.3"/>
+                  <linearGradient id="gold-ring" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="hsl(var(--gold))" />
+                    <stop offset="50%" stopColor="hsl(var(--gold-light))" />
+                    <stop offset="100%" stopColor="hsl(var(--gold))" />
+                  </linearGradient>
+                  <filter id="tooth-shadow-nav" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="hsl(var(--gold))" floodOpacity="0.3"/>
                   </filter>
                 </defs>
+                {/* Gold ring */}
+                <circle cx="24" cy="24" r="23" fill="none" stroke="url(#gold-ring)" strokeWidth="1.5" opacity="0.6" />
                 {/* Background circle */}
-                <circle cx="24" cy="24" r="22" fill="url(#tooth-gradient)" filter="url(#tooth-shadow)" />
+                <circle cx="24" cy="24" r="20" fill="url(#tooth-gradient-nav)" filter="url(#tooth-shadow-nav)" />
                 {/* Stylized tooth */}
                 <path
                   d="M24 10 C18 10 14 14 14 19 C14 24 16 26 17 30 C18 34 18 38 19 38 C20 38 21 34 22 30 C22.5 28 23.5 28 24 28 C24.5 28 25.5 28 26 30 C27 34 28 38 29 38 C30 38 30 34 31 30 C32 26 34 24 34 19 C34 14 30 10 24 10 Z"
-                  fill="url(#tooth-shine)"
-                  stroke="white"
+                  fill="url(#tooth-shine-nav)"
+                  stroke="hsl(var(--gold-light))"
                   strokeWidth="0.5"
                 />
                 {/* Tooth shine highlight */}
-                <ellipse cx="20" cy="16" rx="3" ry="4" fill="white" opacity="0.4" />
-                {/* Small sparkle */}
-                <circle cx="30" cy="13" r="1.5" fill="white" opacity="0.6" />
-                <path d="M30 11 L30 15 M28 13 L32 13" stroke="white" strokeWidth="0.8" opacity="0.5" strokeLinecap="round" />
+                <ellipse cx="20" cy="16" rx="3" ry="4" fill="white" opacity="0.5" />
+                {/* Gold sparkle */}
+                <circle cx="30" cy="13" r="1.5" fill="hsl(var(--gold))" opacity="0.8" />
+                <path d="M30 11 L30 15 M28 13 L32 13" stroke="hsl(var(--gold-light))" strokeWidth="0.8" opacity="0.7" strokeLinecap="round" />
               </svg>
             </motion.div>
-            <span className="text-lg font-bold bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent hidden sm:block">
-              {language === 'ar' ? 'د. يوسف جيرمان' : 'Dr. Yousif German'}
-            </span>
+            <div className="hidden sm:flex flex-col">
+              <span className="text-lg font-bold bg-gradient-to-r from-primary via-gold to-primary bg-clip-text text-transparent">
+                {language === 'ar' ? 'د. يوسف جيرمان' : 'Dr. Yousif German'}
+              </span>
+              <span className="text-[10px] text-gold/70 font-medium tracking-widest uppercase">
+                Premium Dental Care
+              </span>
+            </div>
           </motion.a>
 
           {/* Desktop Navigation */}
@@ -176,7 +191,7 @@ export const Navigation = () => {
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Link
                   to="/admin"
-                  className="flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-all duration-300 font-medium text-sm"
+                  className="flex items-center gap-2 px-4 py-2 bg-gold/10 text-gold border border-gold/30 rounded-full hover:bg-gold/20 hover:border-gold/50 transition-all duration-300 font-medium text-sm"
                 >
                   <Shield className="w-4 h-4" />
                   Admin
@@ -186,11 +201,11 @@ export const Navigation = () => {
             
             <motion.button 
               onClick={toggleLanguage}
-              className="flex items-center gap-2 px-3 py-2 bg-secondary rounded-full border border-border hover:bg-muted hover:border-primary/30 transition-all duration-300"
+              className="flex items-center gap-2 px-3 py-2 bg-card rounded-full border border-gold/20 hover:border-gold/40 hover:bg-gold/5 transition-all duration-300"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Globe className="w-4 h-4 text-primary" />
+              <Globe className="w-4 h-4 text-gold" />
               <span className="text-sm text-foreground font-medium">
                 {language === 'en' ? 'العربية' : 'EN'}
               </span>
@@ -198,21 +213,28 @@ export const Navigation = () => {
 
             <motion.a
               href="#booking"
-              className="inline-flex items-center justify-center px-5 py-2.5 text-sm text-primary-foreground rounded-full font-medium bg-gradient-to-r from-primary to-primary/80 shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-shadow"
+              className="relative inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm rounded-full font-semibold overflow-hidden group"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              {language === 'en' ? 'Book Now' : 'احجز الآن'}
+              {/* Gold gradient background */}
+              <span className="absolute inset-0 bg-gradient-to-r from-gold via-gold-light to-gold" />
+              {/* Shine effect */}
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+              <Sparkles className="w-4 h-4 relative z-10 text-primary-foreground" />
+              <span className="relative z-10 text-primary-foreground">
+                {language === 'en' ? 'Book Now' : 'احجز الآن'}
+              </span>
             </motion.a>
           </div>
 
           {/* Mobile Menu Button */}
           <motion.button
-            className="md:hidden flex items-center p-2"
+            className="md:hidden flex items-center p-2 rounded-full border border-gold/20 hover:border-gold/40 hover:bg-gold/5 transition-all"
             onClick={toggleMenu}
             whileTap={{ scale: 0.9 }}
           >
-            <Menu className="h-6 w-6 text-foreground" />
+            <Menu className="h-6 w-6 text-gold" />
           </motion.button>
         </motion.div>
       </div>
@@ -221,21 +243,25 @@ export const Navigation = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            className="fixed inset-0 bg-background z-50 pt-24 px-6 md:hidden"
+            className="fixed inset-0 bg-gradient-to-b from-background via-background to-primary/5 z-50 pt-24 px-6 md:hidden"
             initial={{ opacity: 0, x: "100%" }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
           >
+            {/* Decorative elements */}
+            <div className="absolute top-20 right-10 w-32 h-32 bg-gold/10 rounded-full blur-3xl" />
+            <div className="absolute bottom-40 left-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl" />
+            
             <motion.button
-              className="absolute top-6 right-6 p-2 bg-secondary rounded-full"
+              className="absolute top-6 right-6 p-3 bg-card rounded-full border border-gold/20 hover:border-gold/40 transition-all"
               onClick={toggleMenu}
               whileTap={{ scale: 0.9 }}
               initial={{ opacity: 0, rotate: -90 }}
               animate={{ opacity: 1, rotate: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <X className="h-6 w-6 text-foreground" />
+              <X className="h-6 w-6 text-gold" />
             </motion.button>
 
             <div className="flex flex-col space-y-6">
@@ -255,10 +281,11 @@ export const Navigation = () => {
                 >
                   <a
                     href={item.href}
-                    className="text-xl text-foreground font-medium hover:text-primary transition-colors"
+                    className="text-xl text-foreground font-medium hover:text-gold transition-colors relative group inline-block"
                     onClick={toggleMenu}
                   >
                     {t(item.key)}
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-gold to-gold-light group-hover:w-full transition-all duration-300" />
                   </a>
                 </motion.div>
               ))}
@@ -271,7 +298,7 @@ export const Navigation = () => {
                 >
                   <Link
                     to="/admin"
-                    className="flex items-center gap-2 text-xl text-primary font-medium"
+                    className="flex items-center gap-2 text-xl text-gold font-medium"
                     onClick={toggleMenu}
                   >
                     <Shield className="w-5 h-5" />
@@ -284,17 +311,17 @@ export const Navigation = () => {
                 initial={{ opacity: 0, x: 30 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.7 }}
-                className="pt-4 border-t border-border"
+                className="pt-4 border-t border-gold/20"
               >
                 <button 
                   onClick={() => {
                     toggleLanguage();
                     toggleMenu();
                   }}
-                  className="flex items-center gap-3 text-lg"
+                  className="flex items-center gap-3 text-lg group"
                 >
-                  <Globe className="w-5 h-5 text-primary" />
-                  <span className="text-foreground font-medium">
+                  <Globe className="w-5 h-5 text-gold" />
+                  <span className="text-foreground font-medium group-hover:text-gold transition-colors">
                     {language === 'en' ? 'العربية' : 'English'}
                   </span>
                 </button>
@@ -309,10 +336,17 @@ export const Navigation = () => {
               >
                 <a
                   href="#booking"
-                  className="inline-flex items-center justify-center w-full px-6 py-4 text-lg text-primary-foreground rounded-full font-medium bg-gradient-to-r from-primary to-primary/80 shadow-lg"
+                  className="relative inline-flex items-center justify-center w-full gap-2 px-6 py-4 text-lg rounded-full font-semibold overflow-hidden group"
                   onClick={toggleMenu}
                 >
-                  {language === 'en' ? 'Book Appointment' : 'احجز موعد'}
+                  {/* Gold gradient background */}
+                  <span className="absolute inset-0 bg-gradient-to-r from-gold via-gold-light to-gold" />
+                  {/* Shine effect */}
+                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                  <Sparkles className="w-5 h-5 relative z-10 text-primary-foreground" />
+                  <span className="relative z-10 text-primary-foreground">
+                    {language === 'en' ? 'Book Appointment' : 'احجز موعد'}
+                  </span>
                 </a>
               </motion.div>
             </div>
