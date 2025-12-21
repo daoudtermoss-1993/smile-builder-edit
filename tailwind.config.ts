@@ -53,7 +53,9 @@ export default {
           blue: "hsl(var(--vibe-blue))",
         },
         terminal: {
+          DEFAULT: "hsl(var(--terminal))",
           dark: "hsl(var(--terminal-dark))",
+          muted: "hsl(var(--terminal-muted))",
           accent: "hsl(var(--terminal-accent))",
           grid: "hsl(var(--terminal-grid))",
         },

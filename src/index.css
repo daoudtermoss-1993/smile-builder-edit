@@ -54,8 +54,10 @@ section .text-muted-foreground {
     --radius: 0.75rem;
 
     /* Terminal Industries Style Colors */
+    --terminal: 180 25% 12%;
     --terminal-dark: 180 30% 8%;
-    --terminal-accent: 180 100% 35%;
+    --terminal-muted: 180 15% 22%;
+    --terminal-accent: 80 60% 50%;
     --terminal-grid: 180 20% 15%;
 
     --vibe-teal: 180 100% 35%;
