@@ -5,12 +5,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar } from "@/components/ui/calendar";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, CalendarDays, Clock, User, Phone, Mail, FileText, CheckCircle2 } from "lucide-react";
 import { format } from "date-fns";
 import { EditableText } from "@/components/admin/EditableText";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { SectionTransition } from "@/components/ui/SectionTransition";
+import { cn } from "@/lib/utils";
 
 export const Booking = () => {
   const { language } = useLanguage();
@@ -18,6 +19,7 @@ export const Booking = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [availableSlots, setAvailableSlots] = useState<{ slot_time: string; is_available: boolean }[]>([]);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -136,6 +138,7 @@ export const Booking = () => {
       });
       setSelectedDate(undefined);
       setAvailableSlots([]);
+      setCurrentStep(1);
     } catch (error) {
       console.error('Error submitting appointment:', error);
       toast.error('Failed to submit appointment. Please try again or call us directly.');
@@ -144,228 +147,421 @@ export const Booking = () => {
     }
   };
 
+  const steps = [
+    { number: 1, label: language === 'ar' ? 'التاريخ والوقت' : 'Date & Time', icon: CalendarDays },
+    { number: 2, label: language === 'ar' ? 'معلوماتك' : 'Your Info', icon: User },
+    { number: 3, label: language === 'ar' ? 'تأكيد' : 'Confirm', icon: CheckCircle2 },
+  ];
+
+  const canProceedStep1 = selectedDate && formData.time && formData.service;
+  const canProceedStep2 = formData.name && formData.phone && formData.email;
+
   return (
     <>
       <SectionTransition variant="dark-to-white" />
       
-      <section className="py-24 overflow-hidden relative bg-background">
+      <section className="py-20 md:py-28 overflow-hidden relative bg-background">
         <div className="container mx-auto px-4 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-16 items-start min-h-[700px]">
-            {/* Left side - Text content */}
-            <motion.div 
-              className="space-y-8 lg:sticky lg:top-32"
-              initial={{ opacity: 0, x: -60 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.8 }}
-            >
-              <motion.span 
-                className="text-sm font-medium text-muted-foreground tracking-widest uppercase"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                0 3
-              </motion.span>
-              
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-foreground leading-tight">
-                <EditableText 
-                  sectionKey="booking" 
-                  field="title" 
-                  defaultValue={language === 'ar' ? 'حدد موعد زيارتك' : 'Schedule Your Visit'}
-                  as="span"
-                />
-              </h2>
-              
-              <p className="text-lg text-muted-foreground leading-relaxed max-w-md">
-                {language === 'ar' 
-                  ? 'احجز موعدك الآن واحصل على أفضل رعاية للأسنان'
-                  : 'Book your appointment now and get the best dental care experience'}
-              </p>
-
-              {/* How it works */}
-              <div className="space-y-6 pt-8 border-t border-border">
-                <span className="text-sm text-muted-foreground">How it Works</span>
-                <div className="space-y-4">
-                  {[
-                    { step: "01", text: language === 'ar' ? 'اختر التاريخ والوقت' : 'Choose date and time' },
-                    { step: "02", text: language === 'ar' ? 'أكمل بياناتك' : 'Fill in your details' },
-                    { step: "03", text: language === 'ar' ? 'تأكيد عبر واتساب' : 'Confirmation via WhatsApp' },
-                  ].map((item, index) => (
-                    <motion.div
-                      key={item.step}
-                      className="flex items-center gap-4"
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
-                    >
-                      <span className="text-primary font-mono text-sm">{item.step}</span>
-                      <span className="text-foreground">{item.text}</span>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Right side - Form */}
-            <motion.div 
-              className="bg-card rounded-[2rem] p-8 shadow-elevated border border-border"
-              initial={{ opacity: 0, y: 60 }}
+          {/* Header */}
+          <motion.div 
+            className="text-center mb-12 md:mb-16"
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <motion.span 
+              className="text-sm font-medium text-primary tracking-widest uppercase mb-4 block"
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.8, delay: 0.2 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
             >
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-4 md:gap-6">
+              {language === 'ar' ? 'احجز موعدك' : 'Book Appointment'}
+            </motion.span>
+            
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-foreground leading-tight mb-4">
+              <EditableText 
+                sectionKey="booking" 
+                field="title" 
+                defaultValue={language === 'ar' ? 'حدد موعد زيارتك' : 'Schedule Your Visit'}
+                as="span"
+              />
+            </h2>
+            
+            <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+              {language === 'ar' 
+                ? 'احجز موعدك الآن واحصل على أفضل رعاية للأسنان'
+                : 'Book your appointment in just a few simple steps'}
+            </p>
+          </motion.div>
+
+          {/* Step Indicator */}
+          <motion.div 
+            className="flex justify-center mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            <div className="flex items-center gap-2 md:gap-4">
+              {steps.map((step, index) => (
+                <div key={step.number} className="flex items-center">
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStep(step.number)}
+                    className={cn(
+                      "flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300",
+                      currentStep === step.number 
+                        ? "bg-primary text-primary-foreground" 
+                        : currentStep > step.number 
+                          ? "bg-primary/20 text-primary"
+                          : "bg-muted text-muted-foreground"
+                    )}
+                  >
+                    <step.icon className="w-4 h-4" />
+                    <span className="hidden md:inline text-sm font-medium">{step.label}</span>
+                    <span className="md:hidden text-sm font-medium">{step.number}</span>
+                  </button>
+                  {index < steps.length - 1 && (
+                    <div className={cn(
+                      "w-8 md:w-16 h-0.5 mx-2",
+                      currentStep > step.number ? "bg-primary" : "bg-border"
+                    )} />
+                  )}
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Form Card */}
+          <motion.div 
+            className="max-w-3xl mx-auto"
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <form onSubmit={handleSubmit} className="bg-card rounded-3xl p-6 md:p-10 shadow-elevated border border-border">
+              
+              {/* Step 1: Date & Time */}
+              {currentStep === 1 && (
+                <motion.div 
+                  className="space-y-8"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {/* Service Selection */}
+                  <div className="space-y-3">
+                    <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-primary" />
+                      {language === 'ar' ? 'الخدمة المطلوبة' : 'Service Needed'}
+                    </label>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {[
+                        { value: "implants", labelEn: "Dental Implants", labelAr: "زراعة الأسنان" },
+                        { value: "cosmetic", labelEn: "Cosmetic", labelAr: "تجميل الأسنان" },
+                        { value: "orthodontics", labelEn: "Orthodontics", labelAr: "تقويم الأسنان" },
+                        { value: "root-canal", labelEn: "Root Canal", labelAr: "علاج قناة الجذر" },
+                        { value: "cleaning", labelEn: "Cleaning", labelAr: "تنظيف وفحص" },
+                        { value: "emergency", labelEn: "Emergency", labelAr: "رعاية طوارئ" },
+                      ].map((service) => (
+                        <button
+                          key={service.value}
+                          type="button"
+                          onClick={() => handleChange("service", service.value)}
+                          className={cn(
+                            "p-4 rounded-xl border-2 text-sm font-medium transition-all duration-200",
+                            formData.service === service.value 
+                              ? "border-primary bg-primary/10 text-primary" 
+                              : "border-border bg-background hover:border-primary/50 text-foreground"
+                          )}
+                        >
+                          {language === 'ar' ? service.labelAr : service.labelEn}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Date and Time Selection */}
+                  <div className="grid md:grid-cols-2 gap-8">
+                    {/* Calendar */}
+                    <div className="space-y-3">
+                      <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                        <CalendarDays className="w-4 h-4 text-primary" />
+                        {language === 'ar' ? 'اختر التاريخ' : 'Select Date'}
+                      </label>
+                      <div className="flex justify-center">
+                        <Calendar
+                          mode="single"
+                          selected={selectedDate}
+                          onSelect={setSelectedDate}
+                          disabled={(date) => {
+                            const day = date.getDay();
+                            return day === 0 || day === 6 || date < new Date();
+                          }}
+                          className="rounded-xl border border-border bg-background p-3 pointer-events-auto"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Time Slots */}
+                    <div className="space-y-3">
+                      <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-primary" />
+                        {language === 'ar' ? 'اختر الوقت' : 'Select Time'}
+                      </label>
+                      {!selectedDate ? (
+                        <div className="flex items-center justify-center h-48 bg-muted/30 rounded-xl border border-dashed border-border">
+                          <p className="text-sm text-muted-foreground text-center px-4">
+                            {language === 'ar' ? 'يرجى اختيار التاريخ أولاً' : 'Please select a date first'}
+                          </p>
+                        </div>
+                      ) : isLoadingSlots ? (
+                        <div className="flex items-center justify-center h-48 bg-muted/30 rounded-xl">
+                          <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                        </div>
+                      ) : availableSlots.length === 0 ? (
+                        <div className="flex items-center justify-center h-48 bg-muted/30 rounded-xl border border-dashed border-border">
+                          <p className="text-sm text-muted-foreground text-center px-4">
+                            {language === 'ar' ? 'لا توجد مواعيد متاحة' : 'No available slots'}
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto pr-2">
+                          {availableSlots.map((slot) => (
+                            <button
+                              key={slot.slot_time}
+                              type="button"
+                              disabled={!slot.is_available}
+                              onClick={() => handleChange("time", slot.slot_time)}
+                              className={cn(
+                                "p-3 rounded-lg text-sm font-medium transition-all duration-200",
+                                !slot.is_available 
+                                  ? "bg-muted/50 text-muted-foreground cursor-not-allowed line-through" 
+                                  : formData.time === slot.slot_time 
+                                    ? "bg-primary text-primary-foreground" 
+                                    : "bg-background border border-border hover:border-primary text-foreground"
+                              )}
+                            >
+                              {slot.slot_time}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Next Button */}
+                  <div className="flex justify-end pt-4">
+                    <button
+                      type="button"
+                      disabled={!canProceedStep1}
+                      onClick={() => setCurrentStep(2)}
+                      className={cn(
+                        "px-8 py-3 rounded-xl font-semibold transition-all duration-300",
+                        canProceedStep1 
+                          ? "bg-primary text-primary-foreground hover:bg-primary/90" 
+                          : "bg-muted text-muted-foreground cursor-not-allowed"
+                      )}
+                    >
+                      {language === 'ar' ? 'التالي' : 'Continue'}
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Step 2: Personal Info */}
+              {currentStep === 2 && (
+                <motion.div 
+                  className="space-y-6"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                        <User className="w-4 h-4 text-primary" />
+                        {language === 'ar' ? 'الاسم الكامل' : 'Full Name'}
+                      </label>
+                      <Input 
+                        placeholder={language === 'ar' ? 'أدخل اسمك الكامل' : 'Enter your full name'}
+                        className="bg-background border-border h-12 rounded-xl"
+                        value={formData.name}
+                        onChange={(e) => handleChange("name", e.target.value)}
+                        required
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                        <Phone className="w-4 h-4 text-primary" />
+                        {language === 'ar' ? 'رقم الهاتف' : 'Phone Number'}
+                      </label>
+                      <Input 
+                        placeholder="+965 XXXX XXXX" 
+                        className="bg-background border-border h-12 rounded-xl"
+                        value={formData.phone}
+                        onChange={(e) => handleChange("phone", e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                  
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground">{language === 'ar' ? 'الاسم الكامل *' : 'Full Name *'}</label>
+                    <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                      <Mail className="w-4 h-4 text-primary" />
+                      {language === 'ar' ? 'البريد الإلكتروني' : 'Email'}
+                    </label>
                     <Input 
-                      placeholder={language === 'ar' ? 'أدخل اسمك الكامل' : 'Enter your full name'}
-                      className="bg-background border-border"
-                      value={formData.name}
-                      onChange={(e) => handleChange("name", e.target.value)}
+                      type="email" 
+                      placeholder={language === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email'}
+                      className="bg-background border-border h-12 rounded-xl"
+                      value={formData.email}
+                      onChange={(e) => handleChange("email", e.target.value)}
                       required
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground">{language === 'ar' ? 'رقم الهاتف *' : 'Phone Number *'}</label>
-                    <Input 
-                      placeholder="+965 XXXX XXXX" 
-                      className="bg-background border-border"
-                      value={formData.phone}
-                      onChange={(e) => handleChange("phone", e.target.value)}
-                      required
+                    <label className="text-sm font-medium text-foreground">
+                      {language === 'ar' ? 'ملاحظات إضافية (اختياري)' : 'Additional Notes (optional)'}
+                    </label>
+                    <Textarea 
+                      placeholder={language === 'ar' ? 'أي معلومات إضافية' : 'Any additional information'}
+                      rows={3}
+                      className="bg-background border-border rounded-xl resize-none"
+                      value={formData.notes}
+                      onChange={(e) => handleChange("notes", e.target.value)}
                     />
                   </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-foreground">{language === 'ar' ? 'البريد الإلكتروني *' : 'Email *'}</label>
-                  <Input 
-                    type="email" 
-                    placeholder={language === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email'}
-                    className="bg-background border-border"
-                    value={formData.email}
-                    onChange={(e) => handleChange("email", e.target.value)}
-                    required
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-foreground">{language === 'ar' ? 'الخدمة المطلوبة *' : 'Service Needed *'}</label>
-                  <Select value={formData.service} onValueChange={(value) => handleChange("service", value)} required>
-                    <SelectTrigger className="bg-background border-border">
-                      <SelectValue placeholder={language === 'ar' ? 'اختر خدمة' : 'Select a service'} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="implants">{language === 'ar' ? 'زراعة الأسنان' : 'Dental Implants'}</SelectItem>
-                      <SelectItem value="cosmetic">{language === 'ar' ? 'تجميل الأسنان' : 'Cosmetic Dentistry'}</SelectItem>
-                      <SelectItem value="orthodontics">{language === 'ar' ? 'تقويم الأسنان' : 'Orthodontics'}</SelectItem>
-                      <SelectItem value="root-canal">{language === 'ar' ? 'علاج قناة الجذر' : 'Root Canal Treatment'}</SelectItem>
-                      <SelectItem value="cleaning">{language === 'ar' ? 'تنظيف وفحص' : 'Cleaning & Check-ups'}</SelectItem>
-                      <SelectItem value="emergency">{language === 'ar' ? 'رعاية طوارئ' : 'Emergency Care'}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="grid md:grid-cols-2 gap-4 md:gap-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground">{language === 'ar' ? 'اختر التاريخ *' : 'Select Date *'}</label>
-                    <div className="flex justify-center overflow-x-auto">
-                      <Calendar
-                        mode="single"
-                        selected={selectedDate}
-                        onSelect={setSelectedDate}
-                        disabled={(date) => {
-                          const day = date.getDay();
-                          return day === 0 || day === 6 || date < new Date();
-                        }}
-                        className="rounded-md border border-border bg-background w-full max-w-[300px]"
-                      />
+
+                  {/* Navigation Buttons */}
+                  <div className="flex justify-between pt-4">
+                    <button
+                      type="button"
+                      onClick={() => setCurrentStep(1)}
+                      className="px-6 py-3 rounded-xl font-medium text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {language === 'ar' ? 'السابق' : 'Back'}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!canProceedStep2}
+                      onClick={() => setCurrentStep(3)}
+                      className={cn(
+                        "px-8 py-3 rounded-xl font-semibold transition-all duration-300",
+                        canProceedStep2 
+                          ? "bg-primary text-primary-foreground hover:bg-primary/90" 
+                          : "bg-muted text-muted-foreground cursor-not-allowed"
+                      )}
+                    >
+                      {language === 'ar' ? 'التالي' : 'Continue'}
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Step 3: Confirmation */}
+              {currentStep === 3 && (
+                <motion.div 
+                  className="space-y-8"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="text-center mb-6">
+                    <h3 className="text-2xl font-bold text-foreground mb-2">
+                      {language === 'ar' ? 'تأكيد الموعد' : 'Confirm Your Appointment'}
+                    </h3>
+                    <p className="text-muted-foreground">
+                      {language === 'ar' ? 'راجع تفاصيل موعدك' : 'Review your appointment details'}
+                    </p>
+                  </div>
+
+                  {/* Summary Card */}
+                  <div className="bg-muted/30 rounded-2xl p-6 space-y-4">
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <CalendarDays className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">{language === 'ar' ? 'التاريخ' : 'Date'}</p>
+                          <p className="font-medium text-foreground">
+                            {selectedDate ? format(selectedDate, 'PPP') : '-'}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Clock className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">{language === 'ar' ? 'الوقت' : 'Time'}</p>
+                          <p className="font-medium text-foreground">{formData.time || '-'}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <FileText className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">{language === 'ar' ? 'الخدمة' : 'Service'}</p>
+                          <p className="font-medium text-foreground capitalize">{formData.service.replace('-', ' ') || '-'}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <User className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">{language === 'ar' ? 'الاسم' : 'Name'}</p>
+                          <p className="font-medium text-foreground">{formData.name || '-'}</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                    
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground">{language === 'ar' ? 'اختر الوقت *' : 'Select Time *'}</label>
-                    {!selectedDate ? (
-                      <p className="text-sm text-muted-foreground">{language === 'ar' ? 'يرجى اختيار التاريخ أولاً' : 'Please select a date first'}</p>
-                    ) : isLoadingSlots ? (
-                      <div className="flex items-center justify-center py-4">
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                      </div>
-                    ) : availableSlots.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">{language === 'ar' ? 'لا توجد مواعيد متاحة لهذا التاريخ' : 'No available slots for this date'}</p>
-                    ) : (
-                      <>
-                        <Select value={formData.time} onValueChange={(value) => handleChange("time", value)}>
-                          <SelectTrigger className="bg-background border-border">
-                            <SelectValue placeholder={language === 'ar' ? 'اختر موعداً' : 'Choose a time slot'} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {availableSlots.map((slot) => (
-                              <SelectItem 
-                                key={slot.slot_time} 
-                                value={slot.slot_time}
-                                disabled={!slot.is_available}
-                                className={!slot.is_available ? "opacity-50" : ""}
-                              >
-                                <span className="flex items-center justify-between w-full gap-2">
-                                  <span>{slot.slot_time}</span>
-                                  {!slot.is_available ? (
-                                    <span className="text-xs px-2 py-0.5 rounded-full bg-destructive/20 text-destructive">
-                                      {language === 'ar' ? 'محجوز' : 'Réservé'}
-                                    </span>
-                                  ) : (
-                                    <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary">
-                                      {language === 'ar' ? 'متاح' : 'Disponible'}
-                                    </span>
-                                  )}
-                                </span>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        {availableSlots.every(slot => !slot.is_available) && (
-                          <p className="text-sm text-destructive mt-2">
-                            ⚠️ {language === 'ar' ? 'جميع المواعيد محجوزة لهذا التاريخ. يرجى اختيار تاريخ آخر.' : 'All time slots are fully booked for this date. Please select another date.'}
-                          </p>
-                        )}
-                      </>
-                    )}
+
+                  {/* Navigation Buttons */}
+                  <div className="flex justify-between pt-4">
+                    <button
+                      type="button"
+                      onClick={() => setCurrentStep(2)}
+                      className="px-6 py-3 rounded-xl font-medium text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {language === 'ar' ? 'السابق' : 'Back'}
+                    </button>
+                    <button 
+                      type="submit" 
+                      className="px-8 py-3 bg-primary text-primary-foreground rounded-xl font-semibold hover:bg-primary/90 transition-all duration-300 hover:shadow-lg hover:shadow-primary/25 disabled:opacity-50 flex items-center gap-2" 
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          {language === 'ar' ? 'جاري الإرسال...' : 'Sending...'}
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="w-4 h-4" />
+                          {language === 'ar' ? 'تأكيد الحجز' : 'Confirm Booking'}
+                        </>
+                      )}
+                    </button>
                   </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-foreground">{language === 'ar' ? 'ملاحظات إضافية' : 'Additional Notes'}</label>
-                  <Textarea 
-                    placeholder={language === 'ar' ? 'أي معلومات إضافية أو متطلبات خاصة' : 'Any additional information or special requirements'}
-                    rows={4}
-                    className="bg-background border-border"
-                    value={formData.notes}
-                    onChange={(e) => handleChange("notes", e.target.value)}
-                  />
-                </div>
-                
-                <button 
-                  type="submit" 
-                  className="w-full py-4 bg-primary text-primary-foreground rounded-xl font-semibold hover:bg-primary/90 transition-all duration-300 hover:shadow-lg hover:shadow-primary/25 disabled:opacity-50" 
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      {language === 'ar' ? 'جاري الإرسال...' : 'Sending...'}
-                    </span>
-                  ) : (
-                    language === 'ar' ? 'حجز موعد' : 'Book Appointment'
-                  )}
-                </button>
-              </form>
-            </motion.div>
-          </div>
+                </motion.div>
+              )}
+            </form>
+          </motion.div>
         </div>
       </section>
 
