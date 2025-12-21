@@ -1,5 +1,4 @@
 import { Navigation } from "@/components/Navigation";
-import { Hero } from "@/components/Hero";
 import { About } from "@/components/About";
 import { Services } from "@/components/Services";
 import { BeforeAfter } from "@/components/BeforeAfter";
@@ -7,13 +6,12 @@ import { Booking } from "@/components/Booking";
 import { ContactMap } from "@/components/ContactMap";
 import { Footer } from "@/components/Footer";
 import { Chatbot } from "@/components/Chatbot";
-import { HeroScene } from "@/components/hero/HeroScene";
+import { DentalChair3D } from "@/components/hero/DentalChair3D";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useVisitorTracking } from "@/hooks/useVisitorTracking";
 import AdminAccessButton from "@/components/AdminAccessButton";
 import { AdminEditToggle } from "@/components/admin/AdminEditToggle";
 import { AdminEditConfirmDialog } from "@/components/admin/AdminEditConfirmDialog";
-import heroImage from "@/assets/dr-yousif-hero.jpg";
 import doctorImage from "@/assets/dr-yousif-hero.jpg";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -25,25 +23,15 @@ const Index = () => {
   const doctorName = language === 'ar' ? 'د. يوسف جيرمان' : 'Dr. Yousif German';
   
   return (
-    <div className="min-h-screen relative">
-      {/* Photo-based immersive scene with scroll camera - pinned */}
-      <HeroScene />
-      
+    <div className="min-h-screen relative bg-[hsl(180_30%_3%)]">
       <Navigation />
       <AdminAccessButton />
       <AdminEditToggle />
       <AdminEditConfirmDialog />
       
-      {/* Spacer to "pin" the hero for ~4 viewports of scroll like mont-fort */}
-      <div className="relative z-10" style={{ height: '400vh' }}>
-        <div id="home" className="sticky top-0 h-screen">
-          <Hero
-            backgroundImage={heroImage}
-            title={doctorName}
-            subtitle={language === 'ar' ? 'رعاية أسنان متقدمة بدقة وراحة.' : 'Advanced dental care with precision and comfort.'}
-            badge={language === 'ar' ? 'طبيب أسنان' : 'Dentist'}
-          />
-        </div>
+      {/* 3D Dental Chair Animation with Hero */}
+      <div id="home">
+        <DentalChair3D />
       </div>
       
       <div id="about">
