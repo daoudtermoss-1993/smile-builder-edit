@@ -24,56 +24,66 @@ section .text-muted-foreground {
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    --foreground: 200 25% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 200 25% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 200 25% 10%;
 
-    --primary: 180 100% 35%;
+    /* Primary: Teal - élégant et médical */
+    --primary: 175 85% 35%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 180 30% 96%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 175 20% 96%;
+    --secondary-foreground: 200 25% 10%;
 
-    --muted: 180 20% 96%;
-    --muted-foreground: 215 20% 40%;
+    --muted: 45 10% 96%;
+    --muted-foreground: 200 15% 40%;
 
-    --accent: 180 100% 35%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent: Or/Doré - luxueux et premium */
+    --accent: 42 90% 55%;
+    --accent-foreground: 200 25% 10%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 180 20% 90%;
-    --input: 180 20% 90%;
-    --ring: 180 100% 35%;
+    --border: 45 15% 88%;
+    --input: 45 15% 88%;
+    --ring: 175 85% 35%;
 
     --radius: 0.75rem;
 
-    /* Terminal Industries Style Colors */
-    --terminal: 180 25% 12%;
-    --terminal-dark: 180 30% 8%;
-    --terminal-muted: 180 15% 22%;
-    --terminal-accent: 80 60% 50%;
-    --terminal-grid: 180 20% 15%;
+    /* Terminal Industries Style - Dark sections */
+    --terminal: 180 30% 10%;
+    --terminal-dark: 180 35% 6%;
+    --terminal-muted: 180 20% 18%;
+    --terminal-accent: 42 85% 55%;
+    --terminal-grid: 180 25% 12%;
 
-    --vibe-teal: 180 100% 35%;
-    --vibe-cyan: 190 100% 45%;
-    --vibe-blue: 200 90% 45%;
+    /* Vibe colors - Teal spectrum */
+    --vibe-teal: 175 85% 35%;
+    --vibe-cyan: 180 80% 40%;
+    --vibe-blue: 190 75% 40%;
     
-    --gradient-vibe: linear-gradient(135deg, hsl(180 100% 35%), hsl(190 100% 45%));
-    --gradient-hero: linear-gradient(180deg, hsl(180 50% 98%) 0%, hsl(0 0% 100%) 100%);
-    --gradient-section-alt: linear-gradient(180deg, hsl(180 40% 97%) 0%, hsl(180 30% 99%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(180 30% 98%));
+    /* Gold accent colors */
+    --gold: 42 90% 55%;
+    --gold-light: 45 95% 65%;
+    --gold-dark: 38 85% 45%;
     
-    --shadow-glow: 0 0 40px hsl(180 100% 35% / 0.15);
-    --shadow-glow-hover: 0 0 60px hsl(180 100% 35% / 0.25);
-    --shadow-soft: 0 4px 20px hsl(180 30% 50% / 0.08);
-    --shadow-medium: 0 8px 30px hsl(180 30% 50% / 0.12);
-    --shadow-elevated: 0 20px 60px hsl(180 30% 50% / 0.15);
+    --gradient-vibe: linear-gradient(135deg, hsl(175 85% 35%), hsl(180 80% 40%));
+    --gradient-gold: linear-gradient(135deg, hsl(42 90% 55%), hsl(45 95% 65%));
+    --gradient-hero: linear-gradient(180deg, hsl(180 30% 97%) 0%, hsl(0 0% 100%) 100%);
+    --gradient-section-alt: linear-gradient(180deg, hsl(45 20% 97%) 0%, hsl(45 15% 99%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(45 20% 98%));
+    
+    --shadow-glow: 0 0 40px hsl(175 85% 35% / 0.15);
+    --shadow-glow-hover: 0 0 60px hsl(175 85% 35% / 0.25);
+    --shadow-gold: 0 0 30px hsl(42 90% 55% / 0.2);
+    --shadow-soft: 0 4px 20px hsl(200 20% 50% / 0.08);
+    --shadow-medium: 0 8px 30px hsl(200 20% 50% / 0.12);
+    --shadow-elevated: 0 20px 60px hsl(200 20% 50% / 0.15);
     
     --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
