@@ -49,8 +49,8 @@ export function SectionTransition({ variant, className }: SectionTransitionProps
 
 export function GridPattern({ className }: { className?: string }) {
   const gridSize = 80;
-  const rows = 10;
-  const cols = 20;
+  const rows = 8;
+  const cols = 18;
   
   return (
     <div className={cn("absolute inset-0 pointer-events-none overflow-hidden", className)}>
@@ -59,15 +59,16 @@ export function GridPattern({ className }: { className?: string }) {
         className="absolute inset-0"
         style={{
           backgroundImage: `
-            linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px)
+            linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)
           `,
           backgroundSize: `${gridSize}px ${gridSize}px`,
         }}
       />
       
-      {/* Animated horizontal lines */}
+      {/* Animated grid lines */}
       <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
+        {/* Horizontal lines */}
         {Array.from({ length: rows + 1 }).map((_, i) => (
           <motion.line
             key={`h-${i}`}
@@ -77,19 +78,15 @@ export function GridPattern({ className }: { className?: string }) {
             y2={`${(i / rows) * 100}%`}
             stroke="hsl(var(--terminal-accent))"
             strokeWidth="0.5"
-            strokeOpacity="0.15"
+            strokeOpacity="0.12"
             initial={{ pathLength: 0, opacity: 0 }}
             whileInView={{ pathLength: 1, opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ 
-              duration: 1.5, 
-              delay: i * 0.05,
-              ease: "easeOut" 
-            }}
+            transition={{ duration: 1.2, delay: i * 0.04, ease: "easeOut" }}
           />
         ))}
         
-        {/* Animated vertical lines */}
+        {/* Vertical lines */}
         {Array.from({ length: cols + 1 }).map((_, i) => (
           <motion.line
             key={`v-${i}`}
@@ -99,20 +96,110 @@ export function GridPattern({ className }: { className?: string }) {
             y2="100%"
             stroke="hsl(var(--terminal-accent))"
             strokeWidth="0.5"
-            strokeOpacity="0.15"
+            strokeOpacity="0.12"
             initial={{ pathLength: 0, opacity: 0 }}
             whileInView={{ pathLength: 1, opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ 
-              duration: 1.5, 
-              delay: 0.3 + i * 0.03,
-              ease: "easeOut" 
-            }}
+            transition={{ duration: 1.2, delay: 0.2 + i * 0.03, ease: "easeOut" }}
           />
         ))}
       </svg>
       
-      {/* Animated dots at intersections */}
+      {/* Animated curved lines */}
+      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice">
+        {/* Top left curve */}
+        <motion.path
+          d="M-50 100 Q 150 50, 300 150 T 600 100"
+          stroke="hsl(var(--terminal-accent))"
+          strokeWidth="1"
+          fill="none"
+          strokeOpacity="0.25"
+          initial={{ pathLength: 0, opacity: 0 }}
+          whileInView={{ pathLength: 1, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 2, delay: 0.5, ease: "easeInOut" }}
+        />
+        
+        {/* Top right curve */}
+        <motion.path
+          d="M1050 80 Q 850 150, 700 50 T 400 120"
+          stroke="hsl(var(--terminal-accent))"
+          strokeWidth="1"
+          fill="none"
+          strokeOpacity="0.2"
+          initial={{ pathLength: 0, opacity: 0 }}
+          whileInView={{ pathLength: 1, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 2, delay: 0.7, ease: "easeInOut" }}
+        />
+        
+        {/* Bottom left curve */}
+        <motion.path
+          d="M-30 500 Q 200 400, 350 500 T 700 450"
+          stroke="hsl(var(--terminal-accent))"
+          strokeWidth="1"
+          fill="none"
+          strokeOpacity="0.2"
+          initial={{ pathLength: 0, opacity: 0 }}
+          whileInView={{ pathLength: 1, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 2, delay: 0.9, ease: "easeInOut" }}
+        />
+        
+        {/* Bottom right curve */}
+        <motion.path
+          d="M1050 520 Q 800 450, 650 550 T 300 480"
+          stroke="hsl(var(--terminal-accent))"
+          strokeWidth="1"
+          fill="none"
+          strokeOpacity="0.25"
+          initial={{ pathLength: 0, opacity: 0 }}
+          whileInView={{ pathLength: 1, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 2, delay: 1.1, ease: "easeInOut" }}
+        />
+        
+        {/* Center flowing curve */}
+        <motion.path
+          d="M-50 300 Q 250 200, 500 300 T 1050 280"
+          stroke="hsl(var(--terminal-accent))"
+          strokeWidth="1.5"
+          fill="none"
+          strokeOpacity="0.15"
+          initial={{ pathLength: 0, opacity: 0 }}
+          whileInView={{ pathLength: 1, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 2.5, delay: 0.3, ease: "easeInOut" }}
+        />
+        
+        {/* Diagonal curve top-left to bottom-right */}
+        <motion.path
+          d="M50 50 Q 300 150, 400 300 T 800 550"
+          stroke="hsl(var(--terminal-accent))"
+          strokeWidth="0.8"
+          fill="none"
+          strokeOpacity="0.18"
+          initial={{ pathLength: 0, opacity: 0 }}
+          whileInView={{ pathLength: 1, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 2, delay: 1.3, ease: "easeInOut" }}
+        />
+        
+        {/* Diagonal curve top-right to bottom-left */}
+        <motion.path
+          d="M950 80 Q 700 200, 600 350 T 200 550"
+          stroke="hsl(var(--terminal-accent))"
+          strokeWidth="0.8"
+          fill="none"
+          strokeOpacity="0.18"
+          initial={{ pathLength: 0, opacity: 0 }}
+          whileInView={{ pathLength: 1, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 2, delay: 1.5, ease: "easeInOut" }}
+        />
+      </svg>
+      
+      {/* Pulsing dots at intersections */}
       <div className="absolute inset-0">
         {Array.from({ length: rows + 1 }).map((_, row) => 
           Array.from({ length: cols + 1 }).map((_, col) => (
@@ -124,22 +211,26 @@ export function GridPattern({ className }: { className?: string }) {
                 top: `calc(${(row / rows) * 100}% - 3px)`,
               }}
               initial={{ scale: 0, opacity: 0 }}
-              whileInView={{ scale: 1, opacity: 0.6 }}
-              viewport={{ once: true }}
+              animate={{ 
+                scale: [0, 1, 1, 0],
+                opacity: [0, 0.7, 0.7, 0],
+              }}
               transition={{ 
-                duration: 0.3, 
-                delay: 0.8 + (row + col) * 0.02,
-                ease: "easeOut" 
+                duration: 4,
+                delay: (row + col) * 0.15,
+                repeat: Infinity,
+                repeatDelay: 2,
+                ease: "easeInOut",
               }}
             />
           ))
         )}
       </div>
       
-      {/* Subtle corner accent lines */}
+      {/* Corner accent lines */}
       <motion.svg 
-        className="absolute top-0 left-0 w-32 h-32 opacity-30"
-        viewBox="0 0 128 128"
+        className="absolute top-0 left-0 w-40 h-40 opacity-30"
+        viewBox="0 0 160 160"
         fill="none"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 0.3 }}
@@ -147,9 +238,9 @@ export function GridPattern({ className }: { className?: string }) {
         transition={{ duration: 1, delay: 1 }}
       >
         <motion.path
-          d="M0 80 L0 0 L80 0"
+          d="M0 100 L0 0 L100 0"
           stroke="hsl(var(--terminal-accent))"
-          strokeWidth="1"
+          strokeWidth="1.5"
           fill="none"
           initial={{ pathLength: 0 }}
           whileInView={{ pathLength: 1 }}
@@ -159,8 +250,8 @@ export function GridPattern({ className }: { className?: string }) {
       </motion.svg>
       
       <motion.svg 
-        className="absolute bottom-0 right-0 w-32 h-32 opacity-30"
-        viewBox="0 0 128 128"
+        className="absolute bottom-0 right-0 w-40 h-40 opacity-30"
+        viewBox="0 0 160 160"
         fill="none"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 0.3 }}
@@ -168,9 +259,9 @@ export function GridPattern({ className }: { className?: string }) {
         transition={{ duration: 1, delay: 1.2 }}
       >
         <motion.path
-          d="M128 48 L128 128 L48 128"
+          d="M160 60 L160 160 L60 160"
           stroke="hsl(var(--terminal-accent))"
-          strokeWidth="1"
+          strokeWidth="1.5"
           fill="none"
           initial={{ pathLength: 0 }}
           whileInView={{ pathLength: 1 }}
