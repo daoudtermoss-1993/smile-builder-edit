@@ -2,11 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-// Import cabinet images
-import cabinetScene1 from "@/assets/cabinet-scene-1.jpg";
-import cabinetScene2 from "@/assets/cabinet-scene-2.jpg";
-import cabinetScene3 from "@/assets/cabinet-scene-3.jpg";
-import cabinetChair from "@/assets/cabinet-chair.png";
+// Chair images from external URLs
+const CHAIR_SOLID_URL = "https://a.lovart.ai/artifacts/agent/eCYhzwystv5TzpHS.png";
+const CHAIR_WIRE_URL = "https://a.lovart.ai/artifacts/agent/UhM1KsXb5FdhwtEw.png";
 
 // Utility functions
 const lerp = (start: number, end: number, factor: number) => start + (end - start) * factor;
@@ -16,7 +14,7 @@ const mapRange = (value: number, low1: number, high1: number, low2: number, high
 };
 
 export function DentalChair3D() {
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [smoothedProgress, setSmoothedProgress] = useState(0);
@@ -37,13 +35,14 @@ export function DentalChair3D() {
     let animationFrameId: number;
     
     const animate = () => {
+      // Smooth scroll tracking
       currentScrollRef.current = lerp(currentScrollRef.current, targetScrollRef.current, 0.08);
       
       if (containerRef.current) {
         const triggerHeight = containerRef.current.offsetHeight;
         const viewportHeight = window.innerHeight;
         const scrollDistance = triggerHeight - viewportHeight;
-        const rawProgress = currentScrollRef.current / scrollDistance;
+        const rawProgress = (currentScrollRef.current - containerRef.current.offsetTop) / scrollDistance;
         
         const progress = clamp(rawProgress, 0, 1);
         setScrollProgress(progress);
@@ -58,7 +57,7 @@ export function DentalChair3D() {
     };
     
     window.addEventListener('scroll', handleScroll);
-    handleScroll();
+    handleScroll(); // Initial call
     animate();
     
     return () => {
@@ -67,43 +66,52 @@ export function DentalChair3D() {
     };
   }, []);
 
+  // Calculate 3D transforms based on progress
   const p = smoothedProgress;
   
-  // Card 1: 0-50% of scroll (cinematic cabinet transitions)
-  // Card 2: 50-100% of scroll (wireframe transformation)
-  const isCard1 = p < 0.5;
-  const card1Progress = clamp(mapRange(p, 0, 0.5, 0, 1), 0, 1);
-  const card2Progress = clamp(mapRange(p, 0.5, 1, 0, 1), 0, 1);
+  // Rotation
+  const rotateY = p * 360;
+  const rotateX = Math.sin(p * Math.PI * 2) * 20;
+  const rotateZ = Math.sin(p * Math.PI) * 10;
   
-  // Cabinet transitions within Card 1 (cinematic crossfade between 3 cabinets)
-  // Cabinet 1: 0-33%, Cabinet 2: 33-66%, Cabinet 3: 66-100%
-  let cabinet1Opacity = 0;
-  let cabinet2Opacity = 0;
-  let cabinet3Opacity = 0;
-  
-  if (card1Progress < 0.33) {
-    cabinet1Opacity = 1;
-    cabinet2Opacity = mapRange(card1Progress, 0.2, 0.33, 0, 0.3);
-  } else if (card1Progress < 0.66) {
-    cabinet1Opacity = mapRange(card1Progress, 0.33, 0.45, 1, 0);
-    cabinet2Opacity = 1;
-    cabinet3Opacity = mapRange(card1Progress, 0.55, 0.66, 0, 0.3);
+  // Scale - Start 0.8, Mid 1.3, End 1.0
+  let scale: number;
+  if (p < 0.5) {
+    scale = mapRange(p, 0, 0.5, 0.8, 1.3);
   } else {
-    cabinet2Opacity = mapRange(card1Progress, 0.66, 0.8, 1, 0);
-    cabinet3Opacity = 1;
+    scale = mapRange(p, 0.5, 1.0, 1.3, 1.0);
   }
   
-  // Chair rotation and scale
-  const rotateY = p * 180;
-  const rotateX = Math.sin(p * Math.PI) * 10;
-  const scale = isCard1 ? mapRange(card1Progress, 0, 1, 0.9, 1.1) : mapRange(card2Progress, 0, 1, 1.1, 0.9);
+  // TranslateZ
+  const translateZ = mapRange(p, 0, 1, -200, 200);
   
-  // Crossfade to wireframe in Card 2
-  const solidOpacity = isCard1 ? 1 : mapRange(card2Progress, 0, 0.6, 1, 0);
-  const wireOpacity = isCard1 ? 0 : mapRange(card2Progress, 0.3, 0.8, 0, 1);
+  // Opacity crossfade between solid and wireframe
+  let solidOpacity: number;
+  let wireOpacity: number;
   
-  // Scroll indicator fade
-  const scrollIndicatorOpacity = useTransform(smoothScrollY, [0, 200], [1, 0]);
+  if (p < 0.3) {
+    solidOpacity = 1;
+    wireOpacity = 0;
+  } else if (p > 0.7) {
+    solidOpacity = 0;
+    wireOpacity = 1;
+  } else {
+    const fadeProgress = mapRange(p, 0.3, 0.7, 0, 1);
+    solidOpacity = 1 - fadeProgress;
+    wireOpacity = fadeProgress;
+  }
+  
+  // Parallax background
+  const parallaxY = p * 200;
+  
+  // Text visibility
+  const text1Visible = p > 0.1 && p < 0.3;
+  const text2Visible = p > 0.4 && p < 0.6;
+  const text3Visible = p > 0.8 && p < 0.98;
+  
+  // Hero content fade out
+  const heroOpacity = useTransform(smoothScrollY, [0, window.innerHeight * 0.5], [1, 0]);
+  const heroY = useTransform(smoothScrollY, [0, window.innerHeight * 0.5], [0, -50]);
 
   return (
     <>
@@ -115,196 +123,130 @@ export function DentalChair3D() {
         />
       </div>
 
-      {/* Main 3D Hero Section */}
+      {/* Hero Section */}
+      <header className="h-screen w-full flex flex-col justify-center items-center relative z-10 overflow-hidden">
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: 'radial-gradient(circle at center, hsl(180 20% 12%) 0%, hsl(180 30% 3%) 70%)'
+          }}
+        />
+        
+        <motion.div 
+          className="relative z-10 text-center"
+          style={{ opacity: heroOpacity, y: heroY }}
+        >
+          <motion.h1 
+            className="font-bold text-[clamp(3rem,10vw,7.5rem)] leading-[1.1] tracking-tight uppercase bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent mb-5"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.5 }}
+          >
+            {language === 'ar' ? 'د. يوسف جيرمان' : 'Dr. Yousif German'}
+          </motion.h1>
+          <motion.p 
+            className="text-primary text-lg md:text-2xl tracking-[0.25em] uppercase"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.8 }}
+          >
+            {language === 'ar' ? 'الدقة الرقمية والعناية' : 'Digital Precision & Care'}
+          </motion.p>
+        </motion.div>
+        
+        <motion.div 
+          className="absolute bottom-12 flex flex-col items-center gap-2.5"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.7 }}
+          transition={{ duration: 1, delay: 1.2 }}
+        >
+          <div className="w-[30px] h-[50px] border-2 border-white/30 rounded-[15px] relative">
+            <motion.div 
+              className="w-1 h-2 bg-primary rounded-sm absolute left-1/2 -translate-x-1/2"
+              animate={{ top: [10, 30, 10], opacity: [1, 0, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            />
+          </div>
+          <span className="text-sm tracking-[0.15em] uppercase text-white/70">
+            {language === 'ar' ? 'مرر للاستكشاف' : 'Scroll to Explore'}
+          </span>
+        </motion.div>
+      </header>
+
+      {/* 3D Scroll Trigger Section */}
       <section 
         ref={containerRef}
-        className="h-[400vh] relative z-0"
-        id="hero-3d"
+        className="dental-3d-trigger h-[400vh] relative z-0"
+        id="scrollTrigger"
       >
-        <div className="sticky top-0 h-screen w-full overflow-hidden flex justify-center items-center" style={{ perspective: '1200px' }}>
-          {/* Dark Background - Original colors */}
+        <div className="sticky top-0 h-screen w-full overflow-hidden flex justify-center items-center dental-3d-perspective">
+          {/* Background Elements */}
           <div 
-            className="absolute inset-0"
+            className="dental-bg-element dental-bg-1"
             style={{
-              background: 'radial-gradient(circle at center, hsl(180 20% 8%) 0%, hsl(180 30% 3%) 70%)'
+              transform: `translateY(${-parallaxY}px) scale(${1 + p * 0.2})`
             }}
           />
-          
-          {/* Background Cabinet Scenes - Cinematic transitions */}
-          <div className="absolute inset-0 overflow-hidden">
-            {/* Cabinet Scene 1 */}
-            <motion.div 
-              className="absolute inset-0"
-              style={{ opacity: cabinet1Opacity }}
-            >
-              <img 
-                src={cabinetScene1}
-                alt="Cabinet Scene 1"
-                className="w-full h-full object-cover"
-                style={{ 
-                  transform: `scale(${1 + card1Progress * 0.1})`,
-                  filter: `brightness(${0.6 + (1 - cabinet1Opacity) * 0.2})`
-                }}
-              />
-            </motion.div>
-            
-            {/* Cabinet Scene 2 */}
-            <motion.div 
-              className="absolute inset-0"
-              style={{ opacity: cabinet2Opacity }}
-            >
-              <img 
-                src={cabinetScene2}
-                alt="Cabinet Scene 2"
-                className="w-full h-full object-cover"
-                style={{ 
-                  transform: `scale(${1 + card1Progress * 0.05})`,
-                  filter: `brightness(${0.6 + (1 - cabinet2Opacity) * 0.2})`
-                }}
-              />
-            </motion.div>
-            
-            {/* Cabinet Scene 3 */}
-            <motion.div 
-              className="absolute inset-0"
-              style={{ opacity: cabinet3Opacity }}
-            >
-              <img 
-                src={cabinetScene3}
-                alt="Cabinet Scene 3"
-                className="w-full h-full object-cover"
-                style={{ 
-                  transform: `scale(${1 + card1Progress * 0.03})`,
-                  filter: `brightness(${0.5 + cabinet3Opacity * 0.3})`
-                }}
-              />
-            </motion.div>
-          </div>
-          
-          {/* Vignette overlay */}
           <div 
-            className="absolute inset-0 pointer-events-none"
+            className="dental-bg-element dental-bg-2"
             style={{
-              background: 'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.5) 100%)'
+              transform: `translateY(${parallaxY}px) scale(${1 - p * 0.1})`
             }}
           />
+          <div className="dental-grid-lines" />
 
-          {/* 3D Chair Element */}
-          <div 
-            className="relative z-10 flex items-center justify-center"
-            style={{ 
-              transformStyle: 'preserve-3d',
-              opacity: isCard1 ? 0 : card2Progress,
-            }}
-          >
+          {/* 3D Scene */}
+          <div className="dental-scene-3d">
             <div 
-              className="relative transition-transform duration-100"
+              className="dental-chair-container"
               style={{
                 transform: `
                   scale(${scale})
                   rotateX(${rotateX}deg) 
-                  rotateY(${rotateY}deg)
-                `,
-                transformStyle: 'preserve-3d',
+                  rotateY(${rotateY}deg) 
+                  rotateZ(${rotateZ}deg)
+                  translateZ(${translateZ}px)
+                `
               }}
             >
               {/* Solid Chair */}
               <img 
-                src={cabinetChair}
-                alt="Cabinet Dentaire"
-                className="w-auto h-[50vh] max-w-[70vw] object-contain drop-shadow-2xl"
-                style={{ 
-                  opacity: solidOpacity,
-                  filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.5))',
-                }}
+                src={CHAIR_SOLID_URL}
+                alt="Dental Chair Solid"
+                className="dental-chair-img dental-chair-solid"
+                style={{ opacity: solidOpacity }}
                 draggable={false}
               />
-              {/* Wireframe effect overlay */}
-              <div
-                className="absolute inset-0 flex items-center justify-center"
+              {/* Wireframe Chair */}
+              <img 
+                src={CHAIR_WIRE_URL}
+                alt="Dental Chair Wireframe"
+                className="dental-chair-img dental-chair-wire"
                 style={{ opacity: wireOpacity }}
-              >
-                <img 
-                  src={cabinetChair}
-                  alt="Cabinet Dentaire Wireframe"
-                  className="w-auto h-[50vh] max-w-[70vw] object-contain"
-                  style={{ 
-                    filter: 'invert(1) brightness(2) contrast(1.5) drop-shadow(0 0 20px rgba(0,200,255,0.5))',
-                    mixBlendMode: 'screen',
-                  }}
-                  draggable={false}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Top Text Overlay - Title */}
-          <div className="absolute top-8 left-0 right-0 text-center z-20">
-            <motion.div 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: 0.3 }}
-              className="inline-block"
-            >
-              <p className="text-primary text-sm md:text-base tracking-[0.3em] uppercase mb-2">
-                {language === 'ar' ? 'الدقة الرقمية والعناية' : 'Digital Precision & Care'}
-              </p>
-              <h1 className="text-3xl md:text-5xl lg:text-6xl font-light tracking-[0.2em] uppercase text-white/90">
-                {language === 'ar' ? 'د. يوسف جيرمان' : 'Dr. Yousif German'}
-              </h1>
-            </motion.div>
-          </div>
-
-          {/* Phase indicators */}
-          <motion.div 
-            className={`absolute left-8 md:left-16 bottom-1/3 max-w-xs transition-all duration-700 ${isCard1 && card1Progress > 0.1 && card1Progress < 0.35 ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}
-          >
-            <span className="text-primary text-xs tracking-[0.2em] uppercase mb-2 block">
-              {language === 'ar' ? 'المرحلة ٠١' : 'Phase 01'}
-            </span>
-            <h3 className="text-xl md:text-2xl font-light text-white">
-              {language === 'ar' ? 'بيئة مريحة' : 'Comfortable Environment'}
-            </h3>
-          </motion.div>
-
-          <motion.div 
-            className={`absolute right-8 md:right-16 bottom-1/3 max-w-xs text-right transition-all duration-700 ${isCard1 && card1Progress > 0.4 && card1Progress < 0.7 ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}
-          >
-            <span className="text-primary text-xs tracking-[0.2em] uppercase mb-2 block">
-              {language === 'ar' ? 'المرحلة ٠٢' : 'Phase 02'}
-            </span>
-            <h3 className="text-xl md:text-2xl font-light text-white">
-              {language === 'ar' ? 'تقنية متقدمة' : 'Advanced Technology'}
-            </h3>
-          </motion.div>
-
-          <motion.div 
-            className={`absolute left-8 md:left-16 bottom-1/4 max-w-xs transition-all duration-700 ${!isCard1 && card2Progress > 0.3 ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}
-          >
-            <span className="text-primary text-xs tracking-[0.2em] uppercase mb-2 block">
-              {language === 'ar' ? 'التحول الرقمي' : 'Digital Transformation'}
-            </span>
-            <h3 className="text-xl md:text-2xl font-light text-white">
-              {language === 'ar' ? 'مستعد للمستقبل' : 'Future Ready'}
-            </h3>
-          </motion.div>
-
-          {/* Scroll Indicator */}
-          <motion.div 
-            className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3"
-            style={{ opacity: scrollIndicatorOpacity }}
-          >
-            <div className="w-[30px] h-[50px] border-2 border-white/30 rounded-[15px] relative">
-              <motion.div 
-                className="w-1 h-2 bg-primary rounded-sm absolute left-1/2 -translate-x-1/2"
-                animate={{ top: [8, 28, 8], opacity: [1, 0.3, 1] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
+                draggable={false}
               />
             </div>
-            <span className="text-xs tracking-[0.2em] uppercase text-white/60">
-              {language === 'ar' ? 'مرر للاستكشاف' : 'Scroll to Explore'}
-            </span>
-          </motion.div>
+          </div>
+
+          {/* Floating Text Elements */}
+          <div 
+            className={`dental-feature-text dental-text-1 ${text1Visible ? 'visible' : ''}`}
+          >
+            <span>{language === 'ar' ? 'المرحلة ٠١' : 'Phase 01'}</span>
+            {language === 'ar' ? 'تصميم مريح' : 'Ergonomic Design'}
+          </div>
+          <div 
+            className={`dental-feature-text dental-text-2 ${text2Visible ? 'visible' : ''}`}
+          >
+            <span>{language === 'ar' ? 'المرحلة ٠٢' : 'Phase 02'}</span>
+            {language === 'ar' ? 'التكامل الرقمي' : 'Digital Integration'}
+          </div>
+          <div 
+            className={`dental-feature-text dental-text-3 ${text3Visible ? 'visible' : ''}`}
+          >
+            <span>{language === 'ar' ? 'المرحلة النهائية' : 'Final Phase'}</span>
+            {language === 'ar' ? 'جاهز للمستقبل' : 'Ready for Future'}
+          </div>
         </div>
       </section>
     </>
