@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -13,8 +13,40 @@ const mapRange = (value: number, low1: number, high1: number, low2: number, high
   return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
 };
 
+// Particle type
+interface Particle {
+  id: number;
+  x: number;
+  y: number;
+  size: number;
+  speed: number;
+  delay: number;
+  color: string;
+}
+
+// Generate particles
+const generateParticles = (count: number): Particle[] => {
+  const colors = [
+    'hsl(180, 70%, 50%)', // Cyan
+    'hsl(160, 60%, 45%)', // Teal
+    'hsl(200, 80%, 55%)', // Light blue
+    'hsl(140, 50%, 40%)', // Green
+    'hsl(220, 70%, 60%)', // Blue
+  ];
+  
+  return Array.from({ length: count }, (_, i) => ({
+    id: i,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    size: Math.random() * 4 + 2,
+    speed: Math.random() * 20 + 10,
+    delay: Math.random() * 5,
+    color: colors[Math.floor(Math.random() * colors.length)],
+  }));
+};
+
 export function DentalChair3D() {
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [smoothedProgress, setSmoothedProgress] = useState(0);
@@ -22,6 +54,9 @@ export function DentalChair3D() {
   const targetScrollRef = useRef(0);
   
   const { scrollY } = useScroll();
+  
+  // Generate particles once
+  const particles = useMemo(() => generateParticles(50), []);
   
   // Smooth spring for global scroll
   const smoothScrollY = useSpring(scrollY, {
@@ -195,8 +230,49 @@ export function DentalChair3D() {
           />
           <div className="dental-grid-lines" />
 
+          {/* Particles */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            {particles.map((particle) => (
+              <motion.div
+                key={particle.id}
+                className="absolute rounded-full"
+                style={{
+                  left: `${particle.x}%`,
+                  width: particle.size,
+                  height: particle.size,
+                  background: particle.color,
+                  boxShadow: `0 0 ${particle.size * 3}px ${particle.color}`,
+                  filter: 'blur(0.5px)',
+                }}
+                animate={{
+                  y: [0, -window.innerHeight],
+                  opacity: [0, 1, 1, 0],
+                }}
+                transition={{
+                  duration: particle.speed,
+                  delay: particle.delay,
+                  repeat: Infinity,
+                  ease: "linear",
+                }}
+              />
+            ))}
+          </div>
+
           {/* 3D Scene */}
           <div className="dental-scene-3d">
+            {/* Glow effect behind chair */}
+            <div 
+              className="absolute w-[600px] h-[600px] rounded-full pointer-events-none"
+              style={{
+                background: `radial-gradient(circle, 
+                  hsla(${180 + p * 40}, 70%, 50%, ${0.3 + p * 0.2}) 0%, 
+                  hsla(${160 + p * 60}, 60%, 40%, ${0.1 + p * 0.1}) 40%, 
+                  transparent 70%)`,
+                transform: `scale(${1 + p * 0.5})`,
+                filter: 'blur(30px)',
+              }}
+            />
+            
             <div 
               className="dental-chair-container"
               style={{
@@ -206,7 +282,8 @@ export function DentalChair3D() {
                   rotateY(${rotateY}deg) 
                   rotateZ(${rotateZ}deg)
                   translateZ(${translateZ}px)
-                `
+                `,
+                filter: `drop-shadow(0 0 ${20 + p * 30}px hsla(${180 + p * 40}, 70%, 50%, ${0.4 + p * 0.3}))`,
               }}
             >
               {/* Solid Chair */}
@@ -214,7 +291,10 @@ export function DentalChair3D() {
                 src={CHAIR_SOLID_URL}
                 alt="Dental Chair Solid"
                 className="dental-chair-img dental-chair-solid"
-                style={{ opacity: solidOpacity }}
+                style={{ 
+                  opacity: solidOpacity,
+                  filter: `hue-rotate(${p * 30}deg) saturate(${1 + p * 0.5})`,
+                }}
                 draggable={false}
               />
               {/* Wireframe Chair */}
@@ -222,7 +302,10 @@ export function DentalChair3D() {
                 src={CHAIR_WIRE_URL}
                 alt="Dental Chair Wireframe"
                 className="dental-chair-img dental-chair-wire"
-                style={{ opacity: wireOpacity }}
+                style={{ 
+                  opacity: wireOpacity,
+                  filter: `hue-rotate(${-p * 20}deg) brightness(${1.2 + p * 0.3})`,
+                }}
                 draggable={false}
               />
             </div>
