@@ -1,7 +1,8 @@
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HeroContent } from "./HeroContent";
+import { GridTunnel3D } from "./GridTunnel3D";
 import heroVideo from "@/assets/hero-video.mp4";
 
 // Number of frames to extract (more = smoother but heavier)
@@ -36,11 +37,15 @@ export function DentalChair3D() {
   const darkSectionScale = useTransform(scrollYProgress, [0.5, 0.7, 0.9], [1.2, 1.05, 1]);
   
   const [showGrid, setShowGrid] = useState(false);
+  const [tunnelProgress, setTunnelProgress] = useState(0);
   
   // Trigger grid animation when dark overlay is visible
   useEffect(() => {
     const unsubscribe = scrollYProgress.on("change", (progress) => {
       setShowGrid(progress > 0.5);
+      // Map scroll progress 0.5-1.0 to tunnel progress 0-1
+      const tunnelProg = Math.max(0, Math.min(1, (progress - 0.5) * 2));
+      setTunnelProgress(tunnelProg);
     });
     return () => unsubscribe();
   }, [scrollYProgress]);
@@ -169,160 +174,9 @@ export function DentalChair3D() {
           style={{ opacity: darkOverlayOpacity, scale: darkSectionScale }}
         />
         
-        {/* Camera flying through Grid Lines effect */}
+        {/* 3D Tunnel Effect with Three.js */}
         {showGrid && (
-          <motion.div 
-            className="absolute inset-0 z-[2] pointer-events-none overflow-hidden"
-            style={{ perspective: '1200px' }}
-          >
-            {/* 3D Grid container with camera movement */}
-            <motion.div
-              className="absolute inset-0 origin-center"
-              style={{ 
-                transformStyle: 'preserve-3d'
-              }}
-              initial={{ 
-                rotateX: 0,
-                scale: 1
-              }}
-              animate={{ 
-                rotateX: [0, 20, 35, 25, 10],
-                scale: [1, 1.2, 1.8, 2.5, 3]
-              }}
-              transition={{ 
-                duration: 3.5,
-                delay: 0.3,
-                ease: [0.25, 0.46, 0.45, 0.94]
-              }}
-            >
-              {/* Vertical Lines rushing towards camera */}
-              {Array.from({ length: 20 }).map((_, i) => (
-                <motion.div
-                  key={`v-${i}`}
-                  className="absolute top-0 h-full bg-gradient-to-b from-[hsl(175,60%,50%,0.1)] via-[hsl(175,60%,45%,0.5)] to-[hsl(175,60%,50%,0.1)]"
-                  style={{ 
-                    left: `${(i + 1) * 5}%`,
-                    width: '2px'
-                  }}
-                  initial={{ opacity: 0, scaleY: 0 }}
-                  animate={{ opacity: 1, scaleY: 1 }}
-                  transition={{ 
-                    duration: 0.8, 
-                    delay: i * 0.02,
-                    ease: "easeOut"
-                  }}
-                />
-              ))}
-              
-              {/* Horizontal Lines with depth */}
-              {Array.from({ length: 15 }).map((_, i) => (
-                <motion.div
-                  key={`h-${i}`}
-                  className="absolute left-0 w-full bg-gradient-to-r from-[hsl(175,60%,50%,0.1)] via-[hsl(175,60%,40%,0.4)] to-[hsl(175,60%,50%,0.1)]"
-                  style={{ 
-                    top: `${(i + 1) * 6.5}%`,
-                    height: '2px'
-                  }}
-                  initial={{ opacity: 0, scaleX: 0 }}
-                  animate={{ opacity: 1, scaleX: 1 }}
-                  transition={{ 
-                    duration: 0.6, 
-                    delay: 0.1 + i * 0.02,
-                    ease: "easeOut"
-                  }}
-                />
-              ))}
-
-              {/* Intersection dots */}
-              {Array.from({ length: 8 }).map((_, row) =>
-                Array.from({ length: 12 }).map((_, col) => (
-                  <motion.div
-                    key={`dot-${row}-${col}`}
-                    className="absolute w-2 h-2 rounded-full bg-[hsl(175,60%,55%)]"
-                    style={{ 
-                      top: `${(row + 1) * 11}%`, 
-                      left: `${(col + 1) * 8}%`
-                    }}
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 0.7 }}
-                    transition={{ 
-                      duration: 0.4, 
-                      delay: 0.3 + (row + col) * 0.02,
-                      ease: "easeOut"
-                    }}
-                  />
-                ))
-              )}
-            </motion.div>
-
-            {/* Speed lines rushing effect */}
-            <motion.div
-              className="absolute inset-0 pointer-events-none"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: [0, 1, 1, 0] }}
-              transition={{ duration: 3, delay: 1 }}
-            >
-              {Array.from({ length: 12 }).map((_, i) => (
-                <motion.div
-                  key={`speed-${i}`}
-                  className="absolute h-[2px] bg-gradient-to-r from-transparent via-[hsl(175,60%,60%,0.8)] to-transparent"
-                  style={{
-                    top: `${10 + i * 7}%`,
-                    left: '0',
-                    right: '0'
-                  }}
-                  initial={{ scaleX: 0, x: '-50%' }}
-                  animate={{ 
-                    scaleX: [0, 1.5, 2],
-                    x: ['-50%', '0%', '50%']
-                  }}
-                  transition={{
-                    duration: 1.2,
-                    delay: 1.5 + i * 0.06,
-                    ease: "easeIn"
-                  }}
-                />
-              ))}
-            </motion.div>
-
-            {/* Vignette tunnel effect */}
-            <motion.div
-              className="absolute inset-0 pointer-events-none"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 2, delay: 1 }}
-              style={{
-                background: 'radial-gradient(ellipse at center, transparent 20%, hsl(180,35%,8%) 80%)'
-              }}
-            />
-
-            {/* Light particles flying past */}
-            {Array.from({ length: 20 }).map((_, i) => (
-              <motion.div
-                key={`particle-${i}`}
-                className="absolute w-1 h-8 md:h-12 rounded-full bg-gradient-to-b from-[hsl(175,60%,60%)] to-transparent"
-                style={{ 
-                  top: `${Math.random() * 80 + 10}%`,
-                  left: `${Math.random() * 80 + 10}%`
-                }}
-                initial={{ 
-                  opacity: 0,
-                  scale: 0,
-                  y: 0
-                }}
-                animate={{ 
-                  opacity: [0, 1, 0],
-                  scale: [0.5, 2, 3],
-                  y: ['0%', '200%']
-                }}
-                transition={{ 
-                  duration: 1.5,
-                  delay: 1.2 + i * 0.1,
-                  ease: "easeIn"
-                }}
-              />
-            ))}
-          </motion.div>
+          <GridTunnel3D progress={tunnelProgress} />
         )}
 
         {/* Curved transition at bottom - reduced height */}
