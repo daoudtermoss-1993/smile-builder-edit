@@ -119,6 +119,10 @@ export function IntroLoader({ onComplete }: IntroLoaderProps) {
       br: 0.02,
     };
 
+    // Configuration des demi-cercles sur les bords intérieurs
+    const isTop = position === "tl" || position === "tr";
+    const isLeft = position === "tl" || position === "bl";
+
     return (
       <motion.div
         className={`absolute ${positionStyles[position]} w-1/2 h-1/2 overflow-hidden`}
@@ -136,6 +140,17 @@ export function IntroLoader({ onComplete }: IntroLoaderProps) {
         {/* Corner lines for this quadrant */}
         <CornerLine position={position} delay={delays[position]} />
         <InnerCornerLine position={position} delay={delays[position]} />
+        
+        {/* Demi-cercle sur le bord intérieur horizontal (centre vertical) */}
+        <div 
+          className={`absolute ${isLeft ? "right-0 translate-x-1/2" : "left-0 -translate-x-1/2"} ${isTop ? "bottom-0 translate-y-1/2" : "top-0 -translate-y-1/2"}`}
+          style={{
+            width: "80px",
+            height: "80px",
+            backgroundColor: "hsl(220 14% 92%)",
+            borderRadius: "50%",
+          }}
+        />
       </motion.div>
     );
   };
