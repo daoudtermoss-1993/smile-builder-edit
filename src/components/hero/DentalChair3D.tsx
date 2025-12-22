@@ -22,21 +22,21 @@ export function DentalChair3D() {
   });
 
   // Parallax and fade effects
-  const imageScale = useTransform(scrollYProgress, [0, 0.8], [1, 1.15]);
-  const imageOpacity = useTransform(scrollYProgress, [0.6, 0.85], [1, 0]);
-  const contentY = useTransform(scrollYProgress, [0, 0.25], [0, -80]);
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+  const imageScale = useTransform(scrollYProgress, [0, 0.7], [1, 1.15]);
+  const imageOpacity = useTransform(scrollYProgress, [0.5, 0.7], [1, 0]);
+  const contentY = useTransform(scrollYProgress, [0, 0.2], [0, -80]);
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
   
-  // Dark overlay that appears at the end
-  const darkOverlayOpacity = useTransform(scrollYProgress, [0.5, 0.85], [0, 1]);
-  const gridOpacity = useTransform(scrollYProgress, [0.6, 0.9], [0, 1]);
-  const gridLineProgress = useTransform(scrollYProgress, [0.65, 1], [0, 1]);
+  // Dark overlay appears earlier and stays longer (less scroll needed)
+  const darkOverlayOpacity = useTransform(scrollYProgress, [0.45, 0.65], [0, 1]);
+  const gridOpacity = useTransform(scrollYProgress, [0.5, 0.7], [0, 1]);
+  const gridLineProgress = useTransform(scrollYProgress, [0.55, 0.85], [0, 1]);
   const [showGrid, setShowGrid] = useState(false);
   
   // Trigger grid animation when dark overlay is visible
   useEffect(() => {
     const unsubscribe = scrollYProgress.on("change", (progress) => {
-      setShowGrid(progress > 0.6);
+      setShowGrid(progress > 0.5);
     });
     return () => unsubscribe();
   }, [scrollYProgress]);
@@ -117,7 +117,7 @@ export function DentalChair3D() {
   return (
     <section 
       ref={containerRef}
-      className="relative h-[500vh] w-full"
+      className="relative h-[300vh] w-full"
     >
       {/* Sticky container */}
       <div className="sticky top-0 h-screen w-full overflow-hidden">
