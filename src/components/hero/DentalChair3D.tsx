@@ -169,50 +169,85 @@ export function DentalChair3D() {
           style={{ opacity: darkOverlayOpacity, scale: darkSectionScale }}
         />
         
-        {/* Animated Grid Lines - Bigger squares like Terminal Industries */}
+        {/* Animated Tooth that transforms into Grid Lines */}
         {showGrid && (
           <motion.div 
             className="absolute inset-0 z-[2] pointer-events-none overflow-hidden origin-center"
             style={{ scale: darkSectionScale }}
           >
-            {/* Vertical lines - teal accent */}
+            {/* Central Tooth SVG that explodes into lines */}
+            <motion.div
+              className="absolute inset-0 flex items-center justify-center"
+              initial={{ opacity: 1, scale: 1 }}
+              animate={{ opacity: 0, scale: 3 }}
+              transition={{ duration: 1.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+            >
+              <svg 
+                viewBox="0 0 100 120" 
+                className="w-32 h-40 md:w-48 md:h-56"
+                fill="none"
+              >
+                {/* Tooth shape */}
+                <motion.path
+                  d="M50 5 C30 5 20 20 20 35 C20 50 25 60 30 75 C32 82 28 95 25 110 C27 115 33 115 35 110 C38 95 42 85 50 85 C58 85 62 95 65 110 C67 115 73 115 75 110 C72 95 68 82 70 75 C75 60 80 50 80 35 C80 20 70 5 50 5Z"
+                  stroke="hsl(175, 60%, 50%)"
+                  strokeWidth="2"
+                  fill="none"
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  animate={{ pathLength: 1, opacity: 1 }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                />
+                {/* Inner tooth detail */}
+                <motion.path
+                  d="M40 30 Q50 25 60 30 Q55 40 50 35 Q45 40 40 30"
+                  stroke="hsl(175, 60%, 40%)"
+                  strokeWidth="1"
+                  fill="none"
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                />
+              </svg>
+            </motion.div>
+
+            {/* Lines that emerge from tooth - Vertical */}
             {Array.from({ length: 12 }).map((_, i) => (
               <motion.div
                 key={`v-${i}`}
-                className="absolute top-0 w-px bg-gradient-to-b from-transparent via-[hsl(175,60%,40%,0.2)] to-transparent"
+                className="absolute top-0 w-px bg-gradient-to-b from-transparent via-[hsl(175,60%,40%,0.3)] to-transparent"
                 style={{ left: `${(i + 1) * 8}%` }}
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: '100%', opacity: 1 }}
+                initial={{ height: 0, opacity: 0, y: '50%' }}
+                animate={{ height: '100%', opacity: 1, y: 0 }}
                 transition={{ 
-                  duration: 1.2, 
-                  delay: i * 0.06,
+                  duration: 1.0, 
+                  delay: 0.4 + i * 0.05,
                   ease: [0.25, 0.46, 0.45, 0.94]
                 }}
               />
             ))}
             
-            {/* Horizontal lines - teal accent */}
+            {/* Lines that emerge from tooth - Horizontal */}
             {Array.from({ length: 8 }).map((_, i) => (
               <motion.div
                 key={`h-${i}`}
-                className="absolute left-0 h-px bg-gradient-to-r from-transparent via-[hsl(175,60%,40%,0.15)] to-transparent"
+                className="absolute left-0 h-px bg-gradient-to-r from-transparent via-[hsl(175,60%,40%,0.25)] to-transparent"
                 style={{ top: `${(i + 1) * 11}%` }}
-                initial={{ width: 0, opacity: 0 }}
-                animate={{ width: '100%', opacity: 1 }}
+                initial={{ width: 0, opacity: 0, x: '50%' }}
+                animate={{ width: '100%', opacity: 1, x: 0 }}
                 transition={{ 
-                  duration: 1.5, 
-                  delay: 0.3 + i * 0.08,
+                  duration: 1.2, 
+                  delay: 0.5 + i * 0.06,
                   ease: [0.25, 0.46, 0.45, 0.94]
                 }}
               />
             ))}
             
-            {/* Corner dots at intersections - teal accent */}
+            {/* Dots at intersections */}
             {Array.from({ length: 6 }).map((_, row) =>
               Array.from({ length: 10 }).map((_, col) => (
                 <motion.div
                   key={`dot-${row}-${col}`}
-                  className="absolute w-1 h-1 rounded-full bg-[hsl(175,60%,45%,0.35)]"
+                  className="absolute w-1.5 h-1.5 rounded-full bg-[hsl(175,60%,50%,0.5)]"
                   style={{ 
                     top: `${(row + 1) * 14}%`, 
                     left: `${(col + 1) * 9}%` 
@@ -220,8 +255,8 @@ export function DentalChair3D() {
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ 
-                    duration: 0.4, 
-                    delay: 0.8 + (row + col) * 0.04,
+                    duration: 0.5, 
+                    delay: 1.0 + (row + col) * 0.03,
                     ease: "easeOut"
                   }}
                 />
