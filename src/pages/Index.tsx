@@ -15,9 +15,6 @@ import { AdminEditToggle } from "@/components/admin/AdminEditToggle";
 import { AdminEditConfirmDialog } from "@/components/admin/AdminEditConfirmDialog";
 import doctorImage from "@/assets/dr-yousif-hero.jpg";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Link } from "react-router-dom";
-import { Palette } from "lucide-react";
-
 const Index = () => {
   const { language } = useLanguage();
   useScrollAnimation();
@@ -31,15 +28,6 @@ const Index = () => {
       <AdminAccessButton />
       <AdminEditToggle />
       <AdminEditConfirmDialog />
-      
-      {/* Temporary Color Palettes Button */}
-      <Link
-        to="/color-palettes"
-        className="fixed bottom-24 left-4 z-50 flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-primary to-gold text-white rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105"
-      >
-        <Palette className="w-5 h-5" />
-        <span className="font-medium">Voir les Palettes</span>
-      </Link>
       
       {/* 3D Dental Chair Animation with Hero */}
       <div id="home">
