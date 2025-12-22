@@ -32,7 +32,6 @@ const Index = () => {
       <AdminEditToggle />
       <AdminEditConfirmDialog />
       
-      
       {/* 3D Dental Chair Animation with Hero */}
       <div id="home">
         <DentalChair3D />

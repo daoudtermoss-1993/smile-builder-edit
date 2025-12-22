@@ -1,8 +1,7 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HeroContent } from "./HeroContent";
-import { GridTunnel3D } from "./GridTunnel3D";
 import heroVideo from "@/assets/hero-video.mp4";
 
 // Number of frames to extract (more = smoother but heavier)
@@ -37,15 +36,11 @@ export function DentalChair3D() {
   const darkSectionScale = useTransform(scrollYProgress, [0.5, 0.7, 0.9], [1.2, 1.05, 1]);
   
   const [showGrid, setShowGrid] = useState(false);
-  const [tunnelProgress, setTunnelProgress] = useState(0);
   
   // Trigger grid animation when dark overlay is visible
   useEffect(() => {
     const unsubscribe = scrollYProgress.on("change", (progress) => {
       setShowGrid(progress > 0.5);
-      // Map scroll progress 0.5-1.0 to tunnel progress 0-1
-      const tunnelProg = Math.max(0, Math.min(1, (progress - 0.5) * 2));
-      setTunnelProgress(tunnelProg);
     });
     return () => unsubscribe();
   }, [scrollYProgress]);
@@ -174,9 +169,65 @@ export function DentalChair3D() {
           style={{ opacity: darkOverlayOpacity, scale: darkSectionScale }}
         />
         
-        {/* 3D Tunnel Effect with Three.js */}
+        {/* Animated Grid Lines - Bigger squares like Terminal Industries */}
         {showGrid && (
-          <GridTunnel3D progress={tunnelProgress} />
+          <motion.div 
+            className="absolute inset-0 z-[2] pointer-events-none overflow-hidden origin-center"
+            style={{ scale: darkSectionScale }}
+          >
+            {/* Vertical lines - teal accent */}
+            {Array.from({ length: 12 }).map((_, i) => (
+              <motion.div
+                key={`v-${i}`}
+                className="absolute top-0 w-px bg-gradient-to-b from-transparent via-[hsl(175,60%,40%,0.2)] to-transparent"
+                style={{ left: `${(i + 1) * 8}%` }}
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: '100%', opacity: 1 }}
+                transition={{ 
+                  duration: 1.2, 
+                  delay: i * 0.06,
+                  ease: [0.25, 0.46, 0.45, 0.94]
+                }}
+              />
+            ))}
+            
+            {/* Horizontal lines - teal accent */}
+            {Array.from({ length: 8 }).map((_, i) => (
+              <motion.div
+                key={`h-${i}`}
+                className="absolute left-0 h-px bg-gradient-to-r from-transparent via-[hsl(175,60%,40%,0.15)] to-transparent"
+                style={{ top: `${(i + 1) * 11}%` }}
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: '100%', opacity: 1 }}
+                transition={{ 
+                  duration: 1.5, 
+                  delay: 0.3 + i * 0.08,
+                  ease: [0.25, 0.46, 0.45, 0.94]
+                }}
+              />
+            ))}
+            
+            {/* Corner dots at intersections - teal accent */}
+            {Array.from({ length: 6 }).map((_, row) =>
+              Array.from({ length: 10 }).map((_, col) => (
+                <motion.div
+                  key={`dot-${row}-${col}`}
+                  className="absolute w-1 h-1 rounded-full bg-[hsl(175,60%,45%,0.35)]"
+                  style={{ 
+                    top: `${(row + 1) * 14}%`, 
+                    left: `${(col + 1) * 9}%` 
+                  }}
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ 
+                    duration: 0.4, 
+                    delay: 0.8 + (row + col) * 0.04,
+                    ease: "easeOut"
+                  }}
+                />
+              ))
+            )}
+          </motion.div>
         )}
 
         {/* Curved transition at bottom - reduced height */}
