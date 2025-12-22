@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { About } from "@/components/About";
 import { Services } from "@/components/Services";
@@ -10,6 +11,7 @@ import { Chatbot } from "@/components/Chatbot";
 import { DentalChair3D } from "@/components/hero/DentalChair3D";
 import { StatementSection } from "@/components/StatementSection";
 import { WaveSeparator } from "@/components/ui/WaveSeparator";
+import { IntroLoader } from "@/components/IntroLoader";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useVisitorTracking } from "@/hooks/useVisitorTracking";
 import AdminAccessButton from "@/components/AdminAccessButton";
@@ -20,6 +22,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 const Index = () => {
   const { language } = useLanguage();
+  const [introComplete, setIntroComplete] = useState(false);
   useScrollAnimation();
   useVisitorTracking();
   
@@ -27,6 +30,7 @@ const Index = () => {
   
   return (
     <div className="min-h-screen relative bg-background">
+      {!introComplete && <IntroLoader onComplete={() => setIntroComplete(true)} />}
       <Navigation />
       <AdminAccessButton />
       <AdminEditToggle />
