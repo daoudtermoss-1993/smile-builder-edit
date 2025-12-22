@@ -104,31 +104,31 @@ export function IntroLoader({ onComplete }: IntroLoaderProps) {
       br: "bottom-0 right-0",
     };
 
+    // Panneaux du haut montent, panneaux du bas descendent
     const exitAnimations = {
-      tl: { x: "-100%", y: "-100%" },
-      tr: { x: "100%", y: "-100%" },
-      bl: { x: "-100%", y: "100%" },
-      br: { x: "100%", y: "100%" },
+      tl: { y: "-100%" },
+      tr: { y: "-100%" },
+      bl: { y: "100%" },
+      br: { y: "100%" },
     };
 
     const delays = {
       tl: 0,
-      tr: 0.05,
-      bl: 0.08,
-      br: 0.12,
+      tr: 0.02,
+      bl: 0,
+      br: 0.02,
     };
 
     return (
       <motion.div
         className={`absolute ${positionStyles[position]} w-1/2 h-1/2 overflow-hidden`}
         style={{ backgroundColor: "hsl(220 14% 92%)" }}
-        initial={{ x: 0, y: 0 }}
+        initial={{ y: 0 }}
         animate={{ 
-          x: phase === "exit" ? exitAnimations[position].x : 0,
           y: phase === "exit" ? exitAnimations[position].y : 0,
         }}
         transition={{ 
-          duration: 0.7, 
+          duration: 0.8, 
           delay: phase === "exit" ? delays[position] : 0,
           ease: [0.76, 0, 0.24, 1],
         }}
