@@ -10,6 +10,7 @@ import { Chatbot } from "@/components/Chatbot";
 import { DentalChair3D } from "@/components/hero/DentalChair3D";
 import { StatementSection } from "@/components/StatementSection";
 import { WaveSeparator } from "@/components/ui/WaveSeparator";
+import { ScrollDrivenObject } from "@/components/ScrollDrivenObject";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useVisitorTracking } from "@/hooks/useVisitorTracking";
 import AdminAccessButton from "@/components/AdminAccessButton";
@@ -31,6 +32,9 @@ const Index = () => {
       <AdminAccessButton />
       <AdminEditToggle />
       <AdminEditConfirmDialog />
+      
+      {/* Scroll-driven floating tooth that follows user through page */}
+      <ScrollDrivenObject />
       
       {/* 3D Dental Chair Animation with Hero */}
       <div id="home">
