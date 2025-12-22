@@ -169,161 +169,158 @@ export function DentalChair3D() {
           style={{ opacity: darkOverlayOpacity, scale: darkSectionScale }}
         />
         
-        {/* Animated Tooth that travels through Grid Lines */}
+        {/* Camera flying through Grid Lines effect */}
         {showGrid && (
           <motion.div 
-            className="absolute inset-0 z-[2] pointer-events-none overflow-hidden origin-center"
-            style={{ scale: darkSectionScale }}
+            className="absolute inset-0 z-[2] pointer-events-none overflow-hidden"
+            style={{ perspective: '1200px' }}
           >
-            {/* Grid Lines that appear first - Vertical */}
-            {Array.from({ length: 12 }).map((_, i) => (
-              <motion.div
-                key={`v-${i}`}
-                className="absolute top-0 w-px bg-gradient-to-b from-transparent via-[hsl(175,60%,40%,0.3)] to-transparent"
-                style={{ left: `${(i + 1) * 8}%` }}
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: '100%', opacity: 1 }}
-                transition={{ 
-                  duration: 0.8, 
-                  delay: i * 0.03,
-                  ease: [0.25, 0.46, 0.45, 0.94]
-                }}
-              />
-            ))}
-            
-            {/* Grid Lines - Horizontal */}
-            {Array.from({ length: 8 }).map((_, i) => (
-              <motion.div
-                key={`h-${i}`}
-                className="absolute left-0 h-px bg-gradient-to-r from-transparent via-[hsl(175,60%,40%,0.25)] to-transparent"
-                style={{ top: `${(i + 1) * 11}%` }}
-                initial={{ width: 0, opacity: 0 }}
-                animate={{ width: '100%', opacity: 1 }}
-                transition={{ 
-                  duration: 1.0, 
-                  delay: 0.2 + i * 0.04,
-                  ease: [0.25, 0.46, 0.45, 0.94]
-                }}
-              />
-            ))}
-
-            {/* Traveling Tooth that moves through the grid */}
+            {/* 3D Grid container with camera movement */}
             <motion.div
-              className="absolute flex items-center justify-center"
+              className="absolute inset-0 origin-center"
+              style={{ 
+                transformStyle: 'preserve-3d'
+              }}
               initial={{ 
-                top: '50%', 
-                left: '50%', 
-                x: '-50%', 
-                y: '-50%',
-                scale: 0.5,
-                opacity: 0 
+                rotateX: 0,
+                scale: 1
               }}
               animate={{ 
-                top: ['50%', '20%', '30%', '70%', '40%', '80%', '50%'],
-                left: ['50%', '30%', '70%', '20%', '80%', '50%', '50%'],
-                scale: [0.5, 1, 1.2, 0.8, 1.1, 0.9, 0],
-                opacity: [0, 1, 1, 1, 1, 1, 0],
-                rotate: [0, -15, 20, -10, 25, -5, 0]
+                rotateX: [0, 20, 35, 25, 10],
+                scale: [1, 1.2, 1.8, 2.5, 3]
               }}
               transition={{ 
-                duration: 4,
-                delay: 0.5,
-                ease: [0.25, 0.46, 0.45, 0.94],
-                times: [0, 0.15, 0.3, 0.5, 0.7, 0.85, 1]
+                duration: 3.5,
+                delay: 0.3,
+                ease: [0.25, 0.46, 0.45, 0.94]
               }}
             >
-              <svg 
-                viewBox="0 0 100 120" 
-                className="w-20 h-24 md:w-28 md:h-32 drop-shadow-[0_0_15px_hsl(175,60%,50%,0.6)]"
-                fill="none"
-              >
-                {/* Tooth shape with glow */}
-                <motion.path
-                  d="M50 5 C30 5 20 20 20 35 C20 50 25 60 30 75 C32 82 28 95 25 110 C27 115 33 115 35 110 C38 95 42 85 50 85 C58 85 62 95 65 110 C67 115 73 115 75 110 C72 95 68 82 70 75 C75 60 80 50 80 35 C80 20 70 5 50 5Z"
-                  stroke="hsl(175, 60%, 55%)"
-                  strokeWidth="2.5"
-                  fill="hsl(175, 60%, 50%, 0.15)"
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 0.6, ease: "easeOut" }}
-                />
-                {/* Inner tooth detail */}
-                <motion.path
-                  d="M40 30 Q50 25 60 30 Q55 40 50 35 Q45 40 40 30"
-                  stroke="hsl(175, 60%, 45%)"
-                  strokeWidth="1.5"
-                  fill="none"
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 0.4, delay: 0.2 }}
-                />
-              </svg>
-              
-              {/* Trail effect behind the tooth */}
-              <motion.div 
-                className="absolute w-16 h-16 rounded-full bg-[hsl(175,60%,50%,0.2)] blur-xl"
-                animate={{ 
-                  scale: [1, 1.5, 1],
-                  opacity: [0.3, 0.6, 0.3]
-                }}
-                transition={{ 
-                  duration: 1.5, 
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              />
-            </motion.div>
-            
-            {/* Dots at intersections that light up as tooth passes */}
-            {Array.from({ length: 6 }).map((_, row) =>
-              Array.from({ length: 10 }).map((_, col) => (
+              {/* Vertical Lines rushing towards camera */}
+              {Array.from({ length: 20 }).map((_, i) => (
                 <motion.div
-                  key={`dot-${row}-${col}`}
-                  className="absolute w-1.5 h-1.5 rounded-full bg-[hsl(175,60%,50%,0.5)]"
+                  key={`v-${i}`}
+                  className="absolute top-0 h-full bg-gradient-to-b from-[hsl(175,60%,50%,0.1)] via-[hsl(175,60%,45%,0.5)] to-[hsl(175,60%,50%,0.1)]"
                   style={{ 
-                    top: `${(row + 1) * 14}%`, 
-                    left: `${(col + 1) * 9}%` 
+                    left: `${(i + 1) * 5}%`,
+                    width: '2px'
                   }}
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ 
-                    scale: [0, 1.5, 1],
-                    opacity: [0, 1, 0.6]
-                  }}
+                  initial={{ opacity: 0, scaleY: 0 }}
+                  animate={{ opacity: 1, scaleY: 1 }}
                   transition={{ 
                     duration: 0.8, 
-                    delay: 0.8 + (row * 0.15) + (col * 0.08),
+                    delay: i * 0.02,
                     ease: "easeOut"
                   }}
                 />
-              ))
-            )}
+              ))}
+              
+              {/* Horizontal Lines with depth */}
+              {Array.from({ length: 15 }).map((_, i) => (
+                <motion.div
+                  key={`h-${i}`}
+                  className="absolute left-0 w-full bg-gradient-to-r from-[hsl(175,60%,50%,0.1)] via-[hsl(175,60%,40%,0.4)] to-[hsl(175,60%,50%,0.1)]"
+                  style={{ 
+                    top: `${(i + 1) * 6.5}%`,
+                    height: '2px'
+                  }}
+                  initial={{ opacity: 0, scaleX: 0 }}
+                  animate={{ opacity: 1, scaleX: 1 }}
+                  transition={{ 
+                    duration: 0.6, 
+                    delay: 0.1 + i * 0.02,
+                    ease: "easeOut"
+                  }}
+                />
+              ))}
 
-            {/* Sparkle effects along tooth path */}
-            {[
-              { top: '20%', left: '30%', delay: 1.0 },
-              { top: '30%', left: '70%', delay: 1.5 },
-              { top: '70%', left: '20%', delay: 2.2 },
-              { top: '40%', left: '80%', delay: 2.8 },
-              { top: '80%', left: '50%', delay: 3.4 },
-            ].map((pos, i) => (
+              {/* Intersection dots */}
+              {Array.from({ length: 8 }).map((_, row) =>
+                Array.from({ length: 12 }).map((_, col) => (
+                  <motion.div
+                    key={`dot-${row}-${col}`}
+                    className="absolute w-2 h-2 rounded-full bg-[hsl(175,60%,55%)]"
+                    style={{ 
+                      top: `${(row + 1) * 11}%`, 
+                      left: `${(col + 1) * 8}%`
+                    }}
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 0.7 }}
+                    transition={{ 
+                      duration: 0.4, 
+                      delay: 0.3 + (row + col) * 0.02,
+                      ease: "easeOut"
+                    }}
+                  />
+                ))
+              )}
+            </motion.div>
+
+            {/* Speed lines rushing effect */}
+            <motion.div
+              className="absolute inset-0 pointer-events-none"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 1, 1, 0] }}
+              transition={{ duration: 3, delay: 1 }}
+            >
+              {Array.from({ length: 12 }).map((_, i) => (
+                <motion.div
+                  key={`speed-${i}`}
+                  className="absolute h-[2px] bg-gradient-to-r from-transparent via-[hsl(175,60%,60%,0.8)] to-transparent"
+                  style={{
+                    top: `${10 + i * 7}%`,
+                    left: '0',
+                    right: '0'
+                  }}
+                  initial={{ scaleX: 0, x: '-50%' }}
+                  animate={{ 
+                    scaleX: [0, 1.5, 2],
+                    x: ['-50%', '0%', '50%']
+                  }}
+                  transition={{
+                    duration: 1.2,
+                    delay: 1.5 + i * 0.06,
+                    ease: "easeIn"
+                  }}
+                />
+              ))}
+            </motion.div>
+
+            {/* Vignette tunnel effect */}
+            <motion.div
+              className="absolute inset-0 pointer-events-none"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 2, delay: 1 }}
+              style={{
+                background: 'radial-gradient(ellipse at center, transparent 20%, hsl(180,35%,8%) 80%)'
+              }}
+            />
+
+            {/* Light particles flying past */}
+            {Array.from({ length: 20 }).map((_, i) => (
               <motion.div
-                key={`sparkle-${i}`}
-                className="absolute w-3 h-3"
-                style={{ top: pos.top, left: pos.left }}
-                initial={{ scale: 0, opacity: 0 }}
+                key={`particle-${i}`}
+                className="absolute w-1 h-8 md:h-12 rounded-full bg-gradient-to-b from-[hsl(175,60%,60%)] to-transparent"
+                style={{ 
+                  top: `${Math.random() * 80 + 10}%`,
+                  left: `${Math.random() * 80 + 10}%`
+                }}
+                initial={{ 
+                  opacity: 0,
+                  scale: 0,
+                  y: 0
+                }}
                 animate={{ 
-                  scale: [0, 1.5, 0],
-                  opacity: [0, 1, 0]
+                  opacity: [0, 1, 0],
+                  scale: [0.5, 2, 3],
+                  y: ['0%', '200%']
                 }}
                 transition={{ 
-                  duration: 0.6,
-                  delay: pos.delay,
-                  ease: "easeOut"
+                  duration: 1.5,
+                  delay: 1.2 + i * 0.1,
+                  ease: "easeIn"
                 }}
-              >
-                <div className="absolute inset-0 bg-[hsl(175,60%,60%)] rounded-full blur-sm" />
-                <div className="absolute inset-1 bg-white rounded-full" />
-              </motion.div>
+              />
             ))}
           </motion.div>
         )}
