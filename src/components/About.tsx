@@ -74,8 +74,7 @@ export const About = ({
   
   return (
     <>
-      {/* Transition from dark hero to light section */}
-      <SectionTransition variant="dark-to-white" />
+      {/* Removed SectionTransition - hero already has curved transition */}
       
       <section className="py-20 overflow-hidden relative bg-background">
         <div className="container mx-auto px-4 relative z-10">
