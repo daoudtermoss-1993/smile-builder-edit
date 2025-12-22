@@ -8,6 +8,7 @@ import { CTASection } from "@/components/CTASection";
 import { Footer } from "@/components/Footer";
 import { Chatbot } from "@/components/Chatbot";
 import { DentalChair3D } from "@/components/hero/DentalChair3D";
+import { StatementSection } from "@/components/StatementSection";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useVisitorTracking } from "@/hooks/useVisitorTracking";
 import AdminAccessButton from "@/components/AdminAccessButton";
@@ -34,6 +35,9 @@ const Index = () => {
       <div id="home">
         <DentalChair3D />
       </div>
+      
+      {/* Statement Section */}
+      <StatementSection />
       
       <div id="about">
         <About
