@@ -31,6 +31,10 @@ export function DentalChair3D() {
   const darkOverlayOpacity = useTransform(scrollYProgress, [0.45, 0.65], [0, 1]);
   const gridOpacity = useTransform(scrollYProgress, [0.5, 0.7], [0, 1]);
   const gridLineProgress = useTransform(scrollYProgress, [0.55, 0.85], [0, 1]);
+  
+  // Zoom effect: zoom in first, then zoom out
+  const darkSectionScale = useTransform(scrollYProgress, [0.5, 0.7, 0.9], [1.2, 1.05, 1]);
+  
   const [showGrid, setShowGrid] = useState(false);
   
   // Trigger grid animation when dark overlay is visible
@@ -159,91 +163,94 @@ export function DentalChair3D() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/50" />
         </motion.div>
 
-        {/* Dark overlay with grid pattern - appears at end like Terminal Industries */}
+        {/* Dark overlay with grid pattern - with zoom effect */}
         <motion.div 
-          className="absolute inset-0 z-[1] bg-[#0a0a0a]"
-          style={{ opacity: darkOverlayOpacity }}
+          className="absolute inset-0 z-[1] bg-[#0a0a0a] origin-center"
+          style={{ opacity: darkOverlayOpacity, scale: darkSectionScale }}
         />
         
-        {/* Animated Grid Lines */}
+        {/* Animated Grid Lines - Bigger squares like Terminal Industries */}
         {showGrid && (
-          <div className="absolute inset-0 z-[2] pointer-events-none overflow-hidden">
-            {/* Vertical lines with staggered animation */}
-            {Array.from({ length: 20 }).map((_, i) => (
+          <motion.div 
+            className="absolute inset-0 z-[2] pointer-events-none overflow-hidden origin-center"
+            style={{ scale: darkSectionScale }}
+          >
+            {/* Vertical lines - fewer for bigger squares */}
+            {Array.from({ length: 12 }).map((_, i) => (
               <motion.div
                 key={`v-${i}`}
-                className="absolute top-0 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent"
-                style={{ left: `${(i + 1) * 5}%` }}
+                className="absolute top-0 w-px bg-gradient-to-b from-transparent via-white/15 to-transparent"
+                style={{ left: `${(i + 1) * 8}%` }}
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: '100%', opacity: 1 }}
                 transition={{ 
                   duration: 1.2, 
-                  delay: i * 0.05,
+                  delay: i * 0.06,
                   ease: [0.25, 0.46, 0.45, 0.94]
                 }}
               />
             ))}
             
-            {/* Horizontal lines with staggered animation */}
-            {Array.from({ length: 12 }).map((_, i) => (
+            {/* Horizontal lines - fewer for bigger squares */}
+            {Array.from({ length: 8 }).map((_, i) => (
               <motion.div
                 key={`h-${i}`}
-                className="absolute left-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent"
-                style={{ top: `${(i + 1) * 8}%` }}
+                className="absolute left-0 h-px bg-gradient-to-r from-transparent via-white/12 to-transparent"
+                style={{ top: `${(i + 1) * 11}%` }}
                 initial={{ width: 0, opacity: 0 }}
                 animate={{ width: '100%', opacity: 1 }}
                 transition={{ 
                   duration: 1.5, 
-                  delay: 0.3 + i * 0.06,
+                  delay: 0.3 + i * 0.08,
                   ease: [0.25, 0.46, 0.45, 0.94]
                 }}
               />
             ))}
             
-            {/* Corner dots at intersections */}
-            {Array.from({ length: 8 }).map((_, row) =>
-              Array.from({ length: 12 }).map((_, col) => (
+            {/* Corner dots at intersections - fewer, matching grid */}
+            {Array.from({ length: 6 }).map((_, row) =>
+              Array.from({ length: 10 }).map((_, col) => (
                 <motion.div
                   key={`dot-${row}-${col}`}
-                  className="absolute w-1 h-1 rounded-full bg-white/30"
+                  className="absolute w-1 h-1 rounded-full bg-white/25"
                   style={{ 
-                    top: `${(row + 1) * 11}%`, 
-                    left: `${(col + 1) * 7.5}%` 
+                    top: `${(row + 1) * 14}%`, 
+                    left: `${(col + 1) * 9}%` 
                   }}
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ 
                     duration: 0.4, 
-                    delay: 0.8 + (row + col) * 0.03,
+                    delay: 0.8 + (row + col) * 0.04,
                     ease: "easeOut"
                   }}
                 />
               ))
             )}
-          </div>
+          </motion.div>
         )}
 
-        {/* Curved transition at bottom - like Terminal Industries */}
+        {/* Curved transition at bottom - reduced height */}
         <motion.div 
-          className="absolute bottom-0 left-0 right-0 z-[3] h-36"
+          className="absolute bottom-0 left-0 right-0 z-[3] h-16"
           style={{ opacity: darkOverlayOpacity }}
         >
           <svg 
-            viewBox="0 0 1440 144" 
+            viewBox="0 0 1440 64" 
             fill="none" 
             className="absolute bottom-0 w-full h-full"
             preserveAspectRatio="none"
           >
-            {/* Curved shape - rounded bubble rising from bottom */}
+            {/* Curved shape - smaller height */}
             <path 
-              d="M0 144V144H120C120 144 150 144 180 110C210 76 250 40 320 40H1120C1190 40 1230 76 1260 110C1290 144 1320 144 1320 144H1440V144H0Z" 
+              d="M0 64V64H160C160 64 180 64 200 48C220 32 250 20 300 20H1140C1190 20 1220 32 1240 48C1260 64 1280 64 1280 64H1440V64H0Z" 
               fill="hsl(var(--background))"
             />
             {/* Top curve border */}
             <path 
-              d="M120 144C120 144 150 144 180 110C210 76 250 40 320 40H1120C1190 40 1230 76 1260 110C1290 144 1320 144 1320 144" 
+              d="M160 64C160 64 180 64 200 48C220 32 250 20 300 20H1140C1190 20 1220 32 1240 48C1260 64 1280 64 1280 64" 
               stroke="hsl(var(--border))"
-              strokeWidth="1.5"
+              strokeWidth="1"
               fill="none"
             />
           </svg>
