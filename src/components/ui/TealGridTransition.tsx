@@ -20,7 +20,7 @@ export function TealGridTransition({ className = "" }: TealGridTransitionProps) 
   return (
     <div 
       ref={containerRef}
-      className={`relative h-[30vh] w-full overflow-hidden ${className}`}
+      className={`relative h-[50vh] w-full overflow-hidden ${className}`}
     >
       {/* Teal dark background */}
       <motion.div 
