@@ -163,9 +163,9 @@ export function DentalChair3D() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/50" />
         </motion.div>
 
-        {/* Dark overlay with grid pattern - with zoom effect */}
+        {/* Dark overlay with grid pattern - with zoom effect - Teal themed */}
         <motion.div 
-          className="absolute inset-0 z-[1] bg-[#0a0a0a] origin-center"
+          className="absolute inset-0 z-[1] bg-[hsl(180,35%,8%)] origin-center"
           style={{ opacity: darkOverlayOpacity, scale: darkSectionScale }}
         />
         
@@ -175,11 +175,11 @@ export function DentalChair3D() {
             className="absolute inset-0 z-[2] pointer-events-none overflow-hidden origin-center"
             style={{ scale: darkSectionScale }}
           >
-            {/* Vertical lines - fewer for bigger squares */}
+            {/* Vertical lines - teal accent */}
             {Array.from({ length: 12 }).map((_, i) => (
               <motion.div
                 key={`v-${i}`}
-                className="absolute top-0 w-px bg-gradient-to-b from-transparent via-white/15 to-transparent"
+                className="absolute top-0 w-px bg-gradient-to-b from-transparent via-[hsl(175,60%,40%,0.2)] to-transparent"
                 style={{ left: `${(i + 1) * 8}%` }}
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: '100%', opacity: 1 }}
@@ -191,11 +191,11 @@ export function DentalChair3D() {
               />
             ))}
             
-            {/* Horizontal lines - fewer for bigger squares */}
+            {/* Horizontal lines - teal accent */}
             {Array.from({ length: 8 }).map((_, i) => (
               <motion.div
                 key={`h-${i}`}
-                className="absolute left-0 h-px bg-gradient-to-r from-transparent via-white/12 to-transparent"
+                className="absolute left-0 h-px bg-gradient-to-r from-transparent via-[hsl(175,60%,40%,0.15)] to-transparent"
                 style={{ top: `${(i + 1) * 11}%` }}
                 initial={{ width: 0, opacity: 0 }}
                 animate={{ width: '100%', opacity: 1 }}
@@ -207,12 +207,12 @@ export function DentalChair3D() {
               />
             ))}
             
-            {/* Corner dots at intersections - fewer, matching grid */}
+            {/* Corner dots at intersections - teal accent */}
             {Array.from({ length: 6 }).map((_, row) =>
               Array.from({ length: 10 }).map((_, col) => (
                 <motion.div
                   key={`dot-${row}-${col}`}
-                  className="absolute w-1 h-1 rounded-full bg-white/25"
+                  className="absolute w-1 h-1 rounded-full bg-[hsl(175,60%,45%,0.35)]"
                   style={{ 
                     top: `${(row + 1) * 14}%`, 
                     left: `${(col + 1) * 9}%` 
