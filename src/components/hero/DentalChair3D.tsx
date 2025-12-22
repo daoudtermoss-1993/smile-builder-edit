@@ -225,25 +225,25 @@ export function DentalChair3D() {
 
         {/* Curved transition at bottom - like Terminal Industries */}
         <motion.div 
-          className="absolute bottom-0 left-0 right-0 z-[3] h-32"
+          className="absolute bottom-0 left-0 right-0 z-[3] h-20"
           style={{ opacity: darkOverlayOpacity }}
         >
           <svg 
-            viewBox="0 0 1440 128" 
+            viewBox="0 0 1440 80" 
             fill="none" 
             className="absolute bottom-0 w-full h-full"
             preserveAspectRatio="none"
           >
-            {/* Curved shape like Terminal Industries */}
+            {/* Curved shape - rounded bubble rising from bottom like Terminal Industries */}
             <path 
-              d="M0 128V64C0 64 200 128 720 128C1240 128 1440 64 1440 64V128H0Z" 
+              d="M0 80V80H160C160 80 180 80 200 60C220 40 240 20 280 20H1160C1200 20 1220 40 1240 60C1260 80 1280 80 1280 80H1440V80H0Z" 
               fill="hsl(var(--background))"
             />
-            {/* Subtle border line on top of curve */}
+            {/* Top curve border */}
             <path 
-              d="M0 64C0 64 200 128 720 128C1240 128 1440 64 1440 64" 
+              d="M160 80C160 80 180 80 200 60C220 40 240 20 280 20H1160C1200 20 1220 40 1240 60C1260 80 1280 80 1280 80" 
               stroke="hsl(var(--border))"
-              strokeWidth="1"
+              strokeWidth="1.5"
               fill="none"
             />
           </svg>
