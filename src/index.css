@@ -10,11 +10,11 @@
   animation: gradient-shift 3s ease infinite;
 }
 
-/* Dark section text overrides for immersive 3D background */
-section .text-foreground {
+/* Dark section text overrides ONLY for hero section */
+#home section .text-foreground {
   color: white !important;
 }
-section .text-muted-foreground {
+#home section .text-muted-foreground {
   color: rgba(255, 255, 255, 0.7) !important;
 }
 

@@ -53,7 +53,7 @@ export function HeroContent({ onBookClick, onContactClick }: HeroContentProps) {
   return (
     <div className="relative z-10 container mx-auto px-4 text-center">
       
-      {/* Main title with gradient - white/teal for dark background */}
+      {/* Main title with gradient - Dr. Yousif German in teal */}
       <motion.h1 
         className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 tracking-tight"
         initial={{ opacity: 0, y: 30 }}
@@ -65,7 +65,7 @@ export function HeroContent({ onBookClick, onContactClick }: HeroContentProps) {
           field="title" 
           defaultValue={t('heroTitle')}
           as="span"
-          className="bg-gradient-to-r from-white via-[hsl(180,100%,70%)] to-white bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient drop-shadow-[0_0_30px_rgba(0,180,180,0.4)]"
+          className="text-[hsl(175,85%,35%)] drop-shadow-[0_0_30px_rgba(0,180,180,0.4)]"
         />
       </motion.h1>
       
@@ -93,7 +93,7 @@ export function HeroContent({ onBookClick, onContactClick }: HeroContentProps) {
       >
         <button 
           onClick={handlePlayDoctorInfo}
-          className="group relative overflow-hidden px-8 py-4 bg-[hsl(180,100%,40%)] text-white rounded-full font-semibold text-lg shadow-lg shadow-[hsl(180,100%,40%)]/40 hover:shadow-xl hover:shadow-[hsl(180,100%,40%)]/50 transition-all duration-300 hover:scale-105 backdrop-blur-sm"
+          className="group relative overflow-hidden px-8 py-4 bg-[hsl(175,85%,35%)] text-white rounded-full font-semibold text-lg shadow-lg shadow-[hsl(175,85%,35%)]/40 hover:shadow-xl hover:shadow-[hsl(175,85%,35%)]/50 transition-all duration-300 hover:scale-105 backdrop-blur-sm"
         >
           <span className="relative z-10 inline-flex items-center gap-2">
             {isPlaying ? (
@@ -105,7 +105,7 @@ export function HeroContent({ onBookClick, onContactClick }: HeroContentProps) {
               ? (language === 'ar' ? 'إيقاف' : 'Stop') 
               : (language === 'ar' ? 'عن الدكتور' : 'About Dr.')}
           </span>
-          <div className="absolute inset-0 bg-gradient-to-r from-[hsl(180,100%,45%)] via-[hsl(180,100%,50%)] to-[hsl(180,100%,45%)] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="absolute inset-0 bg-[hsl(175,85%,40%)] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </button>
         
         <button 
