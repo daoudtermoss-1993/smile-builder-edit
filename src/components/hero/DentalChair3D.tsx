@@ -29,7 +29,17 @@ export function DentalChair3D() {
   
   // Dark overlay that appears at the end
   const darkOverlayOpacity = useTransform(scrollYProgress, [0.5, 0.85], [0, 1]);
-  const gridOpacity = useTransform(scrollYProgress, [0.6, 0.9], [0, 0.3]);
+  const gridOpacity = useTransform(scrollYProgress, [0.6, 0.9], [0, 1]);
+  const gridLineProgress = useTransform(scrollYProgress, [0.65, 1], [0, 1]);
+  const [showGrid, setShowGrid] = useState(false);
+  
+  // Trigger grid animation when dark overlay is visible
+  useEffect(() => {
+    const unsubscribe = scrollYProgress.on("change", (progress) => {
+      setShowGrid(progress > 0.6);
+    });
+    return () => unsubscribe();
+  }, [scrollYProgress]);
 
   // Extract frames from video using canvas
   useEffect(() => {
@@ -155,33 +165,86 @@ export function DentalChair3D() {
           style={{ opacity: darkOverlayOpacity }}
         />
         
-        {/* Grid pattern overlay */}
-        <motion.div 
-          className="absolute inset-0 z-[2] pointer-events-none"
-          style={{ 
-            opacity: gridOpacity,
-            backgroundImage: `
-              linear-gradient(to right, rgba(255,255,255,0.08) 1px, transparent 1px),
-              linear-gradient(to bottom, rgba(255,255,255,0.08) 1px, transparent 1px)
-            `,
-            backgroundSize: '80px 80px'
-          }}
-        />
+        {/* Animated Grid Lines */}
+        {showGrid && (
+          <div className="absolute inset-0 z-[2] pointer-events-none overflow-hidden">
+            {/* Vertical lines with staggered animation */}
+            {Array.from({ length: 20 }).map((_, i) => (
+              <motion.div
+                key={`v-${i}`}
+                className="absolute top-0 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent"
+                style={{ left: `${(i + 1) * 5}%` }}
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: '100%', opacity: 1 }}
+                transition={{ 
+                  duration: 1.2, 
+                  delay: i * 0.05,
+                  ease: [0.25, 0.46, 0.45, 0.94]
+                }}
+              />
+            ))}
+            
+            {/* Horizontal lines with staggered animation */}
+            {Array.from({ length: 12 }).map((_, i) => (
+              <motion.div
+                key={`h-${i}`}
+                className="absolute left-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent"
+                style={{ top: `${(i + 1) * 8}%` }}
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: '100%', opacity: 1 }}
+                transition={{ 
+                  duration: 1.5, 
+                  delay: 0.3 + i * 0.06,
+                  ease: [0.25, 0.46, 0.45, 0.94]
+                }}
+              />
+            ))}
+            
+            {/* Corner dots at intersections */}
+            {Array.from({ length: 8 }).map((_, row) =>
+              Array.from({ length: 12 }).map((_, col) => (
+                <motion.div
+                  key={`dot-${row}-${col}`}
+                  className="absolute w-1 h-1 rounded-full bg-white/30"
+                  style={{ 
+                    top: `${(row + 1) * 11}%`, 
+                    left: `${(col + 1) * 7.5}%` 
+                  }}
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ 
+                    duration: 0.4, 
+                    delay: 0.8 + (row + col) * 0.03,
+                    ease: "easeOut"
+                  }}
+                />
+              ))
+            )}
+          </div>
+        )}
 
-        {/* Curved transition at bottom */}
+        {/* Curved transition at bottom - like Terminal Industries */}
         <motion.div 
-          className="absolute bottom-0 left-0 right-0 z-[3] h-24"
+          className="absolute bottom-0 left-0 right-0 z-[3] h-32"
           style={{ opacity: darkOverlayOpacity }}
         >
           <svg 
-            viewBox="0 0 1440 96" 
+            viewBox="0 0 1440 128" 
             fill="none" 
             className="absolute bottom-0 w-full h-full"
             preserveAspectRatio="none"
           >
+            {/* Curved shape like Terminal Industries */}
             <path 
-              d="M0 96V0C240 64 480 96 720 96C960 96 1200 64 1440 0V96H0Z" 
+              d="M0 128V64C0 64 200 128 720 128C1240 128 1440 64 1440 64V128H0Z" 
               fill="hsl(var(--background))"
+            />
+            {/* Subtle border line on top of curve */}
+            <path 
+              d="M0 64C0 64 200 128 720 128C1240 128 1440 64 1440 64" 
+              stroke="hsl(var(--border))"
+              strokeWidth="1"
+              fill="none"
             />
           </svg>
         </motion.div>
