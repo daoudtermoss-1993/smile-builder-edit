@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HeroContent } from "./HeroContent";
@@ -8,43 +8,79 @@ export function DentalChair3D() {
   const { language } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [isVideoReady, setIsVideoReady] = useState(false);
+  const rafRef = useRef<number>();
+  const targetTimeRef = useRef(0);
   
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start start", "end start"]
+    offset: ["start start", "end end"]
   });
 
   // Parallax and fade effects
-  const videoScale = useTransform(scrollYProgress, [0, 0.5], [1, 1.3]);
-  const videoOpacity = useTransform(scrollYProgress, [0, 0.9], [1, 0]);
-  const contentY = useTransform(scrollYProgress, [0, 0.5], [0, -100]);
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
+  const videoScale = useTransform(scrollYProgress, [0, 0.8], [1, 1.2]);
+  const videoOpacity = useTransform(scrollYProgress, [0.7, 1], [1, 0]);
+  const contentY = useTransform(scrollYProgress, [0, 0.3], [0, -100]);
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
 
-  // Scroll-driven video playback
+  // Smooth scroll-driven video playback with RAF
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    // Wait for video metadata to load
     const handleLoadedMetadata = () => {
       video.pause();
       video.currentTime = 0;
+      setIsVideoReady(true);
     };
 
     video.addEventListener('loadedmetadata', handleLoadedMetadata);
-
-    const unsubscribe = scrollYProgress.on("change", (progress) => {
-      if (video.duration) {
-        // Map scroll progress to video time
-        video.currentTime = progress * video.duration;
-      }
-    });
+    
+    // If already loaded
+    if (video.readyState >= 1) {
+      handleLoadedMetadata();
+    }
 
     return () => {
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      unsubscribe();
     };
-  }, [scrollYProgress]);
+  }, []);
+
+  // Smooth animation loop for video scrubbing
+  useEffect(() => {
+    if (!isVideoReady) return;
+    
+    const video = videoRef.current;
+    if (!video || !video.duration) return;
+
+    const smoothUpdate = () => {
+      if (video && video.duration) {
+        const currentTime = video.currentTime;
+        const diff = targetTimeRef.current - currentTime;
+        
+        // Lerp for smooth transition
+        if (Math.abs(diff) > 0.01) {
+          video.currentTime = currentTime + diff * 0.15;
+        }
+      }
+      rafRef.current = requestAnimationFrame(smoothUpdate);
+    };
+
+    const unsubscribe = scrollYProgress.on("change", (progress) => {
+      if (video.duration) {
+        targetTimeRef.current = progress * video.duration;
+      }
+    });
+
+    rafRef.current = requestAnimationFrame(smoothUpdate);
+
+    return () => {
+      unsubscribe();
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, [isVideoReady, scrollYProgress]);
 
   const scrollToBooking = () => {
     document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' });
@@ -57,7 +93,7 @@ export function DentalChair3D() {
   return (
     <section 
       ref={containerRef}
-      className="relative h-[250vh] w-full"
+      className="relative h-[500vh] w-full"
     >
       {/* Sticky video container */}
       <div className="sticky top-0 h-screen w-full overflow-hidden">
