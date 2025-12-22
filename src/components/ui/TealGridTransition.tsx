@@ -14,8 +14,9 @@ export function TealGridTransition({ className = "" }: TealGridTransitionProps) 
     offset: ["start end", "end start"]
   });
 
-  const opacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 1, 1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [1.1, 1, 1.1]);
+  // Hold full opacity longer before fading out
+  const opacity = useTransform(scrollYProgress, [0, 0.15, 0.85, 1], [0, 1, 1, 0]);
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [1.05, 1, 1.05]);
 
   return (
     <div 
