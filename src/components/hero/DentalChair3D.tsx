@@ -121,7 +121,7 @@ export function DentalChair3D() {
   return (
     <section 
       ref={containerRef}
-      className="relative h-[300vh] w-full"
+      className="relative h-[200vh] w-full"
     >
       {/* Sticky container */}
       <div className="sticky top-0 h-screen w-full overflow-hidden">
