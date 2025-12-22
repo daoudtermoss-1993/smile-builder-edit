@@ -8,6 +8,7 @@ import { CTASection } from "@/components/CTASection";
 import { Footer } from "@/components/Footer";
 import { Chatbot } from "@/components/Chatbot";
 import { DentalChair3D } from "@/components/hero/DentalChair3D";
+import { TealGridTransition } from "@/components/ui/TealGridTransition";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useVisitorTracking } from "@/hooks/useVisitorTracking";
 import AdminAccessButton from "@/components/AdminAccessButton";
@@ -15,6 +16,7 @@ import { AdminEditToggle } from "@/components/admin/AdminEditToggle";
 import { AdminEditConfirmDialog } from "@/components/admin/AdminEditConfirmDialog";
 import doctorImage from "@/assets/dr-yousif-hero.jpg";
 import { useLanguage } from "@/contexts/LanguageContext";
+
 const Index = () => {
   const { language } = useLanguage();
   useScrollAnimation();
@@ -49,17 +51,25 @@ const Index = () => {
         />
       </div>
       
+      <TealGridTransition />
+      
       <div id="services">
         <Services />
       </div>
+      
+      <TealGridTransition />
       
       <div id="gallery">
         <BeforeAfter />
       </div>
       
+      <TealGridTransition />
+      
       <div id="booking">
         <Booking />
       </div>
+      
+      <TealGridTransition />
       
       <div id="contact">
         <ContactMap
@@ -69,6 +79,8 @@ const Index = () => {
           hours="Sat-Thu: 9AM-8PM"
         />
       </div>
+      
+      <TealGridTransition />
       
       <CTASection />
       <Footer />
