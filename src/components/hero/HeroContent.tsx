@@ -4,7 +4,7 @@ import { EditableText } from "@/components/admin/EditableText";
 import { motion } from "framer-motion";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
-import drGermanIntro from "@/assets/dr-german-intro.mp3";
+import heroAudio from "@/assets/hero-audio.mp3";
 
 interface HeroContentProps {
   onBookClick: () => void;
@@ -30,7 +30,7 @@ export function HeroContent({ onBookClick, onContactClick }: HeroContentProps) {
         audioRef.current.pause();
       }
       
-      const audio = new Audio(drGermanIntro);
+      const audio = new Audio(heroAudio);
       audioRef.current = audio;
       
       audio.onended = () => {
