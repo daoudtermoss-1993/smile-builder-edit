@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HeroContent } from "./HeroContent";
@@ -7,6 +7,7 @@ import heroVideo from "@/assets/hero-video.mp4";
 export function DentalChair3D() {
   const { language } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -14,10 +15,36 @@ export function DentalChair3D() {
   });
 
   // Parallax and fade effects
-  const videoScale = useTransform(scrollYProgress, [0, 0.5], [1, 1.2]);
-  const videoOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+  const videoScale = useTransform(scrollYProgress, [0, 0.5], [1, 1.3]);
+  const videoOpacity = useTransform(scrollYProgress, [0, 0.9], [1, 0]);
   const contentY = useTransform(scrollYProgress, [0, 0.5], [0, -100]);
   const contentOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
+
+  // Scroll-driven video playback
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    // Wait for video metadata to load
+    const handleLoadedMetadata = () => {
+      video.pause();
+      video.currentTime = 0;
+    };
+
+    video.addEventListener('loadedmetadata', handleLoadedMetadata);
+
+    const unsubscribe = scrollYProgress.on("change", (progress) => {
+      if (video.duration) {
+        // Map scroll progress to video time
+        video.currentTime = progress * video.duration;
+      }
+    });
+
+    return () => {
+      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      unsubscribe();
+    };
+  }, [scrollYProgress]);
 
   const scrollToBooking = () => {
     document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' });
@@ -30,7 +57,7 @@ export function DentalChair3D() {
   return (
     <section 
       ref={containerRef}
-      className="relative h-[150vh] w-full"
+      className="relative h-[250vh] w-full"
     >
       {/* Sticky video container */}
       <div className="sticky top-0 h-screen w-full overflow-hidden">
@@ -40,10 +67,10 @@ export function DentalChair3D() {
           style={{ scale: videoScale, opacity: videoOpacity }}
         >
           <video
-            autoPlay
+            ref={videoRef}
             muted
-            loop
             playsInline
+            preload="auto"
             className="w-full h-full object-cover"
           >
             <source src={heroVideo} type="video/mp4" />
