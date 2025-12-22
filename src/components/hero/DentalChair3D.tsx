@@ -5,7 +5,7 @@ import { HeroContent } from "./HeroContent";
 import heroVideo from "@/assets/hero-video.mp4";
 
 // Number of frames to extract (more = smoother but heavier)
-const FRAME_COUNT = 60;
+const FRAME_COUNT = 90;
 
 export function DentalChair3D() {
   const { language } = useLanguage();
