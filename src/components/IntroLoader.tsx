@@ -105,11 +105,13 @@ export function IntroLoader({ onComplete }: IntroLoaderProps) {
     };
 
     // Panneaux du haut montent, panneaux du bas descendent
+    // (comme une "fente" centrale, pas un départ complet de l'écran)
+    const openOffset = 120;
     const exitAnimations = {
-      tl: { y: "-100%" },
-      tr: { y: "-100%" },
-      bl: { y: "100%" },
-      br: { y: "100%" },
+      tl: { y: -openOffset },
+      tr: { y: -openOffset },
+      bl: { y: openOffset },
+      br: { y: openOffset },
     };
 
     const delays = {
@@ -119,20 +121,20 @@ export function IntroLoader({ onComplete }: IntroLoaderProps) {
       br: 0.02,
     };
 
-    // Configuration des demi-cercles sur les bords intérieurs
+    // Demi-cercles sur les bords EXTÉRIEURS (gauche/droite), au niveau de la fente centrale
     const isTop = position === "tl" || position === "tr";
-    const isLeft = position === "tl" || position === "bl";
+    const isLeftSide = position === "tl" || position === "bl";
 
     return (
       <motion.div
         className={`absolute ${positionStyles[position]} w-1/2 h-1/2 overflow-hidden`}
         style={{ backgroundColor: "hsl(220 14% 92%)" }}
         initial={{ y: 0 }}
-        animate={{ 
+        animate={{
           y: phase === "exit" ? exitAnimations[position].y : 0,
         }}
-        transition={{ 
-          duration: 0.8, 
+        transition={{
+          duration: 0.8,
           delay: phase === "exit" ? delays[position] : 0,
           ease: [0.76, 0, 0.24, 1],
         }}
@@ -140,15 +142,18 @@ export function IntroLoader({ onComplete }: IntroLoaderProps) {
         {/* Corner lines for this quadrant */}
         <CornerLine position={position} delay={delays[position]} />
         <InnerCornerLine position={position} delay={delays[position]} />
-        
-        {/* Demi-cercle sur le bord intérieur horizontal (centre vertical) */}
-        <div 
-          className={`absolute ${isLeft ? "right-0 translate-x-1/2" : "left-0 -translate-x-1/2"} ${isTop ? "bottom-0 translate-y-1/2" : "top-0 -translate-y-1/2"}`}
+
+        {/* Découpe arrondie (se voit comme un demi-cercle à gauche/droite) */}
+        <div
+          className={`absolute ${
+            isLeftSide ? "left-0 -translate-x-1/2" : "right-0 translate-x-1/2"
+          } ${isTop ? "bottom-0 translate-y-1/2" : "top-0 -translate-y-1/2"}`}
           style={{
-            width: "80px",
-            height: "80px",
-            backgroundColor: "hsl(220 14% 92%)",
-            borderRadius: "50%",
+            width: "104px",
+            height: "104px",
+            backgroundColor: "hsl(var(--background))",
+            borderRadius: "9999px",
+            boxShadow: "inset 0 0 0 1px hsl(220 10% 82%)",
           }}
         />
       </motion.div>
