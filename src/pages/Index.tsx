@@ -9,6 +9,7 @@ import { Footer } from "@/components/Footer";
 import { Chatbot } from "@/components/Chatbot";
 import { DentalChair3D } from "@/components/hero/DentalChair3D";
 import { StatementSection } from "@/components/StatementSection";
+import { WaveSeparator } from "@/components/ui/WaveSeparator";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useVisitorTracking } from "@/hooks/useVisitorTracking";
 import AdminAccessButton from "@/components/AdminAccessButton";
@@ -38,6 +39,9 @@ const Index = () => {
       
       {/* Statement Section */}
       <StatementSection />
+      
+      {/* Wave separator after hero/statement */}
+      <WaveSeparator variant="white-to-dark" />
       
       <div id="about">
         <About
