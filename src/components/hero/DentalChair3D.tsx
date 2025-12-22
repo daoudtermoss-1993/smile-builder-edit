@@ -23,9 +23,13 @@ export function DentalChair3D() {
 
   // Parallax and fade effects
   const imageScale = useTransform(scrollYProgress, [0, 0.8], [1, 1.15]);
-  const imageOpacity = useTransform(scrollYProgress, [0.85, 1], [1, 0]);
+  const imageOpacity = useTransform(scrollYProgress, [0.6, 0.85], [1, 0]);
   const contentY = useTransform(scrollYProgress, [0, 0.25], [0, -80]);
   const contentOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+  
+  // Dark overlay that appears at the end
+  const darkOverlayOpacity = useTransform(scrollYProgress, [0.5, 0.85], [0, 1]);
+  const gridOpacity = useTransform(scrollYProgress, [0.6, 0.9], [0, 0.3]);
 
   // Extract frames from video using canvas
   useEffect(() => {
@@ -143,6 +147,43 @@ export function DentalChair3D() {
           
           {/* Subtle overlay for text readability */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/50" />
+        </motion.div>
+
+        {/* Dark overlay with grid pattern - appears at end like Terminal Industries */}
+        <motion.div 
+          className="absolute inset-0 z-[1] bg-[#0a0a0a]"
+          style={{ opacity: darkOverlayOpacity }}
+        />
+        
+        {/* Grid pattern overlay */}
+        <motion.div 
+          className="absolute inset-0 z-[2] pointer-events-none"
+          style={{ 
+            opacity: gridOpacity,
+            backgroundImage: `
+              linear-gradient(to right, rgba(255,255,255,0.08) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(255,255,255,0.08) 1px, transparent 1px)
+            `,
+            backgroundSize: '80px 80px'
+          }}
+        />
+
+        {/* Curved transition at bottom */}
+        <motion.div 
+          className="absolute bottom-0 left-0 right-0 z-[3] h-24"
+          style={{ opacity: darkOverlayOpacity }}
+        >
+          <svg 
+            viewBox="0 0 1440 96" 
+            fill="none" 
+            className="absolute bottom-0 w-full h-full"
+            preserveAspectRatio="none"
+          >
+            <path 
+              d="M0 96V0C240 64 480 96 720 96C960 96 1200 64 1440 0V96H0Z" 
+              fill="hsl(var(--background))"
+            />
+          </svg>
         </motion.div>
 
         {/* Hero Content */}
