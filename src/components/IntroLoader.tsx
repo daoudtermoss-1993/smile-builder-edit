@@ -11,7 +11,41 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
   const [isVisible, setIsVisible] = useState(true);
   const [phase, setPhase] = useState<"loading" | "enter" | "hold" | "exit">("loading");
   const [isPageLoaded, setIsPageLoaded] = useState(false);
+  const [smoothProgress, setSmoothProgress] = useState(0);
   const startedRef = useRef(false);
+  const animationRef = useRef<number | null>(null);
+  const targetProgressRef = useRef(0);
+
+  // Smooth progress animation - interpolates towards target progress
+  useEffect(() => {
+    targetProgressRef.current = progress;
+    
+    const animate = () => {
+      setSmoothProgress(prev => {
+        const target = targetProgressRef.current;
+        const diff = target - prev;
+        
+        // Smooth interpolation with minimum speed to avoid stalling
+        if (Math.abs(diff) < 0.5) {
+          return target;
+        }
+        
+        // Move faster when far from target, slower when close
+        const speed = Math.max(0.5, Math.abs(diff) * 0.08);
+        return prev + (diff > 0 ? speed : -speed);
+      });
+      
+      animationRef.current = requestAnimationFrame(animate);
+    };
+    
+    animationRef.current = requestAnimationFrame(animate);
+    
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, [progress]);
 
   // Wait for page to be fully loaded
   useEffect(() => {
@@ -59,8 +93,8 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
   const circleSize = 80;
   const isWaiting = phase === "loading";
   
-  // Convert progress (0-100) to pathLength (0-1)
-  const progressPath = progress / 100;
+  // Convert smoothed progress (0-100) to pathLength (0-1)
+  const progressPath = smoothProgress / 100;
 
   // Single continuous border line that traces around the entire frame
   const ContinuousBorderLine = () => {
