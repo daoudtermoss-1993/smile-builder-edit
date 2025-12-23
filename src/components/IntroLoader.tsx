@@ -4,9 +4,10 @@ import { motion, AnimatePresence } from "framer-motion";
 interface IntroLoaderProps {
   onComplete: () => void;
   ready?: boolean;
+  progress?: number; // 0-100
 }
 
-export function IntroLoader({ onComplete, ready = true }: IntroLoaderProps) {
+export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoaderProps) {
   const [isVisible, setIsVisible] = useState(true);
   const [phase, setPhase] = useState<"loading" | "enter" | "hold" | "exit">("loading");
   const [isPageLoaded, setIsPageLoaded] = useState(false);
@@ -57,6 +58,9 @@ export function IntroLoader({ onComplete, ready = true }: IntroLoaderProps) {
   const openOffset = 180;
   const circleSize = 80;
   const isWaiting = phase === "loading";
+  
+  // Convert progress (0-100) to pathLength (0-1)
+  const progressPath = progress / 100;
 
   // Outer corner decorative lines
   const CornerLine = ({ 
@@ -77,21 +81,25 @@ export function IntroLoader({ onComplete, ready = true }: IntroLoaderProps) {
     return (
       <div className={`absolute ${config.pos} w-24 h-24 md:w-32 md:h-32`}>
         <svg viewBox="0 0 100 100" className="w-full h-full" fill="none">
-          <motion.path
+          {/* Background path (faded) */}
+          <path
             d={config.path}
-            stroke="hsl(220 10% 75%)"
+            stroke="hsl(220 10% 85%)"
             strokeWidth="1.5"
             strokeLinecap="round"
             fill="none"
-            initial={{ pathLength: 0, opacity: 0.3 }}
-            animate={isWaiting 
-              ? { pathLength: [0, 1, 1, 0], opacity: [0.3, 1, 1, 0.3] }
-              : { pathLength: 1, opacity: 1 }
-            }
-            transition={isWaiting 
-              ? { duration: 2.5, repeat: Infinity, ease: "easeInOut", times: [0, 0.4, 0.6, 1] }
-              : { duration: 0.8, delay: delay + 0.1, ease: "easeInOut" }
-            }
+            opacity={0.3}
+          />
+          {/* Animated progress path */}
+          <motion.path
+            d={config.path}
+            stroke="hsl(220 10% 65%)"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            fill="none"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: isWaiting ? progressPath : 1 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
           />
         </svg>
       </div>
@@ -117,21 +125,25 @@ export function IntroLoader({ onComplete, ready = true }: IntroLoaderProps) {
     return (
       <div className={`absolute ${config.pos} w-16 h-16 md:w-24 md:h-24`}>
         <svg viewBox="0 0 100 100" className="w-full h-full" fill="none">
-          <motion.path
+          {/* Background path (faded) */}
+          <path
             d={config.path}
-            stroke="hsl(220 10% 80%)"
+            stroke="hsl(220 10% 88%)"
             strokeWidth="1"
             strokeLinecap="round"
             fill="none"
-            initial={{ pathLength: 0, opacity: 0.3 }}
-            animate={isWaiting 
-              ? { pathLength: [0, 1, 1, 0], opacity: [0.3, 1, 1, 0.3] }
-              : { pathLength: 1, opacity: 1 }
-            }
-            transition={isWaiting 
-              ? { duration: 2.5, delay: 0.3, repeat: Infinity, ease: "easeInOut", times: [0, 0.4, 0.6, 1] }
-              : { duration: 0.6, delay: delay + 0.25, ease: "easeInOut" }
-            }
+            opacity={0.3}
+          />
+          {/* Animated progress path */}
+          <motion.path
+            d={config.path}
+            stroke="hsl(220 10% 70%)"
+            strokeWidth="1"
+            strokeLinecap="round"
+            fill="none"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: isWaiting ? progressPath : 1 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
           />
         </svg>
       </div>
