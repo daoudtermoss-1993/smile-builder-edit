@@ -13,39 +13,54 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
   const [isPageLoaded, setIsPageLoaded] = useState(false);
   const [smoothProgress, setSmoothProgress] = useState(0);
   const startedRef = useRef(false);
-  const animationRef = useRef<number | null>(null);
   const targetProgressRef = useRef(0);
+  const startTimeRef = useRef<number | null>(null);
+  const rafRef = useRef<number | null>(null);
 
-  // Smooth progress animation - interpolates towards target progress
+  // Update target progress without restarting the animation loop
   useEffect(() => {
     targetProgressRef.current = progress;
-    
-    const animate = () => {
-      setSmoothProgress(prev => {
-        const target = targetProgressRef.current;
-        const diff = target - prev;
-        
-        // Smooth interpolation with minimum speed to avoid stalling
-        if (Math.abs(diff) < 0.5) {
-          return target;
-        }
-        
-        // Move faster when far from target, slower when close
-        const speed = Math.max(0.5, Math.abs(diff) * 0.08);
-        return prev + (diff > 0 ? speed : -speed);
-      });
-      
-      animationRef.current = requestAnimationFrame(animate);
-    };
-    
-    animationRef.current = requestAnimationFrame(animate);
-    
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
   }, [progress]);
+
+  // Smooth progress animation loop (runs once)
+  useEffect(() => {
+    if (!isVisible) return;
+
+    const tick = (t: number) => {
+      if (startTimeRef.current === null) startTimeRef.current = t;
+
+      const elapsed = t - startTimeRef.current;
+      const real = targetProgressRef.current;
+
+      // Kickoff: avoid early "stop-go" before real progress starts
+      const kickoffCap = real <= 1 ? 18 : 0; // up to 18% while real progress is ~0
+      const kickoff = kickoffCap ? Math.min(kickoffCap, (elapsed / 900) * kickoffCap) : 0;
+
+      const target = Math.min(100, Math.max(real, kickoff));
+
+      setSmoothProgress((prev) => {
+        const diff = target - prev;
+        if (Math.abs(diff) < 0.05) return target;
+
+        // Exponential smoothing + minimum step so it never "freezes"
+        const easedStep = diff * 0.12;
+        const minStep = diff > 0 ? 0.18 : -0.18;
+        const step = diff > 0 ? Math.max(minStep, easedStep) : Math.min(minStep, easedStep);
+
+        const next = prev + step;
+        return diff > 0 ? Math.min(target, next) : Math.max(target, next);
+      });
+
+      rafRef.current = requestAnimationFrame(tick);
+    };
+
+    rafRef.current = requestAnimationFrame(tick);
+
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    };
+  }, [isVisible]);
 
   // Wait for page to be fully loaded
   useEffect(() => {
@@ -125,7 +140,7 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
               Q ${margin} ${margin} ${margin + cornerRadius} ${margin}
               L 900 ${margin}
             `}
-            stroke="hsl(220 10% 82%)"
+            stroke="hsl(var(--border))"
             strokeWidth="1.5"
             strokeLinecap="round"
             fill="none"
@@ -146,16 +161,17 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
               Q ${margin} ${margin} ${margin + cornerRadius} ${margin}
               L 900 ${margin}
             `}
-            stroke="hsl(200 25% 35%)"
+            stroke="hsl(var(--primary))"
             strokeWidth="2"
             strokeLinecap="round"
             fill="none"
             initial={{ pathLength: 0 }}
             animate={{ pathLength: isWaiting ? progressPath : 1 }}
-            transition={{ 
-              duration: isWaiting ? 0.3 : 0.8, 
-              ease: "easeOut" 
-            }}
+            transition={
+              isWaiting
+                ? { duration: 0.08, ease: "linear" }
+                : { duration: 0.6, ease: [0.76, 0, 0.24, 1] }
+            }
             vectorEffect="non-scaling-stroke"
           />
         </svg>
