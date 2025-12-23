@@ -2,7 +2,7 @@ import { useRef, useEffect, useState, useCallback } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HeroContent } from "./HeroContent";
-import heroVideo from "@/assets/hero-video.mp4";
+import heroVideo from "@/assets/hero-video-new.mp4";
 
 // Number of frames to extract (more = smoother but heavier)
 const FRAME_COUNT = 90;
