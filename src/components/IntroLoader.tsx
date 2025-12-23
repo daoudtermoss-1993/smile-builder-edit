@@ -62,88 +62,67 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
   // Convert progress (0-100) to pathLength (0-1)
   const progressPath = progress / 100;
 
-  // Outer corner decorative lines
-  const CornerLine = ({ 
-    position, 
-    delay = 0 
-  }: { 
-    position: "tl" | "tr" | "bl" | "br";
-    delay?: number;
-  }) => {
-    const configs = {
-      tl: { path: "M 0 50 L 30 50 Q 50 50 50 70 L 50 100", pos: "top-6 left-6 md:top-10 md:left-10" },
-      tr: { path: "M 50 0 L 50 30 Q 50 50 70 50 L 100 50", pos: "top-6 right-6 md:top-10 md:right-10" },
-      bl: { path: "M 50 100 L 50 70 Q 50 50 30 50 L 0 50", pos: "bottom-6 left-6 md:bottom-10 md:left-10" },
-      br: { path: "M 100 50 L 70 50 Q 50 50 50 70 L 50 100", pos: "bottom-6 right-6 md:bottom-10 md:right-10" },
-    };
-    const config = configs[position];
-
+  // Single continuous border line that traces around the entire frame
+  const ContinuousBorderLine = () => {
+    // Path starts from top-right, goes clockwise around the border back to start
+    // Using rounded corners at each corner
+    const margin = 40; // Distance from edge
+    const cornerRadius = 50;
+    
     return (
-      <div className={`absolute ${config.pos} w-24 h-24 md:w-32 md:h-32`}>
-        <svg viewBox="0 0 100 100" className="w-full h-full" fill="none">
+      <div className="absolute inset-0 pointer-events-none">
+        <svg 
+          viewBox="0 0 1000 600" 
+          className="w-full h-full" 
+          fill="none"
+          preserveAspectRatio="none"
+        >
           {/* Background path (faded) */}
           <path
-            d={config.path}
-            stroke="hsl(220 10% 85%)"
+            d={`
+              M 900 ${margin}
+              L ${1000 - margin - cornerRadius} ${margin}
+              Q ${1000 - margin} ${margin} ${1000 - margin} ${margin + cornerRadius}
+              L ${1000 - margin} ${600 - margin - cornerRadius}
+              Q ${1000 - margin} ${600 - margin} ${1000 - margin - cornerRadius} ${600 - margin}
+              L ${margin + cornerRadius} ${600 - margin}
+              Q ${margin} ${600 - margin} ${margin} ${600 - margin - cornerRadius}
+              L ${margin} ${margin + cornerRadius}
+              Q ${margin} ${margin} ${margin + cornerRadius} ${margin}
+              L 900 ${margin}
+            `}
+            stroke="hsl(220 10% 82%)"
             strokeWidth="1.5"
             strokeLinecap="round"
             fill="none"
-            opacity={0.3}
+            opacity={0.4}
+            vectorEffect="non-scaling-stroke"
           />
           {/* Animated progress path */}
           <motion.path
-            d={config.path}
-            stroke="hsl(220 10% 65%)"
-            strokeWidth="1.5"
+            d={`
+              M 900 ${margin}
+              L ${1000 - margin - cornerRadius} ${margin}
+              Q ${1000 - margin} ${margin} ${1000 - margin} ${margin + cornerRadius}
+              L ${1000 - margin} ${600 - margin - cornerRadius}
+              Q ${1000 - margin} ${600 - margin} ${1000 - margin - cornerRadius} ${600 - margin}
+              L ${margin + cornerRadius} ${600 - margin}
+              Q ${margin} ${600 - margin} ${margin} ${600 - margin - cornerRadius}
+              L ${margin} ${margin + cornerRadius}
+              Q ${margin} ${margin} ${margin + cornerRadius} ${margin}
+              L 900 ${margin}
+            `}
+            stroke="hsl(200 25% 35%)"
+            strokeWidth="2"
             strokeLinecap="round"
             fill="none"
             initial={{ pathLength: 0 }}
             animate={{ pathLength: isWaiting ? progressPath : 1 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-          />
-        </svg>
-      </div>
-    );
-  };
-
-  // Inner corner lines (closer to center)
-  const InnerCornerLine = ({ 
-    position, 
-    delay = 0 
-  }: { 
-    position: "tl" | "tr" | "bl" | "br";
-    delay?: number;
-  }) => {
-    const configs = {
-      tl: { path: "M 0 40 L 40 40 Q 60 40 60 60 L 60 100", pos: "top-16 left-16 md:top-24 md:left-24" },
-      tr: { path: "M 60 0 L 60 40 Q 60 60 80 60 L 100 60", pos: "top-16 right-16 md:top-24 md:right-24" },
-      bl: { path: "M 60 100 L 60 60 Q 60 40 40 40 L 0 40", pos: "bottom-16 left-16 md:bottom-24 md:left-24" },
-      br: { path: "M 100 40 L 60 40 Q 40 40 40 60 L 40 100", pos: "bottom-16 right-16 md:bottom-24 md:right-24" },
-    };
-    const config = configs[position];
-
-    return (
-      <div className={`absolute ${config.pos} w-16 h-16 md:w-24 md:h-24`}>
-        <svg viewBox="0 0 100 100" className="w-full h-full" fill="none">
-          {/* Background path (faded) */}
-          <path
-            d={config.path}
-            stroke="hsl(220 10% 88%)"
-            strokeWidth="1"
-            strokeLinecap="round"
-            fill="none"
-            opacity={0.3}
-          />
-          {/* Animated progress path */}
-          <motion.path
-            d={config.path}
-            stroke="hsl(220 10% 70%)"
-            strokeWidth="1"
-            strokeLinecap="round"
-            fill="none"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: isWaiting ? progressPath : 1 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
+            transition={{ 
+              duration: isWaiting ? 0.3 : 0.8, 
+              ease: "easeOut" 
+            }}
+            vectorEffect="non-scaling-stroke"
           />
         </svg>
       </div>
@@ -197,9 +176,6 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
           ease: [0.76, 0, 0.24, 1],
         }}
       >
-        {/* Outer corner decorative lines */}
-        <CornerLine position={position} delay={delays[position]} />
-        <InnerCornerLine position={position} delay={delays[position]} />
 
         {/* Inner corner rounded cutout - creates the rounded corner effect near center */}
         <motion.div
@@ -307,6 +283,9 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
           <QuadrantPanel position="tr" />
           <QuadrantPanel position="bl" />
           <QuadrantPanel position="br" />
+
+          {/* Continuous border line animation */}
+          <ContinuousBorderLine />
 
           {/* Side semicircles */}
           <SideCircle side="left" />
