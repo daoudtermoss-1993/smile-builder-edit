@@ -17,14 +17,19 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
   const startTimeRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
 
+  const isWaiting = phase === "loading";
+
   // Update target progress without restarting the animation loop
   useEffect(() => {
     targetProgressRef.current = progress;
   }, [progress]);
 
-  // Smooth progress animation loop (runs once)
+  // Smooth progress animation loop (runs only while waiting)
   useEffect(() => {
     if (!isVisible) return;
+    if (!isWaiting) return;
+
+    startTimeRef.current = null;
 
     const tick = (t: number) => {
       if (startTimeRef.current === null) startTimeRef.current = t;
@@ -32,19 +37,17 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
       const elapsed = t - startTimeRef.current;
       const real = targetProgressRef.current;
 
-      // Kickoff: avoid early "stop-go" before real progress starts
-      const kickoffCap = real <= 1 ? 18 : 0; // up to 18% while real progress is ~0
-      const kickoff = kickoffCap ? Math.min(kickoffCap, (elapsed / 900) * kickoffCap) : 0;
-
-      const target = Math.min(100, Math.max(real, kickoff));
+      // Indeterminate drift: keeps moving smoothly at the start even if "real" progress updates in chunks
+      const drift = 95 * (1 - Math.exp(-elapsed / 8000));
+      const target = Math.min(100, Math.max(real, drift));
 
       setSmoothProgress((prev) => {
         const diff = target - prev;
-        if (Math.abs(diff) < 0.05) return target;
+        if (Math.abs(diff) < 0.02) return target;
 
         // Exponential smoothing + minimum step so it never "freezes"
-        const easedStep = diff * 0.12;
-        const minStep = diff > 0 ? 0.18 : -0.18;
+        const easedStep = diff * 0.14;
+        const minStep = diff > 0 ? 0.22 : -0.22;
         const step = diff > 0 ? Math.max(minStep, easedStep) : Math.min(minStep, easedStep);
 
         const next = prev + step;
@@ -60,7 +63,7 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
     };
-  }, [isVisible]);
+  }, [isVisible, isWaiting]);
 
   // Wait for page to be fully loaded
   useEffect(() => {
@@ -106,8 +109,7 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
 
   const openOffset = 180;
   const circleSize = 80;
-  const isWaiting = phase === "loading";
-  
+
   // Convert smoothed progress (0-100) to pathLength (0-1)
   const progressPath = smoothProgress / 100;
 
@@ -117,29 +119,31 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
     // Using rounded corners at each corner
     const margin = 40; // Distance from edge
     const cornerRadius = 50;
-    
+
+    const borderPath = `
+      M 900 ${margin}
+      L ${1000 - margin - cornerRadius} ${margin}
+      Q ${1000 - margin} ${margin} ${1000 - margin} ${margin + cornerRadius}
+      L ${1000 - margin} ${600 - margin - cornerRadius}
+      Q ${1000 - margin} ${600 - margin} ${1000 - margin - cornerRadius} ${600 - margin}
+      L ${margin + cornerRadius} ${600 - margin}
+      Q ${margin} ${600 - margin} ${margin} ${600 - margin - cornerRadius}
+      L ${margin} ${margin + cornerRadius}
+      Q ${margin} ${margin} ${margin + cornerRadius} ${margin}
+      L 900 ${margin}
+    `;
+
     return (
       <div className="absolute inset-0 pointer-events-none">
-        <svg 
-          viewBox="0 0 1000 600" 
-          className="w-full h-full" 
+        <svg
+          viewBox="0 0 1000 600"
+          className="w-full h-full"
           fill="none"
           preserveAspectRatio="none"
         >
           {/* Background path (faded) */}
           <path
-            d={`
-              M 900 ${margin}
-              L ${1000 - margin - cornerRadius} ${margin}
-              Q ${1000 - margin} ${margin} ${1000 - margin} ${margin + cornerRadius}
-              L ${1000 - margin} ${600 - margin - cornerRadius}
-              Q ${1000 - margin} ${600 - margin} ${1000 - margin - cornerRadius} ${600 - margin}
-              L ${margin + cornerRadius} ${600 - margin}
-              Q ${margin} ${600 - margin} ${margin} ${600 - margin - cornerRadius}
-              L ${margin} ${margin + cornerRadius}
-              Q ${margin} ${margin} ${margin + cornerRadius} ${margin}
-              L 900 ${margin}
-            `}
+            d={borderPath}
             stroke="hsl(var(--border))"
             strokeWidth="1.5"
             strokeLinecap="round"
@@ -147,33 +151,31 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
             opacity={0.4}
             vectorEffect="non-scaling-stroke"
           />
-          {/* Animated progress path */}
-          <motion.path
-            d={`
-              M 900 ${margin}
-              L ${1000 - margin - cornerRadius} ${margin}
-              Q ${1000 - margin} ${margin} ${1000 - margin} ${margin + cornerRadius}
-              L ${1000 - margin} ${600 - margin - cornerRadius}
-              Q ${1000 - margin} ${600 - margin} ${1000 - margin - cornerRadius} ${600 - margin}
-              L ${margin + cornerRadius} ${600 - margin}
-              Q ${margin} ${600 - margin} ${margin} ${600 - margin - cornerRadius}
-              L ${margin} ${margin + cornerRadius}
-              Q ${margin} ${margin} ${margin + cornerRadius} ${margin}
-              L 900 ${margin}
-            `}
-            stroke="hsl(var(--primary))"
-            strokeWidth="2"
-            strokeLinecap="round"
-            fill="none"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: isWaiting ? progressPath : 1 }}
-            transition={
-              isWaiting
-                ? { duration: 0.08, ease: "linear" }
-                : { duration: 0.6, ease: [0.76, 0, 0.24, 1] }
-            }
-            vectorEffect="non-scaling-stroke"
-          />
+
+          {/* Progress path */}
+          {isWaiting ? (
+            <motion.path
+              d={borderPath}
+              stroke="hsl(var(--primary))"
+              strokeWidth="2"
+              strokeLinecap="round"
+              fill="none"
+              style={{ pathLength: progressPath }}
+              vectorEffect="non-scaling-stroke"
+            />
+          ) : (
+            <motion.path
+              d={borderPath}
+              stroke="hsl(var(--primary))"
+              strokeWidth="2"
+              strokeLinecap="round"
+              fill="none"
+              initial={{ pathLength: progressPath }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }}
+              vectorEffect="non-scaling-stroke"
+            />
+          )}
         </svg>
       </div>
     );
