@@ -110,8 +110,7 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
     };
   }, [isPageLoaded, ready, onComplete]);
 
-  const openOffset = 180;
-  const circleSize = 80;
+  const openOffset = 200;
 
   // Convert smoothed progress (0-100) to pathLength (0-1)
   const progressPath = smoothProgress / 100;
@@ -231,98 +230,10 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
           ease: [0.16, 1, 0.3, 1],
         }}
       >
-
-        {/* Inner corner rounded cutout - creates the rounded corner effect near center */}
-        <motion.div
-          className={`absolute ${innerCornerStyles[position]}`}
-          style={{
-            width: "60px",
-            height: "60px",
-            backgroundColor: "hsl(220 14% 92%)",
-            borderRadius: "9999px",
-            border: "1px solid hsl(220 10% 82%)",
-            transform: `translate(${isLeft ? "50%" : "-50%"}, ${isTop ? "50%" : "-50%"})`,
-          }}
-          initial={{ scale: 0.6, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{
-            duration: 0.5,
-            delay: 0.3,
-            ease: [0.25, 0.46, 0.45, 0.94],
-          }}
-        />
       </motion.div>
     );
   };
 
-  // Side semicircle component (left and right edges)
-  const SideCircle = ({ side }: { side: "left" | "right" }) => {
-    const isLeft = side === "left";
-
-    return (
-      <>
-        {/* Top half circle */}
-        <motion.div
-          className={`absolute ${isLeft ? "left-0" : "right-0"} top-0 h-1/2`}
-          style={{
-            width: `${circleSize}px`,
-            display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "center",
-          }}
-          initial={{ y: 0 }}
-          animate={{
-            y: phase === "exit" ? -openOffset : 0,
-          }}
-          transition={{
-            duration: 1.4,
-            ease: [0.25, 0.1, 0.25, 1],
-          }}
-        >
-          <div
-            style={{
-              width: `${circleSize}px`,
-              height: `${circleSize}px`,
-              backgroundColor: "hsl(220 14% 92%)",
-              borderRadius: "9999px",
-              border: "1px solid hsl(220 10% 82%)",
-              transform: `translateX(${isLeft ? "-50%" : "50%"}) translateY(50%)`,
-            }}
-          />
-        </motion.div>
-
-        {/* Bottom half circle */}
-        <motion.div
-          className={`absolute ${isLeft ? "left-0" : "right-0"} bottom-0 h-1/2`}
-          style={{
-            width: `${circleSize}px`,
-            display: "flex",
-            alignItems: "flex-start",
-            justifyContent: "center",
-          }}
-          initial={{ y: 0 }}
-          animate={{
-            y: phase === "exit" ? openOffset : 0,
-          }}
-          transition={{
-            duration: 1.4,
-            ease: [0.25, 0.1, 0.25, 1],
-          }}
-        >
-          <div
-            style={{
-              width: `${circleSize}px`,
-              height: `${circleSize}px`,
-              backgroundColor: "hsl(220 14% 92%)",
-              borderRadius: "9999px",
-              border: "1px solid hsl(220 10% 82%)",
-              transform: `translateX(${isLeft ? "-50%" : "50%"}) translateY(-50%)`,
-            }}
-          />
-        </motion.div>
-      </>
-    );
-  };
 
   return (
     <AnimatePresence>
@@ -341,10 +252,6 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
 
           {/* Continuous border line animation */}
           <ContinuousBorderLine />
-
-          {/* Side semicircles */}
-          <SideCircle side="left" />
-          <SideCircle side="right" />
 
           {/* Center content */}
           <motion.div
