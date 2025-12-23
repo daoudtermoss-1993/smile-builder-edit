@@ -11,14 +11,67 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
   const [isVisible, setIsVisible] = useState(true);
   const [phase, setPhase] = useState<"loading" | "enter" | "hold" | "exit">("loading");
   const [isPageLoaded, setIsPageLoaded] = useState(false);
+  const [smoothProgress, setSmoothProgress] = useState(0);
   const startedRef = useRef(false);
+  const targetProgressRef = useRef(0);
+  const startTimeRef = useRef<number | null>(null);
+  const rafRef = useRef<number | null>(null);
 
   const isWaiting = phase === "loading";
+
+  // Update target progress without restarting the animation loop
+  useEffect(() => {
+    targetProgressRef.current = progress;
+  }, [progress]);
+
+  // Ping-pong animation loop (line goes forward then back to start)
+  useEffect(() => {
+    if (!isVisible) return;
+    if (!isWaiting) return;
+
+    startTimeRef.current = null;
+
+    const tick = (t: number) => {
+      if (startTimeRef.current === null) startTimeRef.current = t;
+
+      const elapsed = t - startTimeRef.current;
+      
+      // Ping-pong cycle: 2 seconds forward, 2 seconds back
+      const cycleDuration = 4000; // 4 seconds total cycle
+      const halfCycle = cycleDuration / 2;
+      const cycleTime = elapsed % cycleDuration;
+      
+      // Calculate position in cycle (0 to 1 to 0)
+      let pingPongProgress: number;
+      if (cycleTime < halfCycle) {
+        // Going forward (0 to max)
+        pingPongProgress = (cycleTime / halfCycle) * 30; // Max 30% of the path
+      } else {
+        // Going back (max to 0)
+        pingPongProgress = (1 - (cycleTime - halfCycle) / halfCycle) * 30;
+      }
+      
+      // Ease the movement with sine for smoother feel
+      const easedProgress = pingPongProgress * Math.sin((cycleTime / cycleDuration) * Math.PI);
+      
+      setSmoothProgress(Math.max(0, easedProgress));
+
+      rafRef.current = requestAnimationFrame(tick);
+    };
+
+    rafRef.current = requestAnimationFrame(tick);
+
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    };
+  }, [isVisible, isWaiting]);
 
   // Wait for page to be fully loaded
   useEffect(() => {
     const checkLoaded = () => {
       if (document.readyState === "complete") {
+        // Add small delay to ensure Vite's loading bar is gone
         setTimeout(() => setIsPageLoaded(true), 300);
       }
     };
@@ -42,6 +95,7 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
     // Start the animation sequence
     setPhase("enter");
 
+    // Slower timing for opening animation
     const holdTimer = setTimeout(() => setPhase("hold"), 1800);
     const exitTimer = setTimeout(() => setPhase("exit"), 3200);
     const completeTimer = setTimeout(() => {
@@ -56,51 +110,29 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
     };
   }, [isPageLoaded, ready, onComplete]);
 
-  // Terminal-style border path with rounded corners
-  const TerminalBorderLines = () => {
-    // Corner radius for the curved sections
-    const margin = 60;
-    const cornerRadius = 80;
-    
-    // Create separate path segments for each corner area (like Terminal image)
-    // Top-left corner path
-    const topLeftPath = `
-      M ${margin} ${margin + 200}
-      L ${margin} ${margin + cornerRadius}
-      Q ${margin} ${margin} ${margin + cornerRadius} ${margin}
-      L ${margin + 250} ${margin}
-    `;
-    
-    // Top-right corner path
-    const topRightPath = `
-      M ${1000 - margin - 250} ${margin}
+  const openOffset = 200;
+
+  // Convert smoothed progress (0-100) to pathLength (0-1)
+  const progressPath = smoothProgress / 100;
+
+  // Single continuous border line that traces around the entire frame
+  const ContinuousBorderLine = () => {
+    // Path starts from top-right, goes clockwise around the border back to start
+    // Using rounded corners at each corner
+    const margin = 40; // Distance from edge
+    const cornerRadius = 50;
+
+    const borderPath = `
+      M 900 ${margin}
       L ${1000 - margin - cornerRadius} ${margin}
       Q ${1000 - margin} ${margin} ${1000 - margin} ${margin + cornerRadius}
-      L ${1000 - margin} ${margin + 200}
-    `;
-    
-    // Bottom-right corner path
-    const bottomRightPath = `
-      M ${1000 - margin} ${600 - margin - 200}
       L ${1000 - margin} ${600 - margin - cornerRadius}
       Q ${1000 - margin} ${600 - margin} ${1000 - margin - cornerRadius} ${600 - margin}
-      L ${1000 - margin - 250} ${600 - margin}
-    `;
-    
-    // Bottom-left corner path
-    const bottomLeftPath = `
-      M ${margin + 250} ${600 - margin}
       L ${margin + cornerRadius} ${600 - margin}
       Q ${margin} ${600 - margin} ${margin} ${600 - margin - cornerRadius}
-      L ${margin} ${600 - margin - 200}
-    `;
-
-    // Combined path for the teal progress line
-    const fullPath = `
-      ${topLeftPath.replace('M', 'M')}
-      ${topRightPath.replace('M', ' M')}
-      ${bottomRightPath.replace('M', ' M')}
-      ${bottomLeftPath.replace('M', ' M')}
+      L ${margin} ${margin + cornerRadius}
+      Q ${margin} ${margin} ${margin + cornerRadius} ${margin}
+      L 900 ${margin}
     `;
 
     return (
@@ -109,181 +141,152 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
           viewBox="0 0 1000 600"
           className="w-full h-full"
           fill="none"
-          preserveAspectRatio="xMidYMid meet"
+          preserveAspectRatio="none"
         >
-          {/* Background paths (light gray like Terminal) */}
+          {/* Background path (faded) */}
           <path
-            d={topLeftPath}
-            stroke="hsl(220 10% 75%)"
+            d={borderPath}
+            stroke="hsl(var(--border))"
             strokeWidth="1.5"
             strokeLinecap="round"
             fill="none"
-            vectorEffect="non-scaling-stroke"
-          />
-          <path
-            d={topRightPath}
-            stroke="hsl(220 10% 75%)"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            fill="none"
-            vectorEffect="non-scaling-stroke"
-          />
-          <path
-            d={bottomRightPath}
-            stroke="hsl(220 10% 75%)"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            fill="none"
-            vectorEffect="non-scaling-stroke"
-          />
-          <path
-            d={bottomLeftPath}
-            stroke="hsl(220 10% 75%)"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            fill="none"
+            opacity={0.4}
             vectorEffect="non-scaling-stroke"
           />
 
-          {/* Teal progress line that travels along the path */}
+          {/* Progress path */}
           {isWaiting ? (
-            <>
-              {/* Top-left progress */}
-              <motion.path
-                d={topLeftPath}
-                stroke="hsl(175 85% 35%)"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                fill="none"
-                initial={{ pathLength: 0 }}
-                animate={{ pathLength: progress / 100 }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
-                vectorEffect="non-scaling-stroke"
-              />
-              {/* Top-right progress */}
-              <motion.path
-                d={topRightPath}
-                stroke="hsl(175 85% 35%)"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                fill="none"
-                initial={{ pathLength: 0 }}
-                animate={{ pathLength: progress / 100 }}
-                transition={{ duration: 0.3, ease: "easeOut", delay: 0.05 }}
-                vectorEffect="non-scaling-stroke"
-              />
-              {/* Bottom-right progress */}
-              <motion.path
-                d={bottomRightPath}
-                stroke="hsl(175 85% 35%)"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                fill="none"
-                initial={{ pathLength: 0 }}
-                animate={{ pathLength: progress / 100 }}
-                transition={{ duration: 0.3, ease: "easeOut", delay: 0.1 }}
-                vectorEffect="non-scaling-stroke"
-              />
-              {/* Bottom-left progress */}
-              <motion.path
-                d={bottomLeftPath}
-                stroke="hsl(175 85% 35%)"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                fill="none"
-                initial={{ pathLength: 0 }}
-                animate={{ pathLength: progress / 100 }}
-                transition={{ duration: 0.3, ease: "easeOut", delay: 0.15 }}
-                vectorEffect="non-scaling-stroke"
-              />
-            </>
+            <motion.path
+              d={borderPath}
+              stroke="hsl(var(--primary))"
+              strokeWidth="2"
+              strokeLinecap="round"
+              fill="none"
+              style={{ pathLength: progressPath }}
+              vectorEffect="non-scaling-stroke"
+            />
           ) : (
-            <>
-              {/* Complete all paths when loading is done */}
-              <motion.path
-                d={topLeftPath}
-                stroke="hsl(175 85% 35%)"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                fill="none"
-                initial={{ pathLength: progress / 100 }}
-                animate={{ pathLength: 1 }}
-                transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }}
-                vectorEffect="non-scaling-stroke"
-              />
-              <motion.path
-                d={topRightPath}
-                stroke="hsl(175 85% 35%)"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                fill="none"
-                initial={{ pathLength: progress / 100 }}
-                animate={{ pathLength: 1 }}
-                transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1], delay: 0.05 }}
-                vectorEffect="non-scaling-stroke"
-              />
-              <motion.path
-                d={bottomRightPath}
-                stroke="hsl(175 85% 35%)"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                fill="none"
-                initial={{ pathLength: progress / 100 }}
-                animate={{ pathLength: 1 }}
-                transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1], delay: 0.1 }}
-                vectorEffect="non-scaling-stroke"
-              />
-              <motion.path
-                d={bottomLeftPath}
-                stroke="hsl(175 85% 35%)"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                fill="none"
-                initial={{ pathLength: progress / 100 }}
-                animate={{ pathLength: 1 }}
-                transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1], delay: 0.15 }}
-                vectorEffect="non-scaling-stroke"
-              />
-            </>
+            <motion.path
+              d={borderPath}
+              stroke="hsl(var(--primary))"
+              strokeWidth="2"
+              strokeLinecap="round"
+              fill="none"
+              initial={{ pathLength: progressPath }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }}
+              vectorEffect="non-scaling-stroke"
+            />
           )}
         </svg>
       </div>
     );
   };
 
-  const openOffset = 200;
+  // Size for the rounded cutouts (in viewBox units)
+  const sideRadius = 8; // Semicircle radius on sides (smaller for better proportion)
+  const centerRadius = 4; // Rounded corners in center
 
-  // Top Panel
+  // Top Panel - using SVG for precise curved shapes
   const TopPanel = () => {
+    const createTopPath = (width: number, height: number) => {
+      const sr = sideRadius;
+      const cr = centerRadius;
+      const centerX = width / 2;
+      
+      // Path with semicircle cutouts on sides and rounded corners at center
+      return `
+        M 0 0
+        L ${width} 0
+        L ${width} ${height - sr}
+        A ${sr} ${sr} 0 0 1 ${width - sr} ${height}
+        L ${centerX + cr * 3} ${height}
+        Q ${centerX + cr} ${height} ${centerX + cr} ${height - cr * 2}
+        L ${centerX + cr} ${height - cr * 2}
+        Q ${centerX} ${height - cr * 3} ${centerX - cr} ${height - cr * 2}
+        L ${centerX - cr} ${height - cr * 2}
+        Q ${centerX - cr} ${height} ${centerX - cr * 3} ${height}
+        L ${sr} ${height}
+        A ${sr} ${sr} 0 0 1 0 ${height - sr}
+        L 0 0
+        Z
+      `;
+    };
+
     return (
       <motion.div
         className="absolute top-0 left-0 right-0 h-1/2 overflow-visible pointer-events-none"
-        style={{ backgroundColor: "hsl(220 14% 92%)" }}
         initial={{ y: 0 }}
         animate={{ y: phase === "exit" ? -openOffset : 0 }}
         transition={{
           duration: phase === "exit" ? 2.4 : 1.4,
           ease: [0.16, 1, 0.3, 1],
         }}
-      />
+      >
+        <svg
+          className="absolute inset-0 w-full h-full"
+          viewBox="0 0 100 50"
+          preserveAspectRatio="none"
+        >
+          <path
+            d={createTopPath(100, 50)}
+            fill="hsl(220 14% 92%)"
+          />
+        </svg>
+      </motion.div>
     );
   };
 
-  // Bottom Panel
+  // Bottom Panel - mirror of top
   const BottomPanel = () => {
+    const sr = sideRadius;
+    const cr = centerRadius;
+    
+    const createBottomPath = (width: number, height: number) => {
+      const centerX = width / 2;
+      
+      return `
+        M 0 ${height}
+        L ${width} ${height}
+        L ${width} ${sr}
+        A ${sr} ${sr} 0 0 0 ${width - sr} 0
+        L ${centerX + cr * 3} 0
+        Q ${centerX + cr} 0 ${centerX + cr} ${cr * 2}
+        L ${centerX + cr} ${cr * 2}
+        Q ${centerX} ${cr * 3} ${centerX - cr} ${cr * 2}
+        L ${centerX - cr} ${cr * 2}
+        Q ${centerX - cr} 0 ${centerX - cr * 3} 0
+        L ${sr} 0
+        A ${sr} ${sr} 0 0 0 0 ${sr}
+        L 0 ${height}
+        Z
+      `;
+    };
+
     return (
       <motion.div
         className="absolute bottom-0 left-0 right-0 h-1/2 overflow-visible pointer-events-none"
-        style={{ backgroundColor: "hsl(220 14% 92%)" }}
         initial={{ y: 0 }}
         animate={{ y: phase === "exit" ? openOffset : 0 }}
         transition={{
           duration: phase === "exit" ? 2.4 : 1.4,
           ease: [0.16, 1, 0.3, 1],
         }}
-      />
+      >
+        <svg
+          className="absolute inset-0 w-full h-full"
+          viewBox="0 0 100 50"
+          preserveAspectRatio="none"
+        >
+          <path
+            d={createBottomPath(100, 50)}
+            fill="hsl(220 14% 92%)"
+          />
+        </svg>
+      </motion.div>
     );
   };
+
 
   return (
     <AnimatePresence>
@@ -294,17 +297,17 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
         >
-          {/* Top and Bottom panels */}
+          {/* Top and Bottom panels with curved edges */}
           <TopPanel />
           <BottomPanel />
 
-          {/* Terminal-style border lines with teal progress */}
+          {/* Continuous border line animation - stays visible during exit */}
           <motion.div
             initial={{ opacity: 1 }}
             animate={{ opacity: phase === "exit" ? 0 : 1 }}
             transition={{ duration: 1.2, delay: phase === "exit" ? 0.8 : 0 }}
           >
-            <TerminalBorderLines />
+            <ContinuousBorderLine />
           </motion.div>
 
           {/* Center content with logo and name */}
