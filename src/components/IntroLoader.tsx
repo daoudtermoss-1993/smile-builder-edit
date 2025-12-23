@@ -131,8 +131,8 @@ export function IntroLoader({ onComplete }: IntroLoaderProps) {
           </>
         )}
 
-        {/* Demi-cercle gauche - sur le bord intérieur (vers la fente) */}
-        <div
+        {/* Demi-cercle gauche animé - sur le bord intérieur (vers la fente) */}
+        <motion.div
           className="absolute left-0"
           style={{
             width: "100px",
@@ -140,14 +140,24 @@ export function IntroLoader({ onComplete }: IntroLoaderProps) {
             backgroundColor: "hsl(220 14% 92%)",
             borderRadius: "9999px",
             border: "1px solid hsl(220 10% 82%)",
-            transform: "translateX(-50%)",
             top: isTop ? "auto" : "-50px",
             bottom: isTop ? "-50px" : "auto",
           }}
+          initial={{ x: "-50%", scale: 0.5, opacity: 0 }}
+          animate={{ 
+            x: "-50%", 
+            scale: phase === "exit" ? 1.3 : 1, 
+            opacity: 1 
+          }}
+          transition={{
+            duration: phase === "exit" ? 0.6 : 0.5,
+            delay: phase === "enter" ? 0.4 : 0,
+            ease: [0.25, 0.46, 0.45, 0.94],
+          }}
         />
 
-        {/* Demi-cercle droite - sur le bord intérieur (vers la fente) */}
-        <div
+        {/* Demi-cercle droite animé - sur le bord intérieur (vers la fente) */}
+        <motion.div
           className="absolute right-0"
           style={{
             width: "100px",
@@ -155,9 +165,19 @@ export function IntroLoader({ onComplete }: IntroLoaderProps) {
             backgroundColor: "hsl(220 14% 92%)",
             borderRadius: "9999px",
             border: "1px solid hsl(220 10% 82%)",
-            transform: "translateX(50%)",
             top: isTop ? "auto" : "-50px",
             bottom: isTop ? "-50px" : "auto",
+          }}
+          initial={{ x: "50%", scale: 0.5, opacity: 0 }}
+          animate={{ 
+            x: "50%", 
+            scale: phase === "exit" ? 1.3 : 1, 
+            opacity: 1 
+          }}
+          transition={{
+            duration: phase === "exit" ? 0.6 : 0.5,
+            delay: phase === "enter" ? 0.5 : 0,
+            ease: [0.25, 0.46, 0.45, 0.94],
           }}
         />
       </motion.div>
