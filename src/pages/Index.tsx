@@ -24,6 +24,7 @@ const Index = () => {
   const { language } = useLanguage();
   const [introComplete, setIntroComplete] = useState(false);
   const [heroReady, setHeroReady] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
   useScrollAnimation();
   useVisitorTracking();
   
@@ -32,7 +33,11 @@ const Index = () => {
   return (
     <div className="min-h-screen relative bg-background">
       {!introComplete && (
-        <IntroLoader ready={heroReady} onComplete={() => setIntroComplete(true)} />
+        <IntroLoader 
+          ready={heroReady} 
+          progress={loadingProgress}
+          onComplete={() => setIntroComplete(true)} 
+        />
       )}
       <Navigation />
       <AdminAccessButton />
@@ -43,6 +48,7 @@ const Index = () => {
       <div id="home">
         <DentalChair3D
           onReady={() => setHeroReady(true)}
+          onProgress={setLoadingProgress}
           hideLoadingOverlay={!introComplete}
         />
       </div>

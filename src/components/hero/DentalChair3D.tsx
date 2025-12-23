@@ -9,10 +9,11 @@ const FRAME_COUNT = 90;
 
 type DentalChair3DProps = {
   onReady?: () => void;
+  onProgress?: (progress: number) => void;
   hideLoadingOverlay?: boolean;
 };
 
-export function DentalChair3D({ onReady, hideLoadingOverlay = false }: DentalChair3DProps) {
+export function DentalChair3D({ onReady, onProgress, hideLoadingOverlay = false }: DentalChair3DProps) {
   const { language } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -83,7 +84,9 @@ export function DentalChair3D({ onReady, hideLoadingOverlay = false }: DentalCha
           video.onseeked = () => {
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             extractedFrames.push(canvas.toDataURL('image/jpeg', 0.85));
-            setLoadingProgress(Math.round(((i + 1) / FRAME_COUNT) * 100));
+            const progress = Math.round(((i + 1) / FRAME_COUNT) * 100);
+            setLoadingProgress(progress);
+            onProgress?.(progress);
             resolve();
           };
         });
