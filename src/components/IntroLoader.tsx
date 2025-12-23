@@ -121,7 +121,7 @@ export function IntroLoader({ onComplete }: IntroLoaderProps) {
       br: 0.02,
     };
 
-    // Demi-cercles sur les bords EXTÉRIEURS (gauche/droite), au niveau de la fente centrale
+    // Demi-cercles sur les bords INTÉRIEURS (vers le centre), au niveau de la fente centrale
     const isTop = position === "tl" || position === "tr";
     const isLeftSide = position === "tl" || position === "bl";
 
@@ -143,10 +143,10 @@ export function IntroLoader({ onComplete }: IntroLoaderProps) {
         <CornerLine position={position} delay={delays[position]} />
         <InnerCornerLine position={position} delay={delays[position]} />
 
-        {/* Découpe arrondie (se voit comme un demi-cercle à gauche/droite) */}
+        {/* Découpe arrondie (demi-cercle visible dans la fente) */}
         <div
           className={`absolute ${
-            isLeftSide ? "left-0 -translate-x-1/2" : "right-0 translate-x-1/2"
+            isLeftSide ? "right-0 translate-x-1/2" : "left-0 -translate-x-1/2"
           } ${isTop ? "bottom-0 translate-y-1/2" : "top-0 -translate-y-1/2"}`}
           style={{
             width: "104px",
