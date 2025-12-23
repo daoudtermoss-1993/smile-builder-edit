@@ -301,9 +301,65 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
           <TopPanel />
           <BottomPanel />
 
-          {/* Continuous border line animation */}
-          <ContinuousBorderLine />
+          {/* Continuous border line animation - stays visible during exit */}
+          <motion.div
+            initial={{ opacity: 1 }}
+            animate={{ opacity: phase === "exit" ? 0 : 1 }}
+            transition={{ duration: 1.2, delay: phase === "exit" ? 0.8 : 0 }}
+          >
+            <ContinuousBorderLine />
+          </motion.div>
 
+          {/* Center content with logo and name */}
+          <motion.div
+            className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ 
+              opacity: phase === "exit" ? 0 : 1, 
+              scale: phase === "exit" ? 1.05 : 1,
+              y: phase === "exit" ? -30 : 0,
+            }}
+            transition={{ 
+              duration: phase === "exit" ? 0.8 : 0.6, 
+              delay: phase === "enter" ? 0.3 : 0,
+              ease: [0.25, 0.46, 0.45, 0.94]
+            }}
+          >
+            <div className="flex items-center gap-4">
+              {/* Logo/Icon */}
+              <motion.div
+                className="w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center shadow-lg"
+                style={{ backgroundColor: "hsl(175 85% 35%)" }}
+                initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
+              >
+                <svg viewBox="0 0 24 24" className="w-8 h-8 md:w-9 md:h-9" fill="white">
+                  <path d="M12 2C9.5 2 7.5 3.5 7.5 5.5C7.5 7 8.5 8.5 10 9L9 22H15L14 9C15.5 8.5 16.5 7 16.5 5.5C16.5 3.5 14.5 2 12 2Z"/>
+                </svg>
+              </motion.div>
+
+              {/* Text */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+              >
+                <h1 
+                  className="text-2xl md:text-4xl font-bold tracking-tight"
+                  style={{ color: "hsl(200 25% 25%)" }}
+                >
+                  Dr. Yousif German
+                </h1>
+                <p 
+                  className="text-sm md:text-base mt-1 tracking-wide"
+                  style={{ color: "hsl(200 15% 45%)" }}
+                >
+                  Dental Clinic
+                </p>
+              </motion.div>
+            </div>
+          </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
