@@ -91,73 +91,73 @@ export function IntroLoader({ onComplete }: IntroLoaderProps) {
     );
   };
 
-  // Quadrant panel - each corner of the screen
-  const QuadrantPanel = ({ 
+  // Panel component - top or bottom half of the screen
+  const Panel = ({ 
     position 
   }: { 
-    position: "tl" | "tr" | "bl" | "br" 
+    position: "top" | "bottom" 
   }) => {
-    const positionStyles = {
-      tl: "top-0 left-0",
-      tr: "top-0 right-0",
-      bl: "bottom-0 left-0",
-      br: "bottom-0 right-0",
-    };
-
-    // Panneaux du haut montent, panneaux du bas descendent
-    // (comme une "fente" centrale, pas un départ complet de l'écran)
-    const openOffset = 120;
-    const exitAnimations = {
-      tl: { y: -openOffset },
-      tr: { y: -openOffset },
-      bl: { y: openOffset },
-      br: { y: openOffset },
-    };
-
-    const delays = {
-      tl: 0,
-      tr: 0.02,
-      bl: 0,
-      br: 0.02,
-    };
-
-    // Demi-cercles sur les bords INTÉRIEURS (vers le centre), au niveau de la fente centrale
-    const isTop = position === "tl" || position === "tr";
-    const isLeftSide = position === "tl" || position === "bl";
+    const isTop = position === "top";
+    const openOffset = 200; // Increased for more dramatic opening
 
     return (
       <motion.div
-        className={`absolute ${positionStyles[position]} w-1/2 h-1/2 overflow-hidden`}
+        className={`absolute left-0 right-0 h-1/2 ${isTop ? "top-0" : "bottom-0"}`}
         style={{ backgroundColor: "hsl(220 14% 92%)" }}
         initial={{ y: 0 }}
         animate={{
-          y: phase === "exit" ? exitAnimations[position].y : 0,
+          y: phase === "exit" ? (isTop ? -openOffset : openOffset) : 0,
         }}
         transition={{
           duration: 0.8,
-          delay: phase === "exit" ? delays[position] : 0,
+          delay: phase === "exit" ? 0 : 0,
           ease: [0.76, 0, 0.24, 1],
         }}
       >
-        {/* Corner lines for this quadrant */}
-        <CornerLine position={position} delay={delays[position]} />
-        <InnerCornerLine position={position} delay={delays[position]} />
+        {/* Corner lines */}
+        {isTop ? (
+          <>
+            <CornerLine position="tl" delay={0} />
+            <CornerLine position="tr" delay={0.1} />
+            <InnerCornerLine position="tl" delay={0} />
+            <InnerCornerLine position="tr" delay={0.1} />
+          </>
+        ) : (
+          <>
+            <CornerLine position="bl" delay={0} />
+            <CornerLine position="br" delay={0.1} />
+            <InnerCornerLine position="bl" delay={0} />
+            <InnerCornerLine position="br" delay={0.1} />
+          </>
+        )}
 
-        {/* Demi-cercle sur le bord latéral de l'écran, centré sur la fente horizontale */}
+        {/* Demi-cercle gauche - sur le bord intérieur (vers la fente) */}
         <div
-          className="absolute"
+          className="absolute left-0"
           style={{
             width: "100px",
             height: "100px",
             backgroundColor: "hsl(220 14% 92%)",
             borderRadius: "9999px",
             border: "1px solid hsl(220 10% 82%)",
-            // Sur le bord gauche ou droit de l'écran
-            left: isLeftSide ? "-50px" : "auto",
-            right: isLeftSide ? "auto" : "-50px",
-            // Centré sur la ligne de la fente (bord intérieur du panneau)
-            bottom: isTop ? "-50px" : "auto",
+            transform: "translateX(-50%)",
             top: isTop ? "auto" : "-50px",
+            bottom: isTop ? "-50px" : "auto",
+          }}
+        />
+
+        {/* Demi-cercle droite - sur le bord intérieur (vers la fente) */}
+        <div
+          className="absolute right-0"
+          style={{
+            width: "100px",
+            height: "100px",
+            backgroundColor: "hsl(220 14% 92%)",
+            borderRadius: "9999px",
+            border: "1px solid hsl(220 10% 82%)",
+            transform: "translateX(50%)",
+            top: isTop ? "auto" : "-50px",
+            bottom: isTop ? "-50px" : "auto",
           }}
         />
       </motion.div>
@@ -173,11 +173,9 @@ export function IntroLoader({ onComplete }: IntroLoaderProps) {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
         >
-          {/* 4 Quadrant panels */}
-          <QuadrantPanel position="tl" />
-          <QuadrantPanel position="tr" />
-          <QuadrantPanel position="bl" />
-          <QuadrantPanel position="br" />
+          {/* 2 Panels - top and bottom */}
+          <Panel position="top" />
+          <Panel position="bottom" />
 
           {/* Center content */}
           <motion.div
@@ -220,16 +218,9 @@ export function IntroLoader({ onComplete }: IntroLoaderProps) {
             </div>
           </motion.div>
 
-          {/* Center cross lines that appear briefly during exit */}
+          {/* Center horizontal line that appears during exit */}
           <motion.div
             className="absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 z-5"
-            style={{ backgroundColor: "hsl(220 10% 82%)" }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: phase === "exit" ? 1 : 0 }}
-            transition={{ duration: 0.15 }}
-          />
-          <motion.div
-            className="absolute top-0 bottom-0 left-1/2 w-px -translate-x-1/2 z-5"
             style={{ backgroundColor: "hsl(220 10% 82%)" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: phase === "exit" ? 1 : 0 }}
