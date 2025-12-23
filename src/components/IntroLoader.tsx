@@ -7,9 +7,33 @@ interface IntroLoaderProps {
 
 export function IntroLoader({ onComplete }: IntroLoaderProps) {
   const [isVisible, setIsVisible] = useState(true);
-  const [phase, setPhase] = useState<"enter" | "hold" | "exit">("enter");
+  const [phase, setPhase] = useState<"loading" | "enter" | "hold" | "exit">("loading");
+  const [isPageLoaded, setIsPageLoaded] = useState(false);
 
+  // Wait for page to be fully loaded
   useEffect(() => {
+    const checkLoaded = () => {
+      if (document.readyState === "complete") {
+        // Add small delay to ensure Vite's loading bar is gone
+        setTimeout(() => setIsPageLoaded(true), 300);
+      }
+    };
+
+    if (document.readyState === "complete") {
+      setTimeout(() => setIsPageLoaded(true), 300);
+    } else {
+      window.addEventListener("load", checkLoaded);
+      return () => window.removeEventListener("load", checkLoaded);
+    }
+  }, []);
+
+  // Start animation sequence only after page is loaded
+  useEffect(() => {
+    if (!isPageLoaded) return;
+
+    // Start the animation sequence
+    setPhase("enter");
+    
     const holdTimer = setTimeout(() => setPhase("hold"), 1200);
     const exitTimer = setTimeout(() => setPhase("exit"), 2400);
     const completeTimer = setTimeout(() => {
@@ -22,7 +46,7 @@ export function IntroLoader({ onComplete }: IntroLoaderProps) {
       clearTimeout(exitTimer);
       clearTimeout(completeTimer);
     };
-  }, [onComplete]);
+  }, [isPageLoaded, onComplete]);
 
   const openOffset = 180;
   const circleSize = 80;
