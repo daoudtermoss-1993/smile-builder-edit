@@ -24,7 +24,10 @@ export function IntroLoader({ onComplete }: IntroLoaderProps) {
     };
   }, [onComplete]);
 
-  // Corner line component
+  const openOffset = 180;
+  const circleSize = 80;
+
+  // Outer corner decorative lines
   const CornerLine = ({ 
     position, 
     delay = 0 
@@ -58,6 +61,7 @@ export function IntroLoader({ onComplete }: IntroLoaderProps) {
     );
   };
 
+  // Inner corner lines (closer to center)
   const InnerCornerLine = ({ 
     position, 
     delay = 0 
@@ -91,96 +95,146 @@ export function IntroLoader({ onComplete }: IntroLoaderProps) {
     );
   };
 
-  // Panel component - top or bottom half of the screen
-  const Panel = ({ 
+  // Quadrant panel component
+  const QuadrantPanel = ({ 
     position 
   }: { 
-    position: "top" | "bottom" 
+    position: "tl" | "tr" | "bl" | "br" 
   }) => {
-    const isTop = position === "top";
-    const openOffset = 200; // Increased for more dramatic opening
+    const isTop = position === "tl" || position === "tr";
+    const isLeft = position === "tl" || position === "bl";
+
+    const positionStyles = {
+      tl: "top-0 left-0",
+      tr: "top-0 right-0",
+      bl: "bottom-0 left-0",
+      br: "bottom-0 right-0",
+    };
+
+    const exitY = isTop ? -openOffset : openOffset;
+
+    const delays = {
+      tl: 0,
+      tr: 0.02,
+      bl: 0,
+      br: 0.02,
+    };
+
+    // Inner corner radius position (corner nearest to center)
+    const innerCornerStyles = {
+      tl: "bottom-0 right-0",
+      tr: "bottom-0 left-0",
+      bl: "top-0 right-0",
+      br: "top-0 left-0",
+    };
 
     return (
       <motion.div
-        className={`absolute left-0 right-0 h-1/2 ${isTop ? "top-0" : "bottom-0"}`}
+        className={`absolute ${positionStyles[position]} w-1/2 h-1/2 overflow-visible`}
         style={{ backgroundColor: "hsl(220 14% 92%)" }}
         initial={{ y: 0 }}
         animate={{
-          y: phase === "exit" ? (isTop ? -openOffset : openOffset) : 0,
+          y: phase === "exit" ? exitY : 0,
         }}
         transition={{
           duration: 0.8,
-          delay: phase === "exit" ? 0 : 0,
+          delay: phase === "exit" ? delays[position] : 0,
           ease: [0.76, 0, 0.24, 1],
         }}
       >
-        {/* Corner lines */}
-        {isTop ? (
-          <>
-            <CornerLine position="tl" delay={0} />
-            <CornerLine position="tr" delay={0.1} />
-            <InnerCornerLine position="tl" delay={0} />
-            <InnerCornerLine position="tr" delay={0.1} />
-          </>
-        ) : (
-          <>
-            <CornerLine position="bl" delay={0} />
-            <CornerLine position="br" delay={0.1} />
-            <InnerCornerLine position="bl" delay={0} />
-            <InnerCornerLine position="br" delay={0.1} />
-          </>
-        )}
+        {/* Outer corner decorative lines */}
+        <CornerLine position={position} delay={delays[position]} />
+        <InnerCornerLine position={position} delay={delays[position]} />
 
-        {/* Demi-cercle gauche animé - sur le bord intérieur (vers la fente) */}
+        {/* Inner corner rounded cutout - creates the rounded corner effect near center */}
         <motion.div
-          className="absolute left-0"
+          className={`absolute ${innerCornerStyles[position]}`}
           style={{
-            width: "100px",
-            height: "100px",
+            width: "60px",
+            height: "60px",
             backgroundColor: "hsl(220 14% 92%)",
             borderRadius: "9999px",
             border: "1px solid hsl(220 10% 82%)",
-            top: isTop ? "auto" : "-50px",
-            bottom: isTop ? "-50px" : "auto",
+            transform: `translate(${isLeft ? "50%" : "-50%"}, ${isTop ? "50%" : "-50%"})`,
           }}
-          initial={{ x: "-50%", scale: 0.5, opacity: 0 }}
-          animate={{ 
-            x: "-50%", 
-            scale: phase === "exit" ? 1.3 : 1, 
-            opacity: 1 
-          }}
+          initial={{ scale: 0.6, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
           transition={{
-            duration: phase === "exit" ? 0.6 : 0.5,
-            delay: phase === "enter" ? 0.4 : 0,
-            ease: [0.25, 0.46, 0.45, 0.94],
-          }}
-        />
-
-        {/* Demi-cercle droite animé - sur le bord intérieur (vers la fente) */}
-        <motion.div
-          className="absolute right-0"
-          style={{
-            width: "100px",
-            height: "100px",
-            backgroundColor: "hsl(220 14% 92%)",
-            borderRadius: "9999px",
-            border: "1px solid hsl(220 10% 82%)",
-            top: isTop ? "auto" : "-50px",
-            bottom: isTop ? "-50px" : "auto",
-          }}
-          initial={{ x: "50%", scale: 0.5, opacity: 0 }}
-          animate={{ 
-            x: "50%", 
-            scale: phase === "exit" ? 1.3 : 1, 
-            opacity: 1 
-          }}
-          transition={{
-            duration: phase === "exit" ? 0.6 : 0.5,
-            delay: phase === "enter" ? 0.5 : 0,
+            duration: 0.5,
+            delay: 0.3,
             ease: [0.25, 0.46, 0.45, 0.94],
           }}
         />
       </motion.div>
+    );
+  };
+
+  // Side semicircle component (left and right edges)
+  const SideCircle = ({ side }: { side: "left" | "right" }) => {
+    const isLeft = side === "left";
+
+    return (
+      <>
+        {/* Top half circle */}
+        <motion.div
+          className={`absolute ${isLeft ? "left-0" : "right-0"} top-0 h-1/2`}
+          style={{
+            width: `${circleSize}px`,
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "center",
+          }}
+          initial={{ y: 0 }}
+          animate={{
+            y: phase === "exit" ? -openOffset : 0,
+          }}
+          transition={{
+            duration: 0.8,
+            ease: [0.76, 0, 0.24, 1],
+          }}
+        >
+          <div
+            style={{
+              width: `${circleSize}px`,
+              height: `${circleSize}px`,
+              backgroundColor: "hsl(220 14% 92%)",
+              borderRadius: "9999px",
+              border: "1px solid hsl(220 10% 82%)",
+              transform: `translateX(${isLeft ? "-50%" : "50%"}) translateY(50%)`,
+            }}
+          />
+        </motion.div>
+
+        {/* Bottom half circle */}
+        <motion.div
+          className={`absolute ${isLeft ? "left-0" : "right-0"} bottom-0 h-1/2`}
+          style={{
+            width: `${circleSize}px`,
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "center",
+          }}
+          initial={{ y: 0 }}
+          animate={{
+            y: phase === "exit" ? openOffset : 0,
+          }}
+          transition={{
+            duration: 0.8,
+            ease: [0.76, 0, 0.24, 1],
+          }}
+        >
+          <div
+            style={{
+              width: `${circleSize}px`,
+              height: `${circleSize}px`,
+              backgroundColor: "hsl(220 14% 92%)",
+              borderRadius: "9999px",
+              border: "1px solid hsl(220 10% 82%)",
+              transform: `translateX(${isLeft ? "-50%" : "50%"}) translateY(-50%)`,
+            }}
+          />
+        </motion.div>
+      </>
     );
   };
 
@@ -193,9 +247,15 @@ export function IntroLoader({ onComplete }: IntroLoaderProps) {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
         >
-          {/* 2 Panels - top and bottom */}
-          <Panel position="top" />
-          <Panel position="bottom" />
+          {/* 4 Quadrant panels */}
+          <QuadrantPanel position="tl" />
+          <QuadrantPanel position="tr" />
+          <QuadrantPanel position="bl" />
+          <QuadrantPanel position="br" />
+
+          {/* Side semicircles */}
+          <SideCircle side="left" />
+          <SideCircle side="right" />
 
           {/* Center content */}
           <motion.div
@@ -238,9 +298,16 @@ export function IntroLoader({ onComplete }: IntroLoaderProps) {
             </div>
           </motion.div>
 
-          {/* Center horizontal line that appears during exit */}
+          {/* Center cross lines */}
           <motion.div
             className="absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 z-5"
+            style={{ backgroundColor: "hsl(220 10% 82%)" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: phase === "exit" ? 1 : 0 }}
+            transition={{ duration: 0.15 }}
+          />
+          <motion.div
+            className="absolute top-0 bottom-0 left-1/2 w-px -translate-x-1/2 z-5"
             style={{ backgroundColor: "hsl(220 10% 82%)" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: phase === "exit" ? 1 : 0 }}
