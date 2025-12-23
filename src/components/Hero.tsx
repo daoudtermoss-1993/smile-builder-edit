@@ -51,14 +51,14 @@ export const Hero = ({
   
   return (
     <section 
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      className="relative min-h-screen flex flex-col overflow-hidden"
     >
       {/* Subtle gradient overlay for text readability */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/30 pointer-events-none" />
       
       {/* Content overlay - synchronized with image 1 only */}
       <motion.div 
-        className="relative z-10 w-full"
+        className="relative z-10 flex-1 flex flex-col"
         style={{ opacity, y: yContent, scale }}
       >
         <HeroContent 
