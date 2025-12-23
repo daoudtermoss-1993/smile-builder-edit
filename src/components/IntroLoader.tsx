@@ -143,17 +143,17 @@ export function IntroLoader({ onComplete }: IntroLoaderProps) {
         <CornerLine position={position} delay={delays[position]} />
         <InnerCornerLine position={position} delay={delays[position]} />
 
-        {/* Découpe arrondie (demi-cercle visible dans la fente) */}
+        {/* Demi-cercle convexe qui pointe vers l'extérieur de la fente */}
         <div
           className={`absolute ${
             isLeftSide ? "right-0 translate-x-1/2" : "left-0 -translate-x-1/2"
-          } ${isTop ? "bottom-0 translate-y-1/2" : "top-0 -translate-y-1/2"}`}
+          } ${isTop ? "bottom-0 -translate-y-1/2" : "top-0 translate-y-1/2"}`}
           style={{
-            width: "104px",
-            height: "104px",
-            backgroundColor: "hsl(var(--background))",
+            width: "100px",
+            height: "100px",
+            backgroundColor: "hsl(220 14% 92%)",
             borderRadius: "9999px",
-            boxShadow: "inset 0 0 0 1px hsl(220 10% 82%)",
+            border: "1px solid hsl(220 10% 82%)",
           }}
         />
       </motion.div>
