@@ -23,6 +23,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 const Index = () => {
   const { language } = useLanguage();
   const [introComplete, setIntroComplete] = useState(false);
+  const [heroReady, setHeroReady] = useState(false);
   useScrollAnimation();
   useVisitorTracking();
   
@@ -30,7 +31,9 @@ const Index = () => {
   
   return (
     <div className="min-h-screen relative bg-background">
-      {!introComplete && <IntroLoader onComplete={() => setIntroComplete(true)} />}
+      {!introComplete && (
+        <IntroLoader ready={heroReady} onComplete={() => setIntroComplete(true)} />
+      )}
       <Navigation />
       <AdminAccessButton />
       <AdminEditToggle />
@@ -38,7 +41,10 @@ const Index = () => {
       
       {/* 3D Dental Chair Animation with Hero */}
       <div id="home">
-        <DentalChair3D />
+        <DentalChair3D
+          onReady={() => setHeroReady(true)}
+          hideLoadingOverlay={!introComplete}
+        />
       </div>
       
       {/* Statement Section */}

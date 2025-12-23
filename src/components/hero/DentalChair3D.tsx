@@ -7,7 +7,20 @@ import heroVideo from "@/assets/hero-video.mp4";
 // Number of frames to extract (more = smoother but heavier)
 const FRAME_COUNT = 90;
 
-export function DentalChair3D() {
+type DentalChair3DProps = {
+  onReady?: () => void;
+};
+
+export type DentalChair3DProps = {
+  onReady?: () => void;
+  /**
+   * Quand true, on masque l'overlay de progression (la "ligne verte")
+   * car l'intro loader couvre déjà l'écran.
+   */
+  hideLoadingOverlay?: boolean;
+};
+
+export function DentalChair3D({ onReady, hideLoadingOverlay = false }: DentalChair3DProps) {
   const { language } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -15,7 +28,7 @@ export function DentalChair3D() {
   const [currentFrame, setCurrentFrame] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [loadingProgress, setLoadingProgress] = useState(0);
-  
+  const readyNotifiedRef = useRef(false);
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"]
@@ -95,6 +108,14 @@ export function DentalChair3D() {
     };
   }, []);
 
+  // Notify parent once the heavy hero frames are ready
+  useEffect(() => {
+    if (isLoading) return;
+    if (readyNotifiedRef.current) return;
+    readyNotifiedRef.current = true;
+    onReady?.();
+  }, [isLoading, onReady]);
+
   // Update current frame based on scroll
   useEffect(() => {
     if (frames.length === 0) return;
@@ -125,8 +146,8 @@ export function DentalChair3D() {
     >
       {/* Sticky container */}
       <div className="sticky top-0 h-screen w-full overflow-hidden">
-        {/* Loading overlay */}
-        {isLoading && (
+        {/* Loading overlay (masqué tant que l'intro est active) */}
+        {isLoading && !hideLoadingOverlay && (
           <div className="absolute inset-0 z-50 bg-background flex flex-col items-center justify-center gap-4">
             <div className="w-48 h-1 bg-muted rounded-full overflow-hidden">
               <motion.div 
