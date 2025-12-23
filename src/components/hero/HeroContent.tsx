@@ -51,31 +51,15 @@ export function HeroContent({ onBookClick, onContactClick }: HeroContentProps) {
   };
 
   return (
-    <div className="relative z-10 w-full h-full flex flex-col">
-      {/* Top section - Title and subtitle */}
-      <div className="container mx-auto px-4 pt-20 md:pt-24 text-center">
-        {/* Main title with gradient - Dr. Yousif German in teal */}
-        <motion.h1 
-          className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 tracking-tight"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-        >
-          <EditableText 
-            sectionKey="hero" 
-            field="title" 
-            defaultValue={t('heroTitle')}
-            as="span"
-            className="text-[hsl(175,85%,35%)] drop-shadow-[0_0_30px_rgba(0,180,180,0.4)]"
-          />
-        </motion.h1>
-        
+    <div className="relative z-10 w-full h-full flex flex-col pointer-events-none">
+      {/* Top section - Only subtitle, no title */}
+      <div className="container mx-auto px-4 pt-28 md:pt-32 text-center">
         {/* Subtitle - light for dark background */}
         <motion.p 
-          className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto leading-relaxed drop-shadow-lg"
-          initial={{ opacity: 0, y: 30 }}
+          className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed drop-shadow-lg"
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
         >
           <EditableText 
             sectionKey="hero" 
@@ -89,17 +73,18 @@ export function HeroContent({ onBookClick, onContactClick }: HeroContentProps) {
       {/* Spacer to push buttons to bottom */}
       <div className="flex-1" />
 
-      {/* Bottom section - CTA Buttons positioned at bottom */}
-      <div className="container mx-auto px-4 pb-12 md:pb-16">
+      {/* Bottom section - CTA Buttons positioned at bottom corners */}
+      <div className="w-full px-6 md:px-12 pb-8 md:pb-12">
         <motion.div 
-          className="flex flex-col sm:flex-row gap-4 justify-center"
+          className="flex justify-between items-end max-w-5xl mx-auto pointer-events-auto"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
         >
+          {/* Left button */}
           <button 
             onClick={handlePlayDoctorInfo}
-            className="group relative overflow-hidden px-8 py-4 bg-[hsl(175,85%,35%)] text-white rounded-full font-semibold text-lg shadow-lg shadow-[hsl(175,85%,35%)]/40 hover:shadow-xl hover:shadow-[hsl(175,85%,35%)]/50 transition-all duration-300 hover:scale-105 backdrop-blur-sm"
+            className="group relative overflow-hidden px-6 py-3 md:px-8 md:py-4 bg-[hsl(175,85%,35%)] text-white rounded-full font-semibold text-base md:text-lg shadow-lg shadow-[hsl(175,85%,35%)]/40 hover:shadow-xl hover:shadow-[hsl(175,85%,35%)]/50 transition-all duration-300 hover:scale-105 backdrop-blur-sm"
           >
             <span className="relative z-10 inline-flex items-center gap-2">
               {isPlaying ? (
@@ -114,9 +99,10 @@ export function HeroContent({ onBookClick, onContactClick }: HeroContentProps) {
             <div className="absolute inset-0 bg-[hsl(175,85%,40%)] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </button>
           
+          {/* Right button */}
           <button 
             onClick={onContactClick}
-            className="group px-8 py-4 bg-white/10 backdrop-blur-md border border-white/30 text-white rounded-full font-semibold text-lg hover:border-white/50 hover:bg-white/20 transition-all duration-300 hover:scale-105"
+            className="group px-6 py-3 md:px-8 md:py-4 bg-white/10 backdrop-blur-md border border-white/30 text-white rounded-full font-semibold text-base md:text-lg hover:border-white/50 hover:bg-white/20 transition-all duration-300 hover:scale-105"
           >
             <span className="inline-flex items-center gap-2">
               <Phone className="h-5 w-5 transition-transform group-hover:rotate-12" />
