@@ -56,6 +56,7 @@ export function IntroLoader({ onComplete, ready = true }: IntroLoaderProps) {
 
   const openOffset = 180;
   const circleSize = 80;
+  const isWaiting = phase === "loading";
 
   // Outer corner decorative lines
   const CornerLine = ({ 
@@ -82,9 +83,15 @@ export function IntroLoader({ onComplete, ready = true }: IntroLoaderProps) {
             strokeWidth="1.5"
             strokeLinecap="round"
             fill="none"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 0.8, delay: delay + 0.1, ease: "easeInOut" }}
+            initial={{ pathLength: 0, opacity: 0.3 }}
+            animate={isWaiting 
+              ? { pathLength: [0, 1, 1, 0], opacity: [0.3, 1, 1, 0.3] }
+              : { pathLength: 1, opacity: 1 }
+            }
+            transition={isWaiting 
+              ? { duration: 2.5, repeat: Infinity, ease: "easeInOut", times: [0, 0.4, 0.6, 1] }
+              : { duration: 0.8, delay: delay + 0.1, ease: "easeInOut" }
+            }
           />
         </svg>
       </div>
@@ -116,9 +123,15 @@ export function IntroLoader({ onComplete, ready = true }: IntroLoaderProps) {
             strokeWidth="1"
             strokeLinecap="round"
             fill="none"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 0.6, delay: delay + 0.25, ease: "easeInOut" }}
+            initial={{ pathLength: 0, opacity: 0.3 }}
+            animate={isWaiting 
+              ? { pathLength: [0, 1, 1, 0], opacity: [0.3, 1, 1, 0.3] }
+              : { pathLength: 1, opacity: 1 }
+            }
+            transition={isWaiting 
+              ? { duration: 2.5, delay: 0.3, repeat: Infinity, ease: "easeInOut", times: [0, 0.4, 0.6, 1] }
+              : { duration: 0.6, delay: delay + 0.25, ease: "easeInOut" }
+            }
           />
         </svg>
       </div>
