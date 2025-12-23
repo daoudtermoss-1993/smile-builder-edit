@@ -1,14 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface IntroLoaderProps {
   onComplete: () => void;
+  ready?: boolean;
 }
 
-export function IntroLoader({ onComplete }: IntroLoaderProps) {
+export function IntroLoader({ onComplete, ready = true }: IntroLoaderProps) {
   const [isVisible, setIsVisible] = useState(true);
   const [phase, setPhase] = useState<"loading" | "enter" | "hold" | "exit">("loading");
   const [isPageLoaded, setIsPageLoaded] = useState(false);
+  const startedRef = useRef(false);
 
   // Wait for page to be fully loaded
   useEffect(() => {
@@ -27,13 +29,17 @@ export function IntroLoader({ onComplete }: IntroLoaderProps) {
     }
   }, []);
 
-  // Start animation sequence only after page is loaded
+  // Start animation sequence only after page is loaded + hero is ready
   useEffect(() => {
     if (!isPageLoaded) return;
+    if (!ready) return;
+    if (startedRef.current) return;
+
+    startedRef.current = true;
 
     // Start the animation sequence
     setPhase("enter");
-    
+
     const holdTimer = setTimeout(() => setPhase("hold"), 1200);
     const exitTimer = setTimeout(() => setPhase("exit"), 2400);
     const completeTimer = setTimeout(() => {
@@ -46,7 +52,7 @@ export function IntroLoader({ onComplete }: IntroLoaderProps) {
       clearTimeout(exitTimer);
       clearTimeout(completeTimer);
     };
-  }, [isPageLoaded, onComplete]);
+  }, [isPageLoaded, ready, onComplete]);
 
   const openOffset = 180;
   const circleSize = 80;
