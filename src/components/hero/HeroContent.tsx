@@ -31,6 +31,7 @@ export function HeroContent({ onBookClick, onContactClick }: HeroContentProps) {
       }
       
       const audio = new Audio(doctorIntroAudio);
+      audio.volume = 0.6; // Reduced volume for elegance
       audioRef.current = audio;
       
       audio.onended = () => {
