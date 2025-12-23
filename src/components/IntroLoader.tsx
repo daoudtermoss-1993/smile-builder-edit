@@ -304,62 +304,6 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
           {/* Continuous border line animation */}
           <ContinuousBorderLine />
 
-          {/* Center content */}
-          <motion.div
-            className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ 
-              opacity: phase === "exit" ? 0 : 1, 
-              scale: phase === "exit" ? 1.02 : 1,
-            }}
-            transition={{ 
-              duration: phase === "exit" ? 0.3 : 0.6, 
-              delay: phase === "enter" ? 0.3 : 0,
-              ease: [0.25, 0.46, 0.45, 0.94]
-            }}
-          >
-            <div className="flex items-center gap-3">
-              {/* Icon box */}
-              <motion.div
-                className="w-10 h-10 md:w-11 md:h-11 rounded-lg flex items-center justify-center"
-                style={{ backgroundColor: "hsl(200 25% 20%)" }}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4, delay: 0.5 }}
-              >
-                <svg viewBox="0 0 24 24" className="w-5 h-5 md:w-6 md:h-6" fill="white">
-                  <path d="M12 2C9.5 2 7.5 3.5 7.5 5.5C7.5 7 8.5 8.5 10 9L9 22H15L14 9C15.5 8.5 16.5 7 16.5 5.5C16.5 3.5 14.5 2 12 2Z"/>
-                </svg>
-              </motion.div>
-
-              {/* Text */}
-              <motion.h1 
-                className="text-xl md:text-3xl font-semibold tracking-tight"
-                style={{ color: "hsl(200 25% 20%)" }}
-                initial={{ opacity: 0, x: 15 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.6 }}
-              >
-                Dr. Yousif German
-              </motion.h1>
-            </div>
-          </motion.div>
-
-          {/* Center cross lines */}
-          <motion.div
-            className="absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 z-5"
-            style={{ backgroundColor: "hsl(220 10% 82%)" }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: phase === "exit" ? 1 : 0 }}
-            transition={{ duration: 0.15 }}
-          />
-          <motion.div
-            className="absolute top-0 bottom-0 left-1/2 w-px -translate-x-1/2 z-5"
-            style={{ backgroundColor: "hsl(220 10% 82%)" }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: phase === "exit" ? 1 : 0 }}
-            transition={{ duration: 0.15 }}
-          />
         </motion.div>
       )}
     </AnimatePresence>
