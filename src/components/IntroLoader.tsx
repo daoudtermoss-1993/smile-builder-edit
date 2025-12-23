@@ -143,7 +143,7 @@ export function IntroLoader({ onComplete }: IntroLoaderProps) {
         <CornerLine position={position} delay={delays[position]} />
         <InnerCornerLine position={position} delay={delays[position]} />
 
-        {/* Demi-cercle convexe qui pointe vers l'intérieur de la fente - style sablier */}
+        {/* Demi-cercle sur le bord latéral (gauche ou droite de l'écran) - pointant vers le centre */}
         <div
           className="absolute"
           style={{
@@ -152,8 +152,10 @@ export function IntroLoader({ onComplete }: IntroLoaderProps) {
             backgroundColor: "hsl(220 14% 92%)",
             borderRadius: "9999px",
             border: "1px solid hsl(220 10% 82%)",
-            left: isLeftSide ? "auto" : "-50px",
-            right: isLeftSide ? "-50px" : "auto",
+            // Positionné sur le bord extérieur (gauche de l'écran pour tl/bl, droite pour tr/br)
+            left: isLeftSide ? "-50px" : "auto",
+            right: isLeftSide ? "auto" : "-50px",
+            // Centré verticalement sur le bord intérieur (bas pour top panels, haut pour bottom panels)
             top: isTop ? "auto" : "-50px",
             bottom: isTop ? "-50px" : "auto",
           }}
