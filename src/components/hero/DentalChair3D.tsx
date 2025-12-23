@@ -9,14 +9,6 @@ const FRAME_COUNT = 90;
 
 type DentalChair3DProps = {
   onReady?: () => void;
-};
-
-export type DentalChair3DProps = {
-  onReady?: () => void;
-  /**
-   * Quand true, on masque l'overlay de progression (la "ligne verte")
-   * car l'intro loader couvre déjà l'écran.
-   */
   hideLoadingOverlay?: boolean;
 };
 
