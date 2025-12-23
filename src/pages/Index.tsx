@@ -56,8 +56,6 @@ const Index = () => {
       {/* Statement Section */}
       <StatementSection />
       
-      {/* Wave separator after hero/statement */}
-      <WaveSeparator variant="white-to-dark" />
       
       <div id="about">
         <About
