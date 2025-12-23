@@ -101,7 +101,7 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
     const completeTimer = setTimeout(() => {
       setIsVisible(false);
       onComplete();
-    }, 4800);
+    }, 6000);
 
     return () => {
       clearTimeout(holdTimer);
@@ -226,9 +226,9 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
           y: phase === "exit" ? exitY : 0,
         }}
         transition={{
-          duration: 1.4,
+          duration: phase === "exit" ? 2.2 : 1.4,
           delay: phase === "exit" ? delays[position] : 0,
-          ease: [0.25, 0.1, 0.25, 1],
+          ease: [0.16, 1, 0.3, 1],
         }}
       >
 
