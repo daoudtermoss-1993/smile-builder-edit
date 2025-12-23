@@ -5,7 +5,7 @@ import { HeroContent } from "./HeroContent";
 import heroVideo from "@/assets/hero-video-new.mp4";
 
 // Number of frames to extract (more = smoother but heavier)
-const FRAME_COUNT = 120;
+const FRAME_COUNT = 150;
 
 type DentalChair3DProps = {
   onReady?: () => void;
