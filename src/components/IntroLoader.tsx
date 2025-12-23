@@ -24,7 +24,7 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
     targetProgressRef.current = progress;
   }, [progress]);
 
-  // Smooth progress animation loop (runs only while waiting)
+  // Ping-pong animation loop (line goes forward then back to start)
   useEffect(() => {
     if (!isVisible) return;
     if (!isWaiting) return;
@@ -35,24 +35,26 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
       if (startTimeRef.current === null) startTimeRef.current = t;
 
       const elapsed = t - startTimeRef.current;
-      const real = targetProgressRef.current;
-
-      // Indeterminate drift: keeps moving smoothly at the start even if "real" progress updates in chunks
-      const drift = 95 * (1 - Math.exp(-elapsed / 8000));
-      const target = Math.min(100, Math.max(real, drift));
-
-      setSmoothProgress((prev) => {
-        const diff = target - prev;
-        if (Math.abs(diff) < 0.02) return target;
-
-        // Exponential smoothing + minimum step so it never "freezes"
-        const easedStep = diff * 0.14;
-        const minStep = diff > 0 ? 0.22 : -0.22;
-        const step = diff > 0 ? Math.max(minStep, easedStep) : Math.min(minStep, easedStep);
-
-        const next = prev + step;
-        return diff > 0 ? Math.min(target, next) : Math.max(target, next);
-      });
+      
+      // Ping-pong cycle: 2 seconds forward, 2 seconds back
+      const cycleDuration = 4000; // 4 seconds total cycle
+      const halfCycle = cycleDuration / 2;
+      const cycleTime = elapsed % cycleDuration;
+      
+      // Calculate position in cycle (0 to 1 to 0)
+      let pingPongProgress: number;
+      if (cycleTime < halfCycle) {
+        // Going forward (0 to max)
+        pingPongProgress = (cycleTime / halfCycle) * 30; // Max 30% of the path
+      } else {
+        // Going back (max to 0)
+        pingPongProgress = (1 - (cycleTime - halfCycle) / halfCycle) * 30;
+      }
+      
+      // Ease the movement with sine for smoother feel
+      const easedProgress = pingPongProgress * Math.sin((cycleTime / cycleDuration) * Math.PI);
+      
+      setSmoothProgress(Math.max(0, easedProgress));
 
       rafRef.current = requestAnimationFrame(tick);
     };
@@ -93,12 +95,13 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
     // Start the animation sequence
     setPhase("enter");
 
-    const holdTimer = setTimeout(() => setPhase("hold"), 1200);
-    const exitTimer = setTimeout(() => setPhase("exit"), 2400);
+    // Slower timing for opening animation
+    const holdTimer = setTimeout(() => setPhase("hold"), 1800);
+    const exitTimer = setTimeout(() => setPhase("exit"), 3200);
     const completeTimer = setTimeout(() => {
       setIsVisible(false);
       onComplete();
-    }, 3300);
+    }, 4800);
 
     return () => {
       clearTimeout(holdTimer);
@@ -223,9 +226,9 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
           y: phase === "exit" ? exitY : 0,
         }}
         transition={{
-          duration: 0.8,
+          duration: 1.4,
           delay: phase === "exit" ? delays[position] : 0,
-          ease: [0.76, 0, 0.24, 1],
+          ease: [0.25, 0.1, 0.25, 1],
         }}
       >
 
@@ -272,8 +275,8 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
             y: phase === "exit" ? -openOffset : 0,
           }}
           transition={{
-            duration: 0.8,
-            ease: [0.76, 0, 0.24, 1],
+            duration: 1.4,
+            ease: [0.25, 0.1, 0.25, 1],
           }}
         >
           <div
@@ -302,8 +305,8 @@ export function IntroLoader({ onComplete, ready = true, progress = 0 }: IntroLoa
             y: phase === "exit" ? openOffset : 0,
           }}
           transition={{
-            duration: 0.8,
-            ease: [0.76, 0, 0.24, 1],
+            duration: 1.4,
+            ease: [0.25, 0.1, 0.25, 1],
           }}
         >
           <div
