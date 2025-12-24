@@ -61,9 +61,16 @@ export const EditableMedia = ({
   }
 
   const sectionContent = getSectionContent(sectionKey);
-  const currentSrc = sectionContent[field] || defaultSrc;
+  const storedSrc = sectionContent[field];
   const storedType = sectionContent[`${field}_type`];
+  
+  // Get the source - check if we have a stored value, otherwise use default
+  const currentSrc = storedSrc || defaultSrc;
+  
+  // Determine media type - use stored type if available, otherwise detect from URL
   const currentType: "image" | "video" = storedType === "video" ? "video" : storedType === "image" ? "image" : detectMediaType(currentSrc);
+  
+  console.log('EditableMedia Debug:', { field, storedSrc, storedType, currentSrc, currentType });
 
   const handleMediaClick = () => {
     if (isEditMode) {
@@ -181,7 +188,7 @@ export const EditableMedia = ({
 
   const handleConfirm = () => {
     if (previewUrl) {
-      // Save both the URL and the media type
+      // Save the URL to the field
       setPendingChange({
         sectionKey,
         field,
@@ -195,6 +202,7 @@ export const EditableMedia = ({
         oldValue: currentType,
         newValue: mediaType,
       });
+      console.log('Saving media:', { field, url: previewUrl, type: mediaType });
       setIsDialogOpen(false);
     }
   };
@@ -206,21 +214,24 @@ export const EditableMedia = ({
   };
 
   const renderMediaContent = (src: string, type: "image" | "video", isPreview = false) => {
-    const baseClasses = isPreview ? "w-full h-full object-cover" : "w-full h-full object-cover";
+    const baseClasses = "w-full h-full object-cover";
 
     if (type === "video") {
       return (
         <video
+          key={src}
           src={src}
           className={baseClasses}
           autoPlay
           loop
           muted
           playsInline
+          onError={(e) => console.error('Video load error:', e, src)}
+          onLoadedData={() => console.log('Video loaded:', src)}
         />
       );
     }
-    return <img src={src} alt={alt} className={baseClasses} />;
+    return <img src={src} alt={alt} className={baseClasses} onError={(e) => console.error('Image load error:', e, src)} />;
   };
 
   const renderDialog = () => (

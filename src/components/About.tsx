@@ -156,25 +156,64 @@ export const About = ({
             
             {/* Right side - Media in dark container with rounded corners and parallax */}
             <motion.div 
-              className="relative"
+              className="relative lg:-mr-[10vw]"
               initial={{ opacity: 0, x: 60 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.8, ease: "easeOut" }}
             >
-              <div className="relative h-full min-h-[500px] lg:min-h-[600px] rounded-[2rem] lg:rounded-[3rem] overflow-hidden bg-terminal-dark">
+              {/* Dark container with custom rounded corners like Terminal reference */}
+              <div 
+                className="relative h-full min-h-[500px] lg:min-h-[700px] overflow-hidden bg-terminal-dark"
+                style={{
+                  borderTopLeftRadius: '3rem',
+                  borderBottomLeftRadius: '3rem',
+                  borderTopRightRadius: '0',
+                  borderBottomRightRadius: '0',
+                }}
+              >
+                {/* Grid pattern overlay */}
                 <GridPattern />
+                
+                {/* Stars/dots effect */}
+                <div className="absolute inset-0 overflow-hidden">
+                  {Array.from({ length: 30 }).map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className="absolute w-1 h-1 bg-white/30 rounded-full"
+                      style={{
+                        left: `${Math.random() * 100}%`,
+                        top: `${Math.random() * 100}%`,
+                      }}
+                      animate={{
+                        opacity: [0.2, 0.8, 0.2],
+                        scale: [1, 1.5, 1],
+                      }}
+                      transition={{
+                        duration: 2 + Math.random() * 2,
+                        repeat: Infinity,
+                        delay: Math.random() * 2,
+                      }}
+                    />
+                  ))}
+                </div>
+                
+                {/* Media content with parallax scroll effect */}
                 <div className="relative z-10 h-full">
                   <EditableMedia
                     sectionKey="about"
                     field="doctorMedia"
                     defaultSrc={doctorImage}
                     alt={doctorName}
-                    className="h-full min-h-[500px] lg:min-h-[600px]"
+                    className="h-full min-h-[500px] lg:min-h-[700px]"
                     enableParallax={true}
-                    parallaxRange={25}
+                    parallaxRange={30}
                   />
                 </div>
+                
+                {/* Gradient overlays for depth */}
+                <div className="absolute inset-0 bg-gradient-to-t from-terminal-dark/80 via-transparent to-terminal-dark/40 pointer-events-none z-20" />
+                <div className="absolute inset-0 bg-gradient-to-r from-terminal-dark/60 via-transparent to-transparent pointer-events-none z-20" />
               </div>
             </motion.div>
           </div>
