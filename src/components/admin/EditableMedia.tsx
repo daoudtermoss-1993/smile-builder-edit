@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
 
 interface EditableMediaProps {
   sectionKey: string;
@@ -18,6 +18,7 @@ interface EditableMediaProps {
   label?: string;
   enableParallax?: boolean;
   parallaxRange?: number; // How much the content moves (in percentage)
+  scrollYProgressOverride?: MotionValue<number>;
 }
 
 export const EditableMedia = ({
@@ -29,6 +30,7 @@ export const EditableMedia = ({
   label,
   enableParallax = false,
   parallaxRange = 30,
+  scrollYProgressOverride,
 }: EditableMediaProps) => {
   const { isEditMode, getSectionContent, setPendingChange, loadSectionContent } = useEditable();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -39,13 +41,15 @@ export const EditableMedia = ({
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Parallax scroll effect
-  const { scrollYProgress } = useScroll({
+  const { scrollYProgress: internalScrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end start"],
   });
 
+  const effectiveScrollYProgress = scrollYProgressOverride ?? internalScrollYProgress;
+
   const parallaxY = useTransform(
-    scrollYProgress,
+    effectiveScrollYProgress,
     [0, 1],
     [`${parallaxRange}%`, `-${parallaxRange}%`]
   );
@@ -62,15 +66,12 @@ export const EditableMedia = ({
 
   const sectionContent = getSectionContent(sectionKey);
   const storedSrc = sectionContent[field];
-  const storedType = sectionContent[`${field}_type`];
-  
+
   // Get the source - check if we have a stored value, otherwise use default
   const currentSrc = storedSrc || defaultSrc;
-  
-  // Determine media type - use stored type if available, otherwise detect from URL
-  const currentType: "image" | "video" = storedType === "video" ? "video" : storedType === "image" ? "image" : detectMediaType(currentSrc);
-  
-  console.log('EditableMedia Debug:', { field, storedSrc, storedType, currentSrc, currentType });
+
+  // Determine media type from URL
+  const currentType: "image" | "video" = detectMediaType(currentSrc);
 
   const handleMediaClick = () => {
     if (isEditMode) {
@@ -195,14 +196,6 @@ export const EditableMedia = ({
         oldValue: currentSrc,
         newValue: previewUrl,
       });
-      // Also save the media type
-      setPendingChange({
-        sectionKey,
-        field: `${field}_type`,
-        oldValue: currentType,
-        newValue: mediaType,
-      });
-      console.log('Saving media:', { field, url: previewUrl, type: mediaType });
       setIsDialogOpen(false);
     }
   };
