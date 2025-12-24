@@ -1,6 +1,6 @@
 import { Award, Users, Clock, LucideIcon } from "lucide-react";
 import { EditableText } from "@/components/admin/EditableText";
-import { EditableImage } from "@/components/admin/EditableImage";
+import { EditableMedia } from "@/components/admin/EditableMedia";
 import { AddContentButton } from "@/components/admin/AddContentButton";
 import { DeleteContentButton } from "@/components/admin/DeleteContentButton";
 import { useDynamicContent, DynamicContentItem } from "@/hooks/useDynamicContent";
@@ -154,7 +154,7 @@ export const About = ({
               )}
             </motion.div>
             
-            {/* Right side - Image in dark container with rounded corners */}
+            {/* Right side - Media in dark container with rounded corners and parallax */}
             <motion.div 
               className="relative"
               initial={{ opacity: 0, x: 60 }}
@@ -162,18 +162,18 @@ export const About = ({
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.8, ease: "easeOut" }}
             >
-              <div className="relative h-full min-h-[500px] rounded-[2rem] lg:rounded-[3rem] overflow-hidden bg-terminal-dark">
+              <div className="relative h-full min-h-[500px] lg:min-h-[600px] rounded-[2rem] lg:rounded-[3rem] overflow-hidden bg-terminal-dark">
                 <GridPattern />
-                <div className="relative z-10 h-full p-8 flex items-center justify-center">
-                  <div className="relative w-full max-w-md">
-                    <EditableImage
-                      sectionKey="about"
-                      field="doctorImage"
-                      defaultSrc={doctorImage}
-                      alt={doctorName}
-                      className="rounded-2xl shadow-2xl"
-                    />
-                  </div>
+                <div className="relative z-10 h-full">
+                  <EditableMedia
+                    sectionKey="about"
+                    field="doctorMedia"
+                    defaultSrc={doctorImage}
+                    alt={doctorName}
+                    className="h-full min-h-[500px] lg:min-h-[600px]"
+                    enableParallax={true}
+                    parallaxRange={25}
+                  />
                 </div>
               </div>
             </motion.div>
