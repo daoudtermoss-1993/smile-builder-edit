@@ -5,9 +5,9 @@ import { AddContentButton } from "@/components/admin/AddContentButton";
 import { DeleteContentButton } from "@/components/admin/DeleteContentButton";
 import { useDynamicContent, DynamicContentItem } from "@/hooks/useDynamicContent";
 import { useEditable } from "@/contexts/EditableContext";
-import { motion } from "framer-motion";
+import { motion, useScroll } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -76,146 +76,162 @@ export const About = ({
     <>
       {/* Removed SectionTransition - hero already has curved transition */}
       
-      <section className="py-20 overflow-hidden relative bg-background">
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-0 items-stretch min-h-[700px]">
-            {/* Left side - Text content on white */}
-            <motion.div 
-              className="flex flex-col justify-center space-y-8 lg:pr-16"
-              initial={{ opacity: 0, x: -60 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-            >
-              <motion.span 
-                className="text-sm font-medium text-muted-foreground tracking-widest uppercase"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                0 1
-              </motion.span>
-              
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-foreground leading-tight">
-                <EditableText 
-                  sectionKey="about" 
-                  field="title" 
-                  defaultValue={language === 'ar' ? `تعرف على ${doctorName}` : `Meet ${doctorName}`}
-                  as="span"
-                />
-              </h2>
-              
-              <p className="text-lg text-muted-foreground leading-relaxed max-w-xl">
-                <EditableText 
-                  sectionKey="about" 
-                  field="description" 
-                  defaultValue={language === 'ar' ? 'مع سنوات من الخبرة في طب الأسنان التجميلي والترميمي، الدكتور يوسف جيرمان ملتزم بتقديم رعاية أسنان استثنائية في بيئة مريحة وترحيبية.' : description}
-                  as="span"
-                />
-              </p>
-              
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-6 pt-8 border-t border-border">
-                {statItems.map((stat, index) => {
-                  const Icon = iconMap[stat.iconType] || Award;
-                  return (
-                    <motion.div 
-                      key={stat.id}
-                      className="text-center relative group"
-                      initial={{ opacity: 0, y: 20 }}
+      <section id="about" ref={aboutRef} className="relative overflow-hidden bg-background">
+        <div className="container mx-auto px-4 relative z-10 py-20">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-start">
+            {/* Left side - Scroll-driven info blocks */}
+            <div className="space-y-16 lg:pr-6">
+              <article className="min-h-[65vh] flex items-center">
+                <motion.div
+                  className="space-y-8 max-w-xl"
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ amount: 0.6 }}
+                  transition={{ duration: 0.7, ease: "easeOut" }}
+                >
+                  <span className="text-sm font-medium text-muted-foreground tracking-widest uppercase">
+                    01
+                  </span>
+
+                  <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-foreground leading-tight">
+                    <EditableText
+                      sectionKey="about"
+                      field="title"
+                      defaultValue={language === "ar" ? `تعرف على ${doctorName}` : `Meet ${doctorName}`}
+                      as="span"
+                    />
+                  </h2>
+
+                  <p className="text-lg text-muted-foreground leading-relaxed">
+                    <EditableText
+                      sectionKey="about"
+                      field="description"
+                      defaultValue={
+                        language === "ar"
+                          ? "مع سنوات من الخبرة في طب الأسنان التجميلي والترميمي، الدكتور يوسف جيرمان ملتزم بتقديم رعاية أسنان استثنائية في بيئة مريحة وترحيبية."
+                          : description
+                      }
+                      as="span"
+                    />
+                  </p>
+                </motion.div>
+              </article>
+
+              {statItems.map((stat, index) => {
+                const Icon = iconMap[stat.iconType] || Award;
+                const stepNumber = String(index + 2).padStart(2, "0");
+
+                return (
+                  <article key={stat.id} className="min-h-[65vh] flex items-center">
+                    <motion.div
+                      className="w-full max-w-xl"
+                      initial={{ opacity: 0, y: 30 }}
                       whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
+                      viewport={{ amount: 0.6 }}
+                      transition={{ duration: 0.7, ease: "easeOut" }}
                     >
-                      {isEditMode && (
-                        <div className="absolute -top-2 -right-2 z-10">
-                          <DeleteContentButton onConfirm={() => deleteItem(stat.id)} itemName="cette statistique" />
-                        </div>
-                      )}
-                      <div className="text-3xl md:text-4xl font-bold text-primary mb-2">
-                        {stat.value}
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-muted-foreground tracking-widest uppercase">
+                          {stepNumber}
+                        </span>
+
+                        {isEditMode && (
+                          <DeleteContentButton
+                            onConfirm={() => deleteItem(stat.id)}
+                            itemName="cette statistique"
+                          />
+                        )}
                       </div>
-                      <div className="text-sm text-muted-foreground">
-                        {language === 'ar' ? stat.labelAr : stat.labelEn}
+
+                      <div className="mt-7 flex items-start gap-4">
+                        <div className="shrink-0 h-12 w-12 rounded-2xl bg-muted flex items-center justify-center">
+                          <Icon className="h-6 w-6 text-primary" />
+                        </div>
+
+                        <div>
+                          <div className="text-4xl md:text-5xl font-bold text-foreground">
+                            {stat.value}
+                          </div>
+                          <div className="mt-2 text-base text-muted-foreground">
+                            {language === "ar" ? stat.labelAr : stat.labelEn}
+                          </div>
+                        </div>
                       </div>
                     </motion.div>
-                  );
-                })}
-              </div>
+                  </article>
+                );
+              })}
 
               {isEditMode && (
                 <div className="flex justify-start">
-                  <AddContentButton 
-                    onClick={() => setShowAddDialog(true)} 
-                    label={language === 'ar' ? 'إضافة إحصائية' : 'Add Statistic'}
+                  <AddContentButton
+                    onClick={() => setShowAddDialog(true)}
+                    label={language === "ar" ? "إضافة إحصائية" : "Add Statistic"}
                   />
                 </div>
               )}
-            </motion.div>
-            
-            {/* Right side - Media in dark container with rounded corners and parallax */}
-            <motion.div 
-              className="relative lg:-mr-[10vw]"
-              initial={{ opacity: 0, x: 60 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-            >
-              {/* Dark container with custom rounded corners like Terminal reference */}
-              <div 
-                className="relative h-full min-h-[500px] lg:min-h-[700px] overflow-hidden bg-terminal-dark"
-                style={{
-                  borderTopLeftRadius: '3rem',
-                  borderBottomLeftRadius: '3rem',
-                  borderTopRightRadius: '0',
-                  borderBottomRightRadius: '0',
-                }}
+            </div>
+
+            {/* Right side - Sticky media container, scroll synced */}
+            <div className="lg:sticky lg:top-24 lg:-mr-[10vw]">
+              <motion.div
+                initial={{ opacity: 0, x: 40 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
               >
-                {/* Grid pattern overlay */}
-                <GridPattern />
-                
-                {/* Stars/dots effect */}
-                <div className="absolute inset-0 overflow-hidden">
-                  {Array.from({ length: 30 }).map((_, i) => (
-                    <motion.div
-                      key={i}
-                      className="absolute w-1 h-1 bg-white/30 rounded-full"
-                      style={{
-                        left: `${Math.random() * 100}%`,
-                        top: `${Math.random() * 100}%`,
-                      }}
-                      animate={{
-                        opacity: [0.2, 0.8, 0.2],
-                        scale: [1, 1.5, 1],
-                      }}
-                      transition={{
-                        duration: 2 + Math.random() * 2,
-                        repeat: Infinity,
-                        delay: Math.random() * 2,
-                      }}
+                <div
+                  className="relative h-[70vh] min-h-[520px] max-h-[800px] overflow-hidden bg-terminal-dark"
+                  style={{
+                    borderTopLeftRadius: "3rem",
+                    borderBottomLeftRadius: "3rem",
+                    borderTopRightRadius: "0",
+                    borderBottomRightRadius: "0",
+                  }}
+                >
+                  <GridPattern />
+
+                  {/* Dots/stars effect (deterministic positions) */}
+                  <div className="absolute inset-0 overflow-hidden">
+                    {Array.from({ length: 30 }).map((_, i) => (
+                      <motion.div
+                        key={i}
+                        className="absolute w-1 h-1 bg-ivory-light/30 rounded-full"
+                        style={{
+                          left: `${(i * 37) % 100}%`,
+                          top: `${(i * 53) % 100}%`,
+                        }}
+                        animate={{
+                          opacity: [0.2, 0.8, 0.2],
+                          scale: [1, 1.5, 1],
+                        }}
+                        transition={{
+                          duration: 2 + (i % 3),
+                          repeat: Infinity,
+                          delay: (i % 5) * 0.2,
+                        }}
+                      />
+                    ))}
+                  </div>
+
+                  <div className="relative z-10 h-full">
+                    <EditableMedia
+                      sectionKey="about"
+                      field="doctorMedia"
+                      defaultSrc={doctorImage}
+                      alt={doctorName}
+                      className="h-full"
+                      enableParallax={true}
+                      parallaxRange={22}
+                      scrollYProgressOverride={scrollYProgress}
                     />
-                  ))}
+                  </div>
+
+                  <div className="absolute inset-0 bg-gradient-to-t from-terminal-dark/80 via-transparent to-terminal-dark/40 pointer-events-none z-20" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-terminal-dark/60 via-transparent to-transparent pointer-events-none z-20" />
                 </div>
-                
-                {/* Media content with parallax scroll effect */}
-                <div className="relative z-10 h-full">
-                  <EditableMedia
-                    sectionKey="about"
-                    field="doctorMedia"
-                    defaultSrc={doctorImage}
-                    alt={doctorName}
-                    className="h-full min-h-[500px] lg:min-h-[700px]"
-                    enableParallax={true}
-                    parallaxRange={30}
-                  />
-                </div>
-                
-                {/* Gradient overlays for depth */}
-                <div className="absolute inset-0 bg-gradient-to-t from-terminal-dark/80 via-transparent to-terminal-dark/40 pointer-events-none z-20" />
-                <div className="absolute inset-0 bg-gradient-to-r from-terminal-dark/60 via-transparent to-transparent pointer-events-none z-20" />
-              </div>
-            </motion.div>
+              </motion.div>
+            </div>
           </div>
         </div>
       </section>
