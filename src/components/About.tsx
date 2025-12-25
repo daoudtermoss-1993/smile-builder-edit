@@ -5,7 +5,7 @@ import { AddContentButton } from "@/components/admin/AddContentButton";
 import { DeleteContentButton } from "@/components/admin/DeleteContentButton";
 import { useDynamicContent, DynamicContentItem } from "@/hooks/useDynamicContent";
 import { useEditable } from "@/contexts/EditableContext";
-import { motion, useScroll } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,73 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { SectionTransition, GridPattern } from "@/components/ui/SectionTransition";
+
+// Annotation component for the media overlay
+interface AnnotationProps {
+  label: string;
+  value?: string;
+  position: { x: string; y: string };
+  delay?: number;
+  accentColor?: string;
+  showLine?: boolean;
+  lineDirection?: 'left' | 'right' | 'up' | 'down';
+}
+
+const ScrollAnnotation = ({ 
+  label, 
+  value, 
+  position, 
+  delay = 0, 
+  accentColor = "rgba(180,230,100,0.9)",
+  showLine = false,
+  lineDirection = 'left'
+}: AnnotationProps) => {
+  const lineVariants = {
+    left: { x1: 0, y1: 10, x2: -40, y2: 10 },
+    right: { x1: 0, y1: 10, x2: 40, y2: 10 },
+    up: { x1: 10, y1: 0, x2: 10, y2: -30 },
+    down: { x1: 10, y1: 20, x2: 10, y2: 50 },
+  };
+
+  return (
+    <motion.div
+      className="absolute z-20 pointer-events-none"
+      style={{ left: position.x, top: position.y }}
+      initial={{ opacity: 0, y: 10 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ amount: 0.3 }}
+      transition={{ duration: 0.6, delay, ease: "easeOut" }}
+    >
+      {showLine && (
+        <svg className="absolute -left-10 top-0 w-12 h-6 overflow-visible" viewBox="-40 0 50 20">
+          <motion.line
+            {...lineVariants[lineDirection]}
+            stroke={accentColor}
+            strokeWidth="1"
+            strokeDasharray="4 2"
+            initial={{ pathLength: 0 }}
+            whileInView={{ pathLength: 1 }}
+            viewport={{ amount: 0.3 }}
+            transition={{ duration: 0.8, delay: delay + 0.2 }}
+          />
+        </svg>
+      )}
+      <div className="flex flex-col gap-0.5">
+        <span 
+          className="text-[10px] tracking-[0.2em] uppercase font-medium"
+          style={{ color: accentColor }}
+        >
+          {label}
+        </span>
+        {value && (
+          <span className="text-white/90 text-sm font-semibold tracking-wide">
+            {value}
+          </span>
+        )}
+      </div>
+    </motion.div>
+  );
+};
 
 interface AboutProps {
   doctorImage?: string;
@@ -253,13 +320,70 @@ export const About = ({
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f14]/90 via-transparent to-[#0a0f14]/50 pointer-events-none z-[10]" />
                   <div className="absolute inset-0 bg-gradient-to-r from-[#0a0f14]/70 via-transparent to-transparent pointer-events-none z-[10]" />
                   
+                  {/* Interactive annotations that appear on scroll */}
+                  <ScrollAnnotation 
+                    label="EXPERTISE" 
+                    value="15+ Years" 
+                    position={{ x: "12%", y: "15%" }}
+                    delay={0.1}
+                    showLine
+                    lineDirection="left"
+                  />
+                  <ScrollAnnotation 
+                    label="SPECIALTY" 
+                    value="Cosmetic Dentistry" 
+                    position={{ x: "60%", y: "25%" }}
+                    delay={0.3}
+                    accentColor="rgba(100,200,255,0.9)"
+                  />
+                  <ScrollAnnotation 
+                    label="PATIENTS" 
+                    value="5,000+" 
+                    position={{ x: "15%", y: "70%" }}
+                    delay={0.5}
+                    showLine
+                    lineDirection="up"
+                  />
+                  <ScrollAnnotation 
+                    label="LOCATION" 
+                    value="Kuwait City" 
+                    position={{ x: "65%", y: "80%" }}
+                    delay={0.7}
+                    accentColor="rgba(255,180,100,0.9)"
+                  />
+                  
                   {/* Corner accent lines */}
                   <svg className="absolute bottom-8 left-8 w-16 h-16 z-[15]" viewBox="0 0 64 64" fill="none">
-                    <path d="M0 64 L0 32 Q0 0 32 0 L64 0" stroke="rgba(180,230,100,0.4)" strokeWidth="1.5" fill="none"/>
+                    <motion.path 
+                      d="M0 64 L0 32 Q0 0 32 0 L64 0" 
+                      stroke="rgba(180,230,100,0.4)" 
+                      strokeWidth="1.5" 
+                      fill="none"
+                      initial={{ pathLength: 0 }}
+                      whileInView={{ pathLength: 1 }}
+                      viewport={{ amount: 0.3 }}
+                      transition={{ duration: 1.2, delay: 0.3 }}
+                    />
                   </svg>
                   <svg className="absolute top-8 right-8 w-16 h-16 z-[15]" viewBox="0 0 64 64" fill="none">
-                    <path d="M64 0 L64 32 Q64 64 32 64 L0 64" stroke="rgba(180,230,100,0.4)" strokeWidth="1.5" fill="none"/>
+                    <motion.path 
+                      d="M64 0 L64 32 Q64 64 32 64 L0 64" 
+                      stroke="rgba(180,230,100,0.4)" 
+                      strokeWidth="1.5" 
+                      fill="none"
+                      initial={{ pathLength: 0 }}
+                      whileInView={{ pathLength: 1 }}
+                      viewport={{ amount: 0.3 }}
+                      transition={{ duration: 1.2, delay: 0.5 }}
+                    />
                   </svg>
+                  
+                  {/* Hover interaction zone */}
+                  <motion.div 
+                    className="absolute inset-0 z-[25] cursor-pointer"
+                    whileHover={{ backgroundColor: "rgba(180,230,100,0.03)" }}
+                    transition={{ duration: 0.3 }}
+                  />
                 </div>
               </motion.div>
             </div>
