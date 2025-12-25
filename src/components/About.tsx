@@ -57,6 +57,13 @@ export const About = ({
   const { isEditMode } = useEditable();
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [newStat, setNewStat] = useState({ value: "", labelEn: "", labelAr: "", iconType: "award" });
+  
+  // Scroll-driven parallax
+  const aboutRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: aboutRef,
+    offset: ["start end", "end start"]
+  });
 
   const {
     items: statItems,
