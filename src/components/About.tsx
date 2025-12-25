@@ -179,63 +179,108 @@ export const About = ({
               )}
             </div>
 
-            {/* Right side - Sticky media container, scroll synced */}
-            <div className="lg:sticky lg:top-24 lg:-mr-[10vw]">
+            {/* Right side - Sticky media container à la Terminal Industries */}
+            <div className="hidden lg:block lg:sticky lg:top-20 lg:-mr-[calc(50vw-50%+1px)] lg:ml-4 h-[85vh]">
               <motion.div
-                initial={{ opacity: 0, x: 40 }}
+                className="h-full"
+                initial={{ opacity: 0, x: 60 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
+                transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1] }}
               >
                 <div
-                  className="relative h-[70vh] min-h-[520px] max-h-[800px] overflow-hidden bg-terminal-dark"
+                  className="relative h-full w-full overflow-hidden bg-[#0a0f14]"
                   style={{
-                    borderTopLeftRadius: "3rem",
-                    borderBottomLeftRadius: "3rem",
-                    borderTopRightRadius: "0",
-                    borderBottomRightRadius: "0",
+                    borderTopLeftRadius: "2.5rem",
+                    borderBottomLeftRadius: "2.5rem",
+                    borderTopRightRadius: 0,
+                    borderBottomRightRadius: 0,
                   }}
                 >
-                  <GridPattern />
+                  {/* Grid pattern overlay */}
+                  <div 
+                    className="absolute inset-0 pointer-events-none z-[1]"
+                    style={{
+                      backgroundImage: `
+                        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)
+                      `,
+                      backgroundSize: '40px 40px',
+                    }}
+                  />
 
-                  {/* Dots/stars effect (deterministic positions) */}
-                  <div className="absolute inset-0 overflow-hidden">
-                    {Array.from({ length: 30 }).map((_, i) => (
+                  {/* Floating dots / stars effect */}
+                  <div className="absolute inset-0 overflow-hidden z-[2]">
+                    {Array.from({ length: 40 }).map((_, i) => (
                       <motion.div
                         key={i}
-                        className="absolute w-1 h-1 bg-ivory-light/30 rounded-full"
+                        className="absolute rounded-full"
                         style={{
-                          left: `${(i * 37) % 100}%`,
-                          top: `${(i * 53) % 100}%`,
+                          width: i % 3 === 0 ? 3 : 2,
+                          height: i % 3 === 0 ? 3 : 2,
+                          left: `${(i * 41 + 7) % 100}%`,
+                          top: `${(i * 59 + 11) % 100}%`,
+                          backgroundColor: i % 5 === 0 ? 'rgba(180,230,100,0.5)' : 'rgba(255,255,255,0.25)',
                         }}
                         animate={{
-                          opacity: [0.2, 0.8, 0.2],
-                          scale: [1, 1.5, 1],
+                          opacity: [0.3, 0.9, 0.3],
+                          scale: [1, 1.3, 1],
                         }}
                         transition={{
-                          duration: 2 + (i % 3),
+                          duration: 3 + (i % 4),
                           repeat: Infinity,
-                          delay: (i % 5) * 0.2,
+                          delay: (i % 7) * 0.3,
                         }}
                       />
                     ))}
                   </div>
 
-                  <div className="relative z-10 h-full">
+                  {/* Media content with parallax */}
+                  <div className="relative z-[5] h-full w-full">
                     <EditableMedia
                       sectionKey="about"
                       field="doctorMedia"
                       defaultSrc={doctorImage}
                       alt={doctorName}
-                      className="h-full"
+                      className="h-full w-full"
                       enableParallax={true}
-                      parallaxRange={22}
+                      parallaxRange={30}
                       scrollYProgressOverride={scrollYProgress}
                     />
                   </div>
 
-                  <div className="absolute inset-0 bg-gradient-to-t from-terminal-dark/80 via-transparent to-terminal-dark/40 pointer-events-none z-20" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-terminal-dark/60 via-transparent to-transparent pointer-events-none z-20" />
+                  {/* Gradient overlays */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f14]/90 via-transparent to-[#0a0f14]/50 pointer-events-none z-[10]" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#0a0f14]/70 via-transparent to-transparent pointer-events-none z-[10]" />
+                  
+                  {/* Corner accent lines */}
+                  <svg className="absolute bottom-8 left-8 w-16 h-16 z-[15]" viewBox="0 0 64 64" fill="none">
+                    <path d="M0 64 L0 32 Q0 0 32 0 L64 0" stroke="rgba(180,230,100,0.4)" strokeWidth="1.5" fill="none"/>
+                  </svg>
+                  <svg className="absolute top-8 right-8 w-16 h-16 z-[15]" viewBox="0 0 64 64" fill="none">
+                    <path d="M64 0 L64 32 Q64 64 32 64 L0 64" stroke="rgba(180,230,100,0.4)" strokeWidth="1.5" fill="none"/>
+                  </svg>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Mobile version - simpler card layout */}
+            <div className="lg:hidden mt-8">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.7 }}
+              >
+                <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-[#0a0f14]">
+                  <EditableMedia
+                    sectionKey="about"
+                    field="doctorMedia"
+                    defaultSrc={doctorImage}
+                    alt={doctorName}
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f14]/80 to-transparent pointer-events-none" />
                 </div>
               </motion.div>
             </div>
