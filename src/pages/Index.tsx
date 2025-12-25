@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { About } from "@/components/About";
 import { Services } from "@/components/Services";
@@ -20,13 +20,24 @@ import { AdminEditConfirmDialog } from "@/components/admin/AdminEditConfirmDialo
 import doctorImage from "@/assets/dr-yousif-hero.jpg";
 import { useLanguage } from "@/contexts/LanguageContext";
 
+const INTRO_SESSION_KEY = "intro_completed";
+
 const Index = () => {
   const { language } = useLanguage();
-  const [introComplete, setIntroComplete] = useState(false);
+  // Skip intro if already completed in this session (for admin mode toggle, etc.)
+  const [introComplete, setIntroComplete] = useState(() => {
+    return sessionStorage.getItem(INTRO_SESSION_KEY) === "true";
+  });
   const [heroReady, setHeroReady] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   useScrollAnimation();
   useVisitorTracking();
+
+  // Mark intro as complete in session storage
+  const handleIntroComplete = () => {
+    sessionStorage.setItem(INTRO_SESSION_KEY, "true");
+    setIntroComplete(true);
+  };
   
   const doctorName = language === 'ar' ? 'د. يوسف جيرمان' : 'Dr. Yousif German';
   
@@ -36,7 +47,7 @@ const Index = () => {
         <IntroLoader 
           ready={heroReady} 
           progress={loadingProgress}
-          onComplete={() => setIntroComplete(true)} 
+          onComplete={handleIntroComplete} 
         />
       )}
       <Navigation />
