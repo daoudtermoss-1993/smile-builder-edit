@@ -198,10 +198,22 @@ export const About = ({
   
   // Scroll-driven parallax
   const aboutRef = useRef<HTMLElement>(null);
+  const mediaRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: aboutRef,
     offset: ["start end", "end start"]
   });
+  
+  // Media section scroll progress for dynamic border
+  const { scrollYProgress: mediaScrollProgress } = useScroll({
+    target: mediaRef,
+    offset: ["start end", "end start"]
+  });
+  
+  const [currentProgress, setCurrentProgress] = useState(0);
+  
+  // Update progress value
+  mediaScrollProgress.on("change", (v) => setCurrentProgress(v));
 
   const {
     items: statItems,
@@ -308,22 +320,8 @@ export const About = ({
           </div>
 
           {/* Media container with Terminal Industries style dynamic border */}
-          {(() => {
-            // Calculate scroll progress for this section (0 to 1)
-            const mediaRef = useRef<HTMLDivElement>(null);
-            const { scrollYProgress: mediaScrollProgress } = useScroll({
-              target: mediaRef,
-              offset: ["start end", "end start"]
-            });
-            
-            const [currentProgress, setCurrentProgress] = useState(0);
-            
-            // Update progress value
-            mediaScrollProgress.on("change", (v) => setCurrentProgress(v));
-            
-            return (
-              <motion.div
-                ref={mediaRef}
+          <motion.div
+            ref={mediaRef}
                 className="relative"
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -491,8 +489,6 @@ export const About = ({
                   </svg>
                 </div>
               </motion.div>
-            );
-          })()}
         </div>
       </section>
 
