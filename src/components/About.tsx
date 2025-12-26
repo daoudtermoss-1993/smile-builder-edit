@@ -121,110 +121,110 @@ export const About = ({
   
   return (
     <>
-      <section id="about" ref={aboutRef} className="relative bg-background overflow-hidden">
-        <div className="flex flex-col lg:flex-row min-h-screen">
-          {/* Left side - Info blocks */}
-          <div className="w-full lg:w-[42%] px-6 md:px-10 lg:pl-[5vw] lg:pr-12 py-16 lg:py-24">
-            {/* Title block */}
-            <motion.div
-              className="mb-16 lg:mb-24"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.5 }}
-              transition={{ duration: 0.7, ease: "easeOut" }}
-            >
-              <span className="text-sm font-medium text-muted-foreground tracking-widest uppercase mb-6 block">
-                01
-              </span>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-foreground leading-tight mb-6">
-                <EditableText
-                  sectionKey="about"
-                  field="title"
-                  defaultValue={language === "ar" ? `تعرف على ${doctorName}` : `Meet ${doctorName}`}
-                  as="span"
-                />
-              </h2>
-              <p className="text-base lg:text-lg text-muted-foreground leading-relaxed max-w-lg">
-                <EditableText
-                  sectionKey="about"
-                  field="description"
-                  defaultValue={
-                    language === "ar"
-                      ? "مع سنوات من الخبرة في طب الأسنان التجميلي والترميمي، الدكتور يوسف جيرمان ملتزم بتقديم رعاية أسنان استثنائية في بيئة مريحة وترحيبية."
-                      : description
-                  }
-                  as="span"
-                />
-              </p>
-            </motion.div>
+      <section id="about" ref={aboutRef} className="relative bg-background overflow-hidden py-16 lg:py-24">
+        <div className="max-w-[1600px] mx-auto px-6 md:px-10 lg:px-[5vw]">
+          {/* Title block */}
+          <motion.div
+            className="mb-12 lg:mb-16 max-w-xl"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+          >
+            <span className="text-sm font-medium text-muted-foreground tracking-widest uppercase mb-6 block">
+              01
+            </span>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-foreground leading-tight mb-6">
+              <EditableText
+                sectionKey="about"
+                field="title"
+                defaultValue={language === "ar" ? `تعرف على ${doctorName}` : `Meet ${doctorName}`}
+                as="span"
+              />
+            </h2>
+            <p className="text-base lg:text-lg text-muted-foreground leading-relaxed">
+              <EditableText
+                sectionKey="about"
+                field="description"
+                defaultValue={
+                  language === "ar"
+                    ? "مع سنوات من الخبرة في طب الأسنان التجميلي والترميمي، الدكتور يوسف جيرمان ملتزم بتقديم رعاية أسنان استثنائية في بيئة مريحة وترحيبية."
+                    : description
+                }
+                as="span"
+              />
+            </p>
+          </motion.div>
 
-            {/* Stats blocks */}
-            <div className="space-y-12 lg:space-y-16">
-              {statItems.map((stat, index) => {
-                const Icon = iconMap[stat.iconType] || Award;
-                const stepNumber = String(index + 2).padStart(2, "0");
+          {/* Stats row */}
+          <div className="flex flex-wrap gap-8 lg:gap-12 mb-12 lg:mb-16">
+            {statItems.map((stat, index) => {
+              const Icon = iconMap[stat.iconType] || Award;
+              const stepNumber = String(index + 2).padStart(2, "0");
 
-                return (
-                  <motion.div
-                    key={stat.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.5 }}
-                    transition={{ duration: 0.6, delay: index * 0.1, ease: "easeOut" }}
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-sm font-medium text-muted-foreground tracking-widest uppercase">
-                        {stepNumber}
-                      </span>
-                      {isEditMode && (
-                        <DeleteContentButton
-                          onConfirm={() => deleteItem(stat.id)}
-                          itemName="cette statistique"
-                        />
-                      )}
+              return (
+                <motion.div
+                  key={stat.id}
+                  className="relative"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.5 }}
+                  transition={{ duration: 0.6, delay: index * 0.1, ease: "easeOut" }}
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-xs font-medium text-muted-foreground tracking-widest uppercase">
+                      {stepNumber}
+                    </span>
+                    {isEditMode && (
+                      <DeleteContentButton
+                        onConfirm={() => deleteItem(stat.id)}
+                        itemName="cette statistique"
+                      />
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="shrink-0 h-10 w-10 rounded-xl bg-muted flex items-center justify-center">
+                      <Icon className="h-5 w-5 text-primary" />
                     </div>
-                    <div className="flex items-start gap-4">
-                      <div className="shrink-0 h-12 w-12 rounded-2xl bg-muted flex items-center justify-center">
-                        <Icon className="h-6 w-6 text-primary" />
+                    <div>
+                      <div className="text-2xl md:text-3xl font-bold text-foreground">
+                        {stat.value}
                       </div>
-                      <div>
-                        <div className="text-3xl md:text-4xl font-bold text-foreground">
-                          {stat.value}
-                        </div>
-                        <div className="mt-1 text-base text-muted-foreground">
-                          {language === "ar" ? stat.labelAr : stat.labelEn}
-                        </div>
+                      <div className="text-sm text-muted-foreground">
+                        {language === "ar" ? stat.labelAr : stat.labelEn}
                       </div>
                     </div>
-                  </motion.div>
-                );
-              })}
+                  </div>
+                </motion.div>
+              );
+            })}
 
-              {isEditMode && (
-                <div className="pt-4">
-                  <AddContentButton
-                    onClick={() => setShowAddDialog(true)}
-                    label={language === "ar" ? "إضافة إحصائية" : "Add Statistic"}
-                  />
-                </div>
-              )}
-            </div>
+            {isEditMode && (
+              <div className="flex items-end">
+                <AddContentButton
+                  onClick={() => setShowAddDialog(true)}
+                  label={language === "ar" ? "إضافة إحصائية" : "Add Statistic"}
+                />
+              </div>
+            )}
           </div>
 
-          {/* Right side - Sticky media container (Terminal Industries style) */}
-          <div className="hidden lg:block lg:flex-1 lg:sticky lg:top-0 lg:h-screen">
-            <motion.div
-              className="h-full w-full"
-              initial={{ opacity: 0, x: 40 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-            >
-              <div
-                className="relative h-full w-full overflow-hidden bg-[#0a0f14]"
+          {/* Media container with Terminal Industries style borders */}
+          <motion.div
+            className="relative"
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
+            {/* The container with special border shape */}
+            <div className="relative lg:ml-[15%] w-full lg:w-[85%]">
+              {/* Main media container with Terminal Industries style cutout */}
+              <div 
+                className="relative aspect-[16/10] lg:aspect-[16/9] overflow-hidden bg-[#0a0f14]"
                 style={{
-                  borderTopLeftRadius: "2.5rem",
-                  borderBottomLeftRadius: "2.5rem",
+                  borderRadius: '0 2.5rem 2.5rem 0',
+                  clipPath: 'polygon(80px 0, 100% 0, 100% 100%, 0 100%, 0 80px, 40px 80px, 40px 40px, 80px 40px)',
                 }}
               >
                 {/* Grid pattern */}
@@ -272,7 +272,7 @@ export const About = ({
                     field="doctorMedia"
                     defaultSrc={doctorImage}
                     alt={doctorName}
-                    className="h-full w-full"
+                    className="h-full w-full object-cover"
                     enableParallax={true}
                     parallaxRange={25}
                     scrollYProgressOverride={scrollYProgress}
@@ -287,7 +287,7 @@ export const About = ({
                 <ScrollAnnotation 
                   label="EXPERTISE" 
                   value="15+ Years" 
-                  position={{ x: "10%", y: "12%" }}
+                  position={{ x: "15%", y: "15%" }}
                   delay={0.2}
                 />
                 <ScrollAnnotation 
@@ -300,66 +300,67 @@ export const About = ({
                 <ScrollAnnotation 
                   label="PATIENTS" 
                   value="5,000+" 
-                  position={{ x: "12%", y: "75%" }}
+                  position={{ x: "20%", y: "75%" }}
                   delay={0.6}
                 />
                 <ScrollAnnotation 
                   label="LOCATION" 
                   value="Kuwait City" 
-                  position={{ x: "60%", y: "82%" }}
+                  position={{ x: "60%", y: "80%" }}
                   delay={0.8}
                   accentColor="rgba(255,180,100,0.9)"
                 />
-                
-                {/* Corner accents */}
-                <svg className="absolute bottom-6 left-6 w-14 h-14 z-[15]" viewBox="0 0 64 64" fill="none">
-                  <motion.path 
-                    d="M0 64 L0 32 Q0 0 32 0 L64 0" 
-                    stroke="rgba(180,230,100,0.5)" 
-                    strokeWidth="1.5" 
-                    fill="none"
-                    initial={{ pathLength: 0 }}
-                    whileInView={{ pathLength: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 1, delay: 0.3 }}
-                  />
-                </svg>
-                <svg className="absolute top-6 right-6 w-14 h-14 z-[15]" viewBox="0 0 64 64" fill="none">
-                  <motion.path 
-                    d="M64 0 L64 32 Q64 64 32 64 L0 64" 
-                    stroke="rgba(180,230,100,0.5)" 
-                    strokeWidth="1.5" 
-                    fill="none"
-                    initial={{ pathLength: 0 }}
-                    whileInView={{ pathLength: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 1, delay: 0.5 }}
-                  />
-                </svg>
               </div>
-            </motion.div>
-          </div>
 
-          {/* Mobile version */}
-          <div className="lg:hidden px-6 pb-12">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-[#0a0f14]">
-                <EditableMedia
-                  sectionKey="about"
-                  field="doctorMedia"
-                  defaultSrc={doctorImage}
-                  alt={doctorName}
-                  className="h-full w-full object-cover"
+              {/* Border outline with cutout shape - SVG overlay */}
+              <svg 
+                className="absolute inset-0 w-full h-full pointer-events-none z-[20]"
+                viewBox="0 0 1000 562"
+                preserveAspectRatio="none"
+              >
+                <motion.path 
+                  d="M80 0 L960 0 Q1000 0 1000 40 L1000 522 Q1000 562 960 562 L40 562 Q0 562 0 522 L0 80 L40 80 L40 40 L80 40 Z" 
+                  stroke="rgba(180,230,100,0.4)" 
+                  strokeWidth="2" 
+                  fill="none"
+                  initial={{ pathLength: 0 }}
+                  whileInView={{ pathLength: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1.5, ease: "easeInOut" }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f14]/70 to-transparent pointer-events-none" />
+              </svg>
+
+              {/* Corner accent decoration - top left cutout area */}
+              <div className="absolute top-0 left-0 w-20 h-20 z-[15]">
+                <svg className="w-full h-full" viewBox="0 0 80 80" fill="none">
+                  <motion.path 
+                    d="M80 0 L80 40 L40 40 L40 80 L0 80" 
+                    stroke="rgba(180,230,100,0.6)" 
+                    strokeWidth="1.5" 
+                    fill="none"
+                    initial={{ pathLength: 0 }}
+                    whileInView={{ pathLength: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8, delay: 0.5 }}
+                  />
+                </svg>
               </div>
-            </motion.div>
-          </div>
+
+              {/* Bottom right corner accent */}
+              <svg className="absolute bottom-4 right-4 w-12 h-12 z-[15]" viewBox="0 0 64 64" fill="none">
+                <motion.path 
+                  d="M64 0 L64 32 Q64 64 32 64 L0 64" 
+                  stroke="rgba(180,230,100,0.5)" 
+                  strokeWidth="1.5" 
+                  fill="none"
+                  initial={{ pathLength: 0 }}
+                  whileInView={{ pathLength: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1, delay: 0.7 }}
+                />
+              </svg>
+            </div>
+          </motion.div>
         </div>
       </section>
 
