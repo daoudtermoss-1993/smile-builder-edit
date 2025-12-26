@@ -5,7 +5,7 @@ import { AddContentButton } from "@/components/admin/AddContentButton";
 import { DeleteContentButton } from "@/components/admin/DeleteContentButton";
 import { useDynamicContent, DynamicContentItem } from "@/hooks/useDynamicContent";
 import { useEditable } from "@/contexts/EditableContext";
-import { motion, useScroll } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -18,13 +18,15 @@ import {
 } from "@/components/ui/dialog";
 import { SectionTransition } from "@/components/ui/SectionTransition";
 
-// Annotation component for the media overlay
+// Annotation component for the media overlay with scroll-driven visibility
 interface AnnotationProps {
   label: string;
   value?: string;
   position: { x: string; y: string };
   delay?: number;
   accentColor?: string;
+  scrollProgress?: number;
+  showAt?: [number, number]; // [start, end] range when annotation is visible
 }
 
 const ScrollAnnotation = ({ 
@@ -33,30 +35,126 @@ const ScrollAnnotation = ({
   position, 
   delay = 0, 
   accentColor = "rgba(180,230,100,0.9)",
-}: AnnotationProps) => (
-  <motion.div
-    className="absolute z-20 pointer-events-none"
-    style={{ left: position.x, top: position.y }}
-    initial={{ opacity: 0, y: 10 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ amount: 0.3 }}
-    transition={{ duration: 0.6, delay, ease: "easeOut" }}
-  >
-    <div className="flex flex-col gap-0.5">
-      <span 
-        className="text-[10px] tracking-[0.2em] uppercase font-medium"
-        style={{ color: accentColor }}
-      >
-        {label}
-      </span>
-      {value && (
-        <span className="text-white/90 text-sm font-semibold tracking-wide">
-          {value}
+  scrollProgress = 0,
+  showAt = [0, 1],
+}: AnnotationProps) => {
+  const isVisible = scrollProgress >= showAt[0] && scrollProgress <= showAt[1];
+  
+  return (
+    <motion.div
+      className="absolute z-20 pointer-events-none"
+      style={{ left: position.x, top: position.y }}
+      initial={{ opacity: 0, y: 15, scale: 0.9 }}
+      animate={{ 
+        opacity: isVisible ? 1 : 0, 
+        y: isVisible ? 0 : 15,
+        scale: isVisible ? 1 : 0.9
+      }}
+      transition={{ duration: 0.5, delay: isVisible ? delay : 0, ease: "easeOut" }}
+    >
+      <div className="flex flex-col gap-0.5">
+        <span 
+          className="text-[10px] tracking-[0.2em] uppercase font-medium"
+          style={{ color: accentColor }}
+        >
+          {label}
         </span>
-      )}
-    </div>
-  </motion.div>
-);
+        {value && (
+          <span className="text-white/90 text-sm font-semibold tracking-wide">
+            {value}
+          </span>
+        )}
+      </div>
+    </motion.div>
+  );
+};
+
+// Dynamic border notch component that moves with scroll
+interface DynamicBorderNotchProps {
+  scrollProgress: number;
+  containerHeight: number;
+}
+
+const DynamicBorderNotch = ({ scrollProgress, containerHeight }: DynamicBorderNotchProps) => {
+  // Notch moves from top to bottom based on scroll
+  const notchY = scrollProgress * (containerHeight - 120); // 120 is notch height
+  
+  return (
+    <svg 
+      className="absolute left-0 top-0 h-full w-20 pointer-events-none z-[25]"
+      style={{ overflow: 'visible' }}
+    >
+      {/* Moving notch with angled borders */}
+      <motion.g
+        style={{ transform: `translateY(${notchY}px)` }}
+      >
+        {/* Angled notch shape */}
+        <motion.path
+          d={`
+            M 0 0
+            L 40 0
+            L 40 30
+            L 60 50
+            L 60 70
+            L 40 90
+            L 40 120
+            L 0 120
+          `}
+          fill="none"
+          stroke="rgba(180,230,100,0.8)"
+          strokeWidth="2"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ duration: 0.8 }}
+        />
+        {/* Inner angled line */}
+        <motion.line
+          x1="45"
+          y1="35"
+          x2="55"
+          y2="55"
+          stroke="rgba(180,230,100,0.5)"
+          strokeWidth="1.5"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ duration: 0.4, delay: 0.3 }}
+        />
+        <motion.line
+          x1="55"
+          y1="65"
+          x2="45"
+          y2="85"
+          stroke="rgba(180,230,100,0.5)"
+          strokeWidth="1.5"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ duration: 0.4, delay: 0.5 }}
+        />
+        {/* Accent dot */}
+        <motion.circle
+          cx="50"
+          cy="60"
+          r="4"
+          fill="rgba(180,230,100,0.9)"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.3, delay: 0.6 }}
+        />
+      </motion.g>
+      
+      {/* Static vertical line on left edge */}
+      <line
+        x1="1"
+        y1="0"
+        x2="1"
+        y2="100%"
+        stroke="rgba(180,230,100,0.3)"
+        strokeWidth="2"
+        strokeDasharray="4 8"
+      />
+    </svg>
+  );
+};
 
 interface AboutProps {
   doctorImage?: string;
@@ -209,158 +307,192 @@ export const About = ({
             )}
           </div>
 
-          {/* Media container with Terminal Industries style borders */}
-          <motion.div
-            className="relative"
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          >
-            {/* The container with special border shape */}
-            <div className="relative lg:ml-[15%] w-full lg:w-[85%]">
-              {/* Main media container with Terminal Industries style cutout */}
-              <div 
-                className="relative aspect-[16/10] lg:aspect-[16/9] overflow-hidden bg-[#0a0f14]"
-                style={{
-                  borderRadius: '0 2.5rem 2.5rem 0',
-                  clipPath: 'polygon(80px 0, 100% 0, 100% 100%, 0 100%, 0 80px, 40px 80px, 40px 40px, 80px 40px)',
-                }}
+          {/* Media container with Terminal Industries style dynamic border */}
+          {(() => {
+            // Calculate scroll progress for this section (0 to 1)
+            const mediaRef = useRef<HTMLDivElement>(null);
+            const { scrollYProgress: mediaScrollProgress } = useScroll({
+              target: mediaRef,
+              offset: ["start end", "end start"]
+            });
+            
+            const [currentProgress, setCurrentProgress] = useState(0);
+            
+            // Update progress value
+            mediaScrollProgress.on("change", (v) => setCurrentProgress(v));
+            
+            return (
+              <motion.div
+                ref={mediaRef}
+                className="relative"
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
               >
-                {/* Grid pattern */}
-                <div 
-                  className="absolute inset-0 pointer-events-none z-[1]"
-                  style={{
-                    backgroundImage: `
-                      linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)
-                    `,
-                    backgroundSize: '50px 50px',
-                  }}
-                />
-
-                {/* Floating dots */}
-                <div className="absolute inset-0 overflow-hidden z-[2]">
-                  {Array.from({ length: 25 }).map((_, i) => (
-                    <motion.div
-                      key={i}
-                      className="absolute rounded-full"
+                {/* The container with special border shape */}
+                <div className="relative lg:ml-[12%] w-full lg:w-[88%]">
+                  {/* Dynamic border notch that moves with scroll */}
+                  <div className="hidden lg:block">
+                    <DynamicBorderNotch 
+                      scrollProgress={Math.max(0, Math.min(1, (currentProgress - 0.2) / 0.6))} 
+                      containerHeight={400}
+                    />
+                  </div>
+                  
+                  {/* Main media container */}
+                  <div 
+                    className="relative aspect-[16/10] lg:aspect-[16/9] overflow-hidden bg-[#0a0f14] ml-5 lg:ml-16"
+                    style={{
+                      borderRadius: '0 2rem 2rem 0',
+                    }}
+                  >
+                    {/* Grid pattern */}
+                    <div 
+                      className="absolute inset-0 pointer-events-none z-[1]"
                       style={{
-                        width: i % 3 === 0 ? 3 : 2,
-                        height: i % 3 === 0 ? 3 : 2,
-                        left: `${(i * 41 + 7) % 100}%`,
-                        top: `${(i * 59 + 11) % 100}%`,
-                        backgroundColor: i % 4 === 0 ? 'rgba(180,230,100,0.6)' : 'rgba(255,255,255,0.3)',
-                      }}
-                      animate={{
-                        opacity: [0.3, 0.8, 0.3],
-                        scale: [1, 1.2, 1],
-                      }}
-                      transition={{
-                        duration: 3 + (i % 3),
-                        repeat: Infinity,
-                        delay: (i % 5) * 0.4,
+                        backgroundImage: `
+                          linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                          linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)
+                        `,
+                        backgroundSize: '40px 40px',
                       }}
                     />
-                  ))}
-                </div>
 
-                {/* Media with parallax */}
-                <div className="relative z-[5] h-full w-full">
-                  <EditableMedia
-                    sectionKey="about"
-                    field="doctorMedia"
-                    defaultSrc={doctorImage}
-                    alt={doctorName}
-                    className="h-full w-full object-cover"
-                    enableParallax={true}
-                    parallaxRange={25}
-                    scrollYProgressOverride={scrollYProgress}
-                  />
-                </div>
+                    {/* Floating dots */}
+                    <div className="absolute inset-0 overflow-hidden z-[2]">
+                      {Array.from({ length: 20 }).map((_, i) => (
+                        <motion.div
+                          key={i}
+                          className="absolute rounded-full"
+                          style={{
+                            width: i % 3 === 0 ? 3 : 2,
+                            height: i % 3 === 0 ? 3 : 2,
+                            left: `${(i * 41 + 7) % 100}%`,
+                            top: `${(i * 59 + 11) % 100}%`,
+                            backgroundColor: i % 4 === 0 ? 'rgba(180,230,100,0.6)' : 'rgba(255,255,255,0.25)',
+                          }}
+                          animate={{
+                            opacity: [0.3, 0.7, 0.3],
+                            scale: [1, 1.15, 1],
+                          }}
+                          transition={{
+                            duration: 3 + (i % 3),
+                            repeat: Infinity,
+                            delay: (i % 5) * 0.4,
+                          }}
+                        />
+                      ))}
+                    </div>
 
-                {/* Gradient overlays */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f14]/80 via-transparent to-[#0a0f14]/40 pointer-events-none z-[10]" />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#0a0f14]/60 via-transparent to-transparent pointer-events-none z-[10]" />
-                
-                {/* Annotations */}
-                <ScrollAnnotation 
-                  label="EXPERTISE" 
-                  value="15+ Years" 
-                  position={{ x: "15%", y: "15%" }}
-                  delay={0.2}
-                />
-                <ScrollAnnotation 
-                  label="SPECIALTY" 
-                  value="Cosmetic Dentistry" 
-                  position={{ x: "55%", y: "20%" }}
-                  delay={0.4}
-                  accentColor="rgba(100,200,255,0.9)"
-                />
-                <ScrollAnnotation 
-                  label="PATIENTS" 
-                  value="5,000+" 
-                  position={{ x: "20%", y: "75%" }}
-                  delay={0.6}
-                />
-                <ScrollAnnotation 
-                  label="LOCATION" 
-                  value="Kuwait City" 
-                  position={{ x: "60%", y: "80%" }}
-                  delay={0.8}
-                  accentColor="rgba(255,180,100,0.9)"
-                />
-              </div>
+                    {/* Media with parallax */}
+                    <div className="relative z-[5] h-full w-full">
+                      <EditableMedia
+                        sectionKey="about"
+                        field="doctorMedia"
+                        defaultSrc={doctorImage}
+                        alt={doctorName}
+                        className="h-full w-full object-cover"
+                        enableParallax={true}
+                        parallaxRange={25}
+                        scrollYProgressOverride={scrollYProgress}
+                      />
+                    </div>
 
-              {/* Border outline with cutout shape - SVG overlay */}
-              <svg 
-                className="absolute inset-0 w-full h-full pointer-events-none z-[20]"
-                viewBox="0 0 1000 562"
-                preserveAspectRatio="none"
-              >
-                <motion.path 
-                  d="M80 0 L960 0 Q1000 0 1000 40 L1000 522 Q1000 562 960 562 L40 562 Q0 562 0 522 L0 80 L40 80 L40 40 L80 40 Z" 
-                  stroke="rgba(180,230,100,0.4)" 
-                  strokeWidth="2" 
-                  fill="none"
-                  initial={{ pathLength: 0 }}
-                  whileInView={{ pathLength: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1.5, ease: "easeInOut" }}
-                />
-              </svg>
+                    {/* Gradient overlays */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f14]/80 via-transparent to-[#0a0f14]/30 pointer-events-none z-[10]" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#0a0f14]/70 via-transparent to-transparent pointer-events-none z-[10]" />
+                    
+                    {/* Scroll-driven annotations that appear progressively */}
+                    <ScrollAnnotation 
+                      label="EXPERTISE" 
+                      value="15+ Years" 
+                      position={{ x: "8%", y: "12%" }}
+                      delay={0.1}
+                      scrollProgress={currentProgress}
+                      showAt={[0.15, 0.5]}
+                    />
+                    <ScrollAnnotation 
+                      label="SPECIALTY" 
+                      value="Cosmetic Dentistry" 
+                      position={{ x: "55%", y: "15%" }}
+                      delay={0.2}
+                      accentColor="rgba(100,200,255,0.9)"
+                      scrollProgress={currentProgress}
+                      showAt={[0.25, 0.6]}
+                    />
+                    <ScrollAnnotation 
+                      label="PATIENTS" 
+                      value="5,000+" 
+                      position={{ x: "12%", y: "72%" }}
+                      delay={0.15}
+                      scrollProgress={currentProgress}
+                      showAt={[0.35, 0.7]}
+                    />
+                    <ScrollAnnotation 
+                      label="LOCATION" 
+                      value="Kuwait City" 
+                      position={{ x: "58%", y: "78%" }}
+                      delay={0.25}
+                      accentColor="rgba(255,180,100,0.9)"
+                      scrollProgress={currentProgress}
+                      showAt={[0.4, 0.8]}
+                    />
+                  </div>
 
-              {/* Corner accent decoration - top left cutout area */}
-              <div className="absolute top-0 left-0 w-20 h-20 z-[15]">
-                <svg className="w-full h-full" viewBox="0 0 80 80" fill="none">
-                  <motion.path 
-                    d="M80 0 L80 40 L40 40 L40 80 L0 80" 
-                    stroke="rgba(180,230,100,0.6)" 
-                    strokeWidth="1.5" 
-                    fill="none"
-                    initial={{ pathLength: 0 }}
-                    whileInView={{ pathLength: 1 }}
+                  {/* Top border line */}
+                  <motion.div 
+                    className="absolute top-0 left-16 right-0 h-[2px] bg-gradient-to-r from-[rgba(180,230,100,0.6)] via-[rgba(180,230,100,0.3)] to-transparent z-[20]"
+                    initial={{ scaleX: 0, originX: 0 }}
+                    whileInView={{ scaleX: 1 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 0.8, delay: 0.5 }}
+                    transition={{ duration: 1, delay: 0.2 }}
                   />
-                </svg>
-              </div>
+                  
+                  {/* Bottom border line */}
+                  <motion.div 
+                    className="absolute bottom-0 left-16 right-0 h-[2px] bg-gradient-to-r from-[rgba(180,230,100,0.4)] via-[rgba(180,230,100,0.2)] to-transparent z-[20]"
+                    initial={{ scaleX: 0, originX: 0 }}
+                    whileInView={{ scaleX: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 1, delay: 0.4 }}
+                  />
 
-              {/* Bottom right corner accent */}
-              <svg className="absolute bottom-4 right-4 w-12 h-12 z-[15]" viewBox="0 0 64 64" fill="none">
-                <motion.path 
-                  d="M64 0 L64 32 Q64 64 32 64 L0 64" 
-                  stroke="rgba(180,230,100,0.5)" 
-                  strokeWidth="1.5" 
-                  fill="none"
-                  initial={{ pathLength: 0 }}
-                  whileInView={{ pathLength: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1, delay: 0.7 }}
-                />
-              </svg>
-            </div>
-          </motion.div>
+                  {/* Right rounded border */}
+                  <svg 
+                    className="absolute top-0 right-0 h-full w-12 pointer-events-none z-[20]"
+                    preserveAspectRatio="none"
+                  >
+                    <motion.path 
+                      d="M0 0 Q48 0 48 32 L48 100% Q48 100% 0 100%" 
+                      stroke="rgba(180,230,100,0.4)" 
+                      strokeWidth="2" 
+                      fill="none"
+                      vectorEffect="non-scaling-stroke"
+                      initial={{ pathLength: 0 }}
+                      whileInView={{ pathLength: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 1, delay: 0.6 }}
+                    />
+                  </svg>
+
+                  {/* Corner accent - bottom right */}
+                  <svg className="absolute bottom-3 right-3 w-10 h-10 z-[15]" viewBox="0 0 40 40" fill="none">
+                    <motion.path 
+                      d="M40 0 L40 24 Q40 40 24 40 L0 40" 
+                      stroke="rgba(180,230,100,0.5)" 
+                      strokeWidth="1.5" 
+                      fill="none"
+                      initial={{ pathLength: 0 }}
+                      whileInView={{ pathLength: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.8, delay: 0.8 }}
+                    />
+                  </svg>
+                </div>
+              </motion.div>
+            );
+          })()}
         </div>
       </section>
 
