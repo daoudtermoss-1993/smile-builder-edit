@@ -69,90 +69,191 @@ const ScrollAnnotation = ({
   );
 };
 
-// Dynamic border notch component that moves with scroll
-interface DynamicBorderNotchProps {
+// Dynamic border with Terminal Industries style angled cutout
+interface TerminalBorderProps {
   scrollProgress: number;
   containerHeight: number;
 }
 
-const DynamicBorderNotch = ({ scrollProgress, containerHeight }: DynamicBorderNotchProps) => {
-  // Notch moves from top to bottom based on scroll
-  const notchY = scrollProgress * (containerHeight - 120); // 120 is notch height
+const TerminalBorder = ({ scrollProgress, containerHeight }: TerminalBorderProps) => {
+  // The cutout position moves from top to bottom based on scroll
+  const cutoutOffset = scrollProgress * (containerHeight - 100);
+  
+  // Cutout dimensions
+  const cutoutWidth = 50;
+  const cutoutHeight = 80;
+  const angleDepth = 30;
   
   return (
-    <svg 
-      className="absolute left-0 top-0 h-full w-20 pointer-events-none z-[25]"
-      style={{ overflow: 'visible' }}
-    >
-      {/* Moving notch with angled borders */}
-      <motion.g
-        style={{ transform: `translateY(${notchY}px)` }}
+    <div className="absolute inset-0 pointer-events-none z-[25]">
+      {/* SVG border with moving angled cutout */}
+      <svg 
+        className="absolute left-0 top-0 w-full h-full"
+        style={{ overflow: 'visible' }}
+        preserveAspectRatio="none"
       >
-        {/* Angled notch shape */}
-        <motion.path
-          d={`
-            M 0 0
-            L 40 0
-            L 40 30
-            L 60 50
-            L 60 70
-            L 40 90
-            L 40 120
-            L 0 120
-          `}
-          fill="none"
-          stroke="rgba(180,230,100,0.8)"
+        <defs>
+          <linearGradient id="borderGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="rgba(180,230,100,0.8)" />
+            <stop offset="50%" stopColor="rgba(180,230,100,0.4)" />
+            <stop offset="100%" stopColor="rgba(180,230,100,0.2)" />
+          </linearGradient>
+        </defs>
+        
+        {/* Top border - from cutout to right */}
+        <motion.line
+          x1={cutoutWidth}
+          y1="0"
+          x2="100%"
+          y2="0"
+          stroke="url(#borderGradient)"
           strokeWidth="2"
           initial={{ pathLength: 0 }}
           animate={{ pathLength: 1 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
         />
-        {/* Inner angled line */}
+        
+        {/* Bottom border */}
         <motion.line
-          x1="45"
-          y1="35"
-          x2="55"
-          y2="55"
-          stroke="rgba(180,230,100,0.5)"
-          strokeWidth="1.5"
+          x1="0"
+          y1="100%"
+          x2="100%"
+          y2="100%"
+          stroke="rgba(180,230,100,0.4)"
+          strokeWidth="2"
           initial={{ pathLength: 0 }}
           animate={{ pathLength: 1 }}
-          transition={{ duration: 0.4, delay: 0.3 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
         />
-        <motion.line
-          x1="55"
-          y1="65"
-          x2="45"
-          y2="85"
-          stroke="rgba(180,230,100,0.5)"
-          strokeWidth="1.5"
+        
+        {/* Right border with rounded corner */}
+        <motion.path
+          d="M 100% 0 L 100% 100%"
+          stroke="rgba(180,230,100,0.3)"
+          strokeWidth="2"
+          fill="none"
           initial={{ pathLength: 0 }}
           animate={{ pathLength: 1 }}
-          transition={{ duration: 0.4, delay: 0.5 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
         />
-        {/* Accent dot */}
-        <motion.circle
-          cx="50"
-          cy="60"
-          r="4"
-          fill="rgba(180,230,100,0.9)"
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 0.3, delay: 0.6 }}
-        />
-      </motion.g>
+      </svg>
       
-      {/* Static vertical line on left edge */}
-      <line
-        x1="1"
-        y1="0"
-        x2="1"
-        y2="100%"
-        stroke="rgba(180,230,100,0.3)"
-        strokeWidth="2"
-        strokeDasharray="4 8"
+      {/* Moving angled cutout on the left side */}
+      <motion.div
+        className="absolute left-0"
+        style={{ 
+          top: cutoutOffset,
+          width: cutoutWidth + angleDepth,
+          height: cutoutHeight,
+        }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <svg 
+          width="100%" 
+          height="100%" 
+          viewBox={`0 0 ${cutoutWidth + angleDepth} ${cutoutHeight}`}
+          style={{ overflow: 'visible' }}
+        >
+          {/* The angled cutout border path */}
+          <motion.path
+            d={`
+              M 0 0
+              L ${cutoutWidth} 0
+              L ${cutoutWidth} ${cutoutHeight * 0.25}
+              L ${cutoutWidth + angleDepth} ${cutoutHeight * 0.5}
+              L ${cutoutWidth} ${cutoutHeight * 0.75}
+              L ${cutoutWidth} ${cutoutHeight}
+              L 0 ${cutoutHeight}
+            `}
+            fill="none"
+            stroke="rgba(180,230,100,0.9)"
+            strokeWidth="2"
+            strokeLinejoin="miter"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 0.6 }}
+          />
+          
+          {/* Inner diagonal accent lines */}
+          <motion.line
+            x1={cutoutWidth + 5}
+            y1={cutoutHeight * 0.35}
+            x2={cutoutWidth + angleDepth - 8}
+            y2={cutoutHeight * 0.5}
+            stroke="rgba(180,230,100,0.5)"
+            strokeWidth="1.5"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 0.4, delay: 0.4 }}
+          />
+          <motion.line
+            x1={cutoutWidth + angleDepth - 8}
+            y1={cutoutHeight * 0.5}
+            x2={cutoutWidth + 5}
+            y2={cutoutHeight * 0.65}
+            stroke="rgba(180,230,100,0.5)"
+            strokeWidth="1.5"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 0.4, delay: 0.5 }}
+          />
+          
+          {/* Center accent dot */}
+          <motion.circle
+            cx={cutoutWidth + angleDepth - 12}
+            cy={cutoutHeight * 0.5}
+            r="4"
+            fill="rgba(180,230,100,1)"
+            initial={{ scale: 0 }}
+            animate={{ scale: [0, 1.2, 1] }}
+            transition={{ duration: 0.4, delay: 0.6 }}
+          />
+          
+          {/* Small decorative dots */}
+          <motion.circle
+            cx={cutoutWidth + 8}
+            cy={cutoutHeight * 0.3}
+            r="2"
+            fill="rgba(180,230,100,0.6)"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3, delay: 0.7 }}
+          />
+          <motion.circle
+            cx={cutoutWidth + 8}
+            cy={cutoutHeight * 0.7}
+            r="2"
+            fill="rgba(180,230,100,0.6)"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3, delay: 0.8 }}
+          />
+        </svg>
+      </motion.div>
+      
+      {/* Left vertical border - before cutout */}
+      <motion.div
+        className="absolute left-0 top-0 w-[2px] bg-gradient-to-b from-[rgba(180,230,100,0.6)] to-[rgba(180,230,100,0.2)]"
+        style={{ height: cutoutOffset }}
+        initial={{ scaleY: 0, originY: 0 }}
+        animate={{ scaleY: 1 }}
+        transition={{ duration: 0.5 }}
       />
-    </svg>
+      
+      {/* Left vertical border - after cutout */}
+      <motion.div
+        className="absolute left-0 w-[2px] bg-gradient-to-b from-[rgba(180,230,100,0.2)] to-[rgba(180,230,100,0.6)]"
+        style={{ 
+          top: cutoutOffset + cutoutHeight,
+          height: `calc(100% - ${cutoutOffset + cutoutHeight}px)`
+        }}
+        initial={{ scaleY: 0, originY: 0 }}
+        animate={{ scaleY: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      />
+    </div>
   );
 };
 
@@ -328,23 +429,23 @@ export const About = ({
                 viewport={{ once: true }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
               >
-                {/* The container with special border shape */}
-                <div className="relative lg:ml-[12%] w-full lg:w-[88%]">
-                  {/* Dynamic border notch that moves with scroll */}
-                  <div className="hidden lg:block">
-                    <DynamicBorderNotch 
-                      scrollProgress={Math.max(0, Math.min(1, (currentProgress - 0.2) / 0.6))} 
-                      containerHeight={400}
-                    />
-                  </div>
-                  
+                {/* The container with Terminal Industries style border */}
+                <div className="relative w-full">
                   {/* Main media container */}
                   <div 
-                    className="relative aspect-[16/10] lg:aspect-[16/9] overflow-hidden bg-[#0a0f14] ml-5 lg:ml-16"
+                    className="relative aspect-[16/10] lg:aspect-[16/9] overflow-hidden bg-[#0a0f14]"
                     style={{
                       borderRadius: '0 2rem 2rem 0',
                     }}
                   >
+                    {/* Terminal Industries style border with moving cutout */}
+                    <div className="hidden lg:block">
+                      <TerminalBorder 
+                        scrollProgress={Math.max(0, Math.min(1, (currentProgress - 0.2) / 0.6))} 
+                        containerHeight={400}
+                      />
+                    </div>
+                    
                     {/* Grid pattern */}
                     <div 
                       className="absolute inset-0 pointer-events-none z-[1]"
@@ -436,57 +537,21 @@ export const About = ({
                       scrollProgress={currentProgress}
                       showAt={[0.4, 0.8]}
                     />
+
+                    {/* Corner accent - bottom right */}
+                    <svg className="absolute bottom-3 right-3 w-10 h-10 z-[15]" viewBox="0 0 40 40" fill="none">
+                      <motion.path 
+                        d="M40 0 L40 24 Q40 40 24 40 L0 40" 
+                        stroke="rgba(180,230,100,0.5)" 
+                        strokeWidth="1.5" 
+                        fill="none"
+                        initial={{ pathLength: 0 }}
+                        whileInView={{ pathLength: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8, delay: 0.8 }}
+                      />
+                    </svg>
                   </div>
-
-                  {/* Top border line */}
-                  <motion.div 
-                    className="absolute top-0 left-16 right-0 h-[2px] bg-gradient-to-r from-[rgba(180,230,100,0.6)] via-[rgba(180,230,100,0.3)] to-transparent z-[20]"
-                    initial={{ scaleX: 0, originX: 0 }}
-                    whileInView={{ scaleX: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 1, delay: 0.2 }}
-                  />
-                  
-                  {/* Bottom border line */}
-                  <motion.div 
-                    className="absolute bottom-0 left-16 right-0 h-[2px] bg-gradient-to-r from-[rgba(180,230,100,0.4)] via-[rgba(180,230,100,0.2)] to-transparent z-[20]"
-                    initial={{ scaleX: 0, originX: 0 }}
-                    whileInView={{ scaleX: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 1, delay: 0.4 }}
-                  />
-
-                  {/* Right rounded border */}
-                  <svg 
-                    className="absolute top-0 right-0 h-full w-12 pointer-events-none z-[20]"
-                    preserveAspectRatio="none"
-                  >
-                    <motion.path 
-                      d="M0 0 Q48 0 48 32 L48 100% Q48 100% 0 100%" 
-                      stroke="rgba(180,230,100,0.4)" 
-                      strokeWidth="2" 
-                      fill="none"
-                      vectorEffect="non-scaling-stroke"
-                      initial={{ pathLength: 0 }}
-                      whileInView={{ pathLength: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 1, delay: 0.6 }}
-                    />
-                  </svg>
-
-                  {/* Corner accent - bottom right */}
-                  <svg className="absolute bottom-3 right-3 w-10 h-10 z-[15]" viewBox="0 0 40 40" fill="none">
-                    <motion.path 
-                      d="M40 0 L40 24 Q40 40 24 40 L0 40" 
-                      stroke="rgba(180,230,100,0.5)" 
-                      strokeWidth="1.5" 
-                      fill="none"
-                      initial={{ pathLength: 0 }}
-                      whileInView={{ pathLength: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.8, delay: 0.8 }}
-                    />
-                  </svg>
                 </div>
               </motion.div>
         </div>
