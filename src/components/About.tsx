@@ -1,24 +1,31 @@
 import { Award, Users, Clock, LucideIcon } from "lucide-react";
-import { EditableText } from "@/components/admin/EditableText";
-import { EditableMedia } from "@/components/admin/EditableMedia";
-import { AddContentButton } from "@/components/admin/AddContentButton";
-import { DeleteContentButton } from "@/components/admin/DeleteContentButton";
-import { useDynamicContent, DynamicContentItem } from "@/hooks/useDynamicContent";
-import { useEditable } from "@/contexts/EditableContext";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { useRef, useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { SectionTransition } from "@/components/ui/SectionTransition";
+import React, { useRef, useState, useEffect, useId } from "react";
 
-// Annotation component for the media overlay with scroll-driven visibility
+// ============================================
+// CONFIGURATION - Modifiez ces valeurs selon vos besoins
+// ============================================
+const CONFIG = {
+  // Frame / Cadre
+  cornerRadius: 80,        // Rayon des coins principaux
+  notchRadius: 50,         // Rayon des coins du notch
+  notchDepth: 75,          // Profondeur du notch
+  notchHeight: 140,        // Hauteur du notch
+  borderInset: 1.5,        // Épaisseur de la bordure
+  
+  // Couleurs
+  borderColor: "rgba(180,230,100,0.95)",  // Couleur de la bordure (lime/jaune-vert)
+  notchFillColor: "white",                 // Couleur de remplissage du notch
+  
+  // Scroll ranges (0 à 1)
+  titleRange: [0, 0.15],           // Quand le titre apparaît/disparaît
+  infoItemsRange: [0.15, 0.65],    // Quand les info items défilent
+  statsRange: [0.65, 0.90],        // Quand les stats apparaissent
+};
+
+// ============================================
+// ANNOTATION COMPONENT - Labels animés sur l'image
+// ============================================
 interface AnnotationProps {
   label: string;
   value?: string;
@@ -26,7 +33,7 @@ interface AnnotationProps {
   delay?: number;
   accentColor?: string;
   scrollProgress?: number;
-  showAt?: [number, number]; // [start, end] range when annotation is visible
+  showAt?: [number, number];
 }
 
 const ScrollAnnotation = ({ 
@@ -34,7 +41,7 @@ const ScrollAnnotation = ({
   value, 
   position, 
   delay = 0, 
-  accentColor = "rgba(180,230,100,0.9)",
+  accentColor = CONFIG.borderColor,
   scrollProgress = 0,
   showAt = [0, 1],
 }: AnnotationProps) => {
@@ -69,216 +76,222 @@ const ScrollAnnotation = ({
   );
 };
 
-// Dynamic border with Terminal Industries style angled cutout
-interface TerminalBorderProps {
-  scrollProgress: number;
-  containerHeight: number;
+// ============================================
+// TERMINAL CONTAINER - Cadre avec notch animé
+// ============================================
+interface TerminalContainerProps {
+  children: React.ReactNode;
+  className?: string;
+  scrollProgress?: number;
+  onNotchPositionChange?: (y: number) => void;
 }
 
-const TerminalBorder = ({ scrollProgress, containerHeight }: TerminalBorderProps) => {
-  // The cutout position moves from top to bottom based on scroll
-  const cutoutOffset = scrollProgress * (containerHeight - 100);
+const TerminalContainer = ({ 
+  children, 
+  className = "", 
+  scrollProgress = 0, 
+  onNotchPositionChange 
+}: TerminalContainerProps) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [dimensions, setDimensions] = useState({ width: 600, height: 800 });
+  const [smoothNotchProgress, setSmoothNotchProgress] = useState(0);
   
-  // Cutout dimensions
-  const cutoutWidth = 50;
-  const cutoutHeight = 80;
-  const angleDepth = 30;
+  // Mesure les dimensions du conteneur
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        setDimensions({
+          width: containerRef.current.offsetWidth,
+          height: containerRef.current.offsetHeight
+        });
+      }
+    };
+    
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+    return () => window.removeEventListener('resize', updateDimensions);
+  }, []);
   
+  // Animation ultra-fluide du notch avec lerp
+  useEffect(() => {
+    let animationFrame: number;
+    const lerp = (start: number, end: number, factor: number) => start + (end - start) * factor;
+    
+    const animate = () => {
+      setSmoothNotchProgress(prev => {
+        const diff = Math.abs(scrollProgress - prev);
+        const factor = diff > 0.1 ? 0.06 : 0.04;
+        return lerp(prev, scrollProgress, factor);
+      });
+      animationFrame = requestAnimationFrame(animate);
+    };
+    
+    animationFrame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationFrame);
+  }, [scrollProgress]);
+  
+  const { width, height } = dimensions;
+  const { cornerRadius, notchRadius, notchDepth, notchHeight, borderInset } = CONFIG;
+  
+  // Easing pour le mouvement du notch
+  const easedProgress = smoothNotchProgress * smoothNotchProgress * (3 - 2 * smoothNotchProgress);
+  
+  // Position du notch basée sur le scroll
+  const minNotchTop = 100;
+  const maxNotchTop = height - notchHeight - 150;
+  const notchTop = minNotchTop + (easedProgress * (maxNotchTop - minNotchTop));
+  const notchBottom = notchTop + notchHeight;
+  const notchCenterY = notchTop + notchHeight / 2;
+  
+  useEffect(() => {
+    if (onNotchPositionChange) {
+      onNotchPositionChange(notchCenterY);
+    }
+  }, [notchCenterY, onNotchPositionChange]);
+  
+  // Chemin SVG pour le cadre (utilisé pour clip ET bordure)
+  const framePath = `
+    M ${borderInset} ${cornerRadius}
+    Q ${borderInset} ${borderInset}, ${cornerRadius} ${borderInset}
+    L ${width - cornerRadius} ${borderInset}
+    Q ${width - borderInset} ${borderInset}, ${width - borderInset} ${cornerRadius}
+    L ${width - borderInset} ${height - cornerRadius}
+    Q ${width - borderInset} ${height - borderInset}, ${width - cornerRadius} ${height - borderInset}
+    L ${cornerRadius} ${height - borderInset}
+    Q ${borderInset} ${height - borderInset}, ${borderInset} ${height - cornerRadius}
+    L ${borderInset} ${notchBottom + notchRadius}
+    Q ${borderInset} ${notchBottom}, ${notchRadius} ${notchBottom}
+    L ${notchDepth - notchRadius} ${notchBottom}
+    Q ${notchDepth} ${notchBottom}, ${notchDepth} ${notchBottom - notchRadius}
+    L ${notchDepth} ${notchTop + notchRadius}
+    Q ${notchDepth} ${notchTop}, ${notchDepth - notchRadius} ${notchTop}
+    L ${notchRadius} ${notchTop}
+    Q ${borderInset} ${notchTop}, ${borderInset} ${notchTop - notchRadius}
+    L ${borderInset} ${cornerRadius}
+    Z
+  `;
+  
+  // Chemin pour le remplissage blanc du notch
+  const notchAreaPath = `
+    M 0 ${notchTop}
+    L 0 ${notchBottom}
+    Q 0 ${notchBottom}, ${notchRadius} ${notchBottom}
+    L ${notchDepth - notchRadius} ${notchBottom}
+    Q ${notchDepth} ${notchBottom}, ${notchDepth} ${notchBottom - notchRadius}
+    L ${notchDepth} ${notchTop + notchRadius}
+    Q ${notchDepth} ${notchTop}, ${notchDepth - notchRadius} ${notchTop}
+    L ${notchRadius} ${notchTop}
+    Q 0 ${notchTop}, 0 ${notchTop}
+    Z
+  `;
+  
+  // ID unique pour le clipPath
+  const reactId = useId();
+  const safeId = reactId.replace(/[:]/g, "");
+  const clipPathId = `terminal-clip-${safeId}`;
+  const clipUrl = `url(#${clipPathId})`;
+
   return (
-    <div className="absolute inset-0 pointer-events-none z-[25]">
-      {/* SVG border with moving angled cutout */}
-      <svg 
-        className="absolute left-0 top-0 w-full h-full"
-        style={{ overflow: 'visible' }}
-        preserveAspectRatio="none"
+    <div ref={containerRef} className={`relative ${className}`}>
+      {/* Définition du clipPath SVG */}
+      <svg
+        className="absolute pointer-events-none"
+        width={0}
+        height={0}
+        viewBox={`0 0 ${width} ${height}`}
+        aria-hidden="true"
       >
         <defs>
-          <linearGradient id="borderGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="rgba(180,230,100,0.8)" />
-            <stop offset="50%" stopColor="rgba(180,230,100,0.4)" />
-            <stop offset="100%" stopColor="rgba(180,230,100,0.2)" />
-          </linearGradient>
+          <clipPath id={clipPathId} clipPathUnits="userSpaceOnUse">
+            <path d={framePath} />
+          </clipPath>
         </defs>
-        
-        {/* Top border - from cutout to right */}
-        <motion.line
-          x1={cutoutWidth}
-          y1="0"
-          x2="100%"
-          y2="0"
-          stroke="url(#borderGradient)"
-          strokeWidth="2"
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        />
-        
-        {/* Bottom border */}
-        <motion.line
-          x1="0"
-          y1="100%"
-          x2="100%"
-          y2="100%"
-          stroke="rgba(180,230,100,0.4)"
-          strokeWidth="2"
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-        />
-        
-        {/* Right border with rounded corner */}
-        <motion.path
-          d="M 100% 0 L 100% 100%"
-          stroke="rgba(180,230,100,0.3)"
-          strokeWidth="2"
-          fill="none"
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
+      </svg>
+
+      {/* Remplissage blanc du notch */}
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none z-[25]"
+        viewBox={`0 0 ${width} ${height}`}
+        preserveAspectRatio="none"
+      >
+        <path
+          d={notchAreaPath}
+          fill={CONFIG.notchFillColor}
+          style={{ transition: 'd 0.25s cubic-bezier(0.22, 1, 0.36, 1)' }}
         />
       </svg>
-      
-      {/* Moving angled cutout on the left side */}
-      <motion.div
-        className="absolute left-0"
-        style={{ 
-          top: cutoutOffset,
-          width: cutoutWidth + angleDepth,
-          height: cutoutHeight,
+
+      {/* Contenu clippé au cadre */}
+      <div
+        className="relative w-full h-full overflow-hidden"
+        style={{
+          clipPath: clipUrl,
+          WebkitClipPath: clipUrl,
         }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
       >
-        <svg 
-          width="100%" 
-          height="100%" 
-          viewBox={`0 0 ${cutoutWidth + angleDepth} ${cutoutHeight}`}
-          style={{ overflow: 'visible' }}
-        >
-          {/* The angled cutout border path */}
-          <motion.path
-            d={`
-              M 0 0
-              L ${cutoutWidth} 0
-              L ${cutoutWidth} ${cutoutHeight * 0.25}
-              L ${cutoutWidth + angleDepth} ${cutoutHeight * 0.5}
-              L ${cutoutWidth} ${cutoutHeight * 0.75}
-              L ${cutoutWidth} ${cutoutHeight}
-              L 0 ${cutoutHeight}
-            `}
-            fill="none"
-            stroke="rgba(180,230,100,0.9)"
-            strokeWidth="2"
-            strokeLinejoin="miter"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 0.6 }}
-          />
-          
-          {/* Inner diagonal accent lines */}
-          <motion.line
-            x1={cutoutWidth + 5}
-            y1={cutoutHeight * 0.35}
-            x2={cutoutWidth + angleDepth - 8}
-            y2={cutoutHeight * 0.5}
-            stroke="rgba(180,230,100,0.5)"
-            strokeWidth="1.5"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 0.4, delay: 0.4 }}
-          />
-          <motion.line
-            x1={cutoutWidth + angleDepth - 8}
-            y1={cutoutHeight * 0.5}
-            x2={cutoutWidth + 5}
-            y2={cutoutHeight * 0.65}
-            stroke="rgba(180,230,100,0.5)"
-            strokeWidth="1.5"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 0.4, delay: 0.5 }}
-          />
-          
-          {/* Center accent dot */}
-          <motion.circle
-            cx={cutoutWidth + angleDepth - 12}
-            cy={cutoutHeight * 0.5}
-            r="4"
-            fill="rgba(180,230,100,1)"
-            initial={{ scale: 0 }}
-            animate={{ scale: [0, 1.2, 1] }}
-            transition={{ duration: 0.4, delay: 0.6 }}
-          />
-          
-          {/* Small decorative dots */}
-          <motion.circle
-            cx={cutoutWidth + 8}
-            cy={cutoutHeight * 0.3}
-            r="2"
-            fill="rgba(180,230,100,0.6)"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3, delay: 0.7 }}
-          />
-          <motion.circle
-            cx={cutoutWidth + 8}
-            cy={cutoutHeight * 0.7}
-            r="2"
-            fill="rgba(180,230,100,0.6)"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3, delay: 0.8 }}
-          />
-        </svg>
-      </motion.div>
-      
-      {/* Left vertical border - before cutout */}
-      <motion.div
-        className="absolute left-0 top-0 w-[2px] bg-gradient-to-b from-[rgba(180,230,100,0.6)] to-[rgba(180,230,100,0.2)]"
-        style={{ height: cutoutOffset }}
-        initial={{ scaleY: 0, originY: 0 }}
-        animate={{ scaleY: 1 }}
-        transition={{ duration: 0.5 }}
-      />
-      
-      {/* Left vertical border - after cutout */}
-      <motion.div
-        className="absolute left-0 w-[2px] bg-gradient-to-b from-[rgba(180,230,100,0.2)] to-[rgba(180,230,100,0.6)]"
-        style={{ 
-          top: cutoutOffset + cutoutHeight,
-          height: `calc(100% - ${cutoutOffset + cutoutHeight}px)`
-        }}
-        initial={{ scaleY: 0, originY: 0 }}
-        animate={{ scaleY: 1 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      />
+        {children}
+      </div>
+
+      {/* Bordure animée */}
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none z-[30]"
+        viewBox={`0 0 ${width} ${height}`}
+        preserveAspectRatio="none"
+        style={{ overflow: 'visible' }}
+      >
+        <defs>
+          <linearGradient id="terminalBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="rgba(180,230,100,0.95)" />
+            <stop offset="40%" stopColor="rgba(180,230,100,0.7)" />
+            <stop offset="100%" stopColor="rgba(180,230,100,0.4)" />
+          </linearGradient>
+        </defs>
+        <motion.path
+          d={framePath}
+          fill="none"
+          stroke="url(#terminalBorder)"
+          strokeWidth="1.5"
+          initial={{ pathLength: 0, opacity: 0 }}
+          whileInView={{ pathLength: 1, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.8, ease: "easeInOut" }}
+          style={{ transition: 'd 0.25s cubic-bezier(0.22, 1, 0.36, 1)' }}
+        />
+      </svg>
     </div>
   );
 };
 
-interface AboutProps {
-  doctorImage?: string;
-  doctorName: string;
-  description: string;
-  stats: {
-    years: string;
-    patients: string;
-    treatments: string;
-  };
+// ============================================
+// SCROLL INFO ITEMS - Éléments qui défilent
+// ============================================
+interface ScrollInfoItem {
+  id: string;
+  label: string;
+  value: string;
+  description?: string;
 }
 
-interface StatItem extends DynamicContentItem {
+const scrollInfoItems: ScrollInfoItem[] = [
+  { id: "1", label: "EXPERIENCE", value: "15+ years", description: "of dental excellence" },
+  { id: "2", label: "PATIENTS", value: "5,000+ smiles", description: "transformed with care" },
+  { id: "3", label: "SPECIALTY", value: "Cosmetic dentistry", description: "premium aesthetics" },
+];
+
+// ============================================
+// STATS ITEMS - Statistiques
+// ============================================
+interface StatItem {
+  id: string;
   value: string;
-  labelEn: string;
-  labelAr: string;
+  label: string;
   iconType: string;
 }
 
 const defaultStats: StatItem[] = [
-  { id: "1", value: "15+", labelEn: "Years Exp.", labelAr: "سنوات خبرة", iconType: "award" },
-  { id: "2", value: "5000+", labelEn: "Patients", labelAr: "مريض", iconType: "users" },
-  { id: "3", value: "10000+", labelEn: "Treatments", labelAr: "علاج", iconType: "clock" },
+  { id: "1", value: "15+", label: "Years Exp.", iconType: "award" },
+  { id: "2", value: "5000+", label: "Patients", iconType: "users" },
+  { id: "3", value: "10000+", label: "Treatments", iconType: "clock" },
 ];
 
 const iconMap: Record<string, LucideIcon> = {
@@ -287,178 +300,223 @@ const iconMap: Record<string, LucideIcon> = {
   clock: Clock,
 };
 
+// ============================================
+// ABOUT COMPONENT - Section principale
+// ============================================
+interface AboutProps {
+  doctorImage?: string;
+  doctorName: string;
+  description: string;
+  stats?: {
+    years: string;
+    patients: string;
+    treatments: string;
+  };
+}
+
 export const About = ({ 
   doctorImage = "/placeholder.svg",
   doctorName,
   description,
+  stats,
 }: AboutProps) => {
-  const { language } = useLanguage();
-  const { isEditMode } = useEditable();
-  const [showAddDialog, setShowAddDialog] = useState(false);
-  const [newStat, setNewStat] = useState({ value: "", labelEn: "", labelAr: "", iconType: "award" });
+  const [notchY, setNotchY] = useState(300);
   
-  // Scroll-driven parallax
   const aboutRef = useRef<HTMLElement>(null);
   const mediaRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: aboutRef,
-    offset: ["start end", "end start"]
-  });
   
-  // Media section scroll progress for dynamic border
-  const { scrollYProgress: mediaScrollProgress } = useScroll({
-    target: mediaRef,
-    offset: ["start end", "end start"]
+  // Progress du scroll pour la section pinnée
+  const { scrollYProgress: pinnedScrollProgress } = useScroll({
+    target: aboutRef,
+    offset: ["start start", "end end"]
   });
   
   const [currentProgress, setCurrentProgress] = useState(0);
   
-  // Update progress value
-  mediaScrollProgress.on("change", (v) => setCurrentProgress(v));
-
-  const {
-    items: statItems,
-    addItem,
-    deleteItem,
-  } = useDynamicContent<StatItem>("about", "stats", defaultStats);
+  useEffect(() => {
+    let raf = 0;
+    const unsubscribe = pinnedScrollProgress.on("change", (v) => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => setCurrentProgress(v));
+    });
+    return () => {
+      cancelAnimationFrame(raf);
+      unsubscribe();
+    };
+  }, [pinnedScrollProgress]);
   
-  const handleAddStat = () => {
-    if (newStat.value && newStat.labelEn) {
-      addItem(newStat);
-      setNewStat({ value: "", labelEn: "", labelAr: "", iconType: "award" });
-      setShowAddDialog(false);
-    }
-  };
+  const smoothProgress = Math.max(0, Math.min(1, currentProgress));
+
+  // Use stats from props if provided
+  const displayStats: StatItem[] = stats ? [
+    { id: "1", value: stats.years, label: "Years Exp.", iconType: "award" },
+    { id: "2", value: stats.patients, label: "Patients", iconType: "users" },
+    { id: "3", value: stats.treatments, label: "Treatments", iconType: "clock" },
+  ] : defaultStats;
   
   return (
-    <>
-      <section id="about" ref={aboutRef} className="relative bg-background overflow-hidden py-16 lg:py-24">
-        <div className="max-w-[1600px] mx-auto px-6 md:px-10 lg:px-[5vw]">
-          {/* Title block */}
-          <motion.div
-            className="mb-12 lg:mb-16 max-w-xl"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.5 }}
-            transition={{ duration: 0.7, ease: "easeOut" }}
-          >
-            <span className="text-sm font-medium text-muted-foreground tracking-widest uppercase mb-6 block">
-              01
-            </span>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-foreground leading-tight mb-6">
-              <EditableText
-                sectionKey="about"
-                field="title"
-                defaultValue={language === "ar" ? `تعرف على ${doctorName}` : `Meet ${doctorName}`}
-                as="span"
-              />
-            </h2>
-            <p className="text-base lg:text-lg text-muted-foreground leading-relaxed">
-              <EditableText
-                sectionKey="about"
-                field="description"
-                defaultValue={
-                  language === "ar"
-                    ? "مع سنوات من الخبرة في طب الأسنان التجميلي والترميمي، الدكتور يوسف جيرمان ملتزم بتقديم رعاية أسنان استثنائية في بيئة مريحة وترحيبية."
-                    : description
-                }
-                as="span"
-              />
-            </p>
-          </motion.div>
-
-          {/* Stats row */}
-          <div className="flex flex-wrap gap-8 lg:gap-12 mb-12 lg:mb-16">
-            {statItems.map((stat, index) => {
-              const Icon = iconMap[stat.iconType] || Award;
-              const stepNumber = String(index + 2).padStart(2, "0");
-
-              return (
-                <motion.div
-                  key={stat.id}
-                  className="relative"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.5 }}
-                  transition={{ duration: 0.6, delay: index * 0.1, ease: "easeOut" }}
-                >
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-xs font-medium text-muted-foreground tracking-widest uppercase">
-                      {stepNumber}
-                    </span>
-                    {isEditMode && (
-                      <DeleteContentButton
-                        onConfirm={() => deleteItem(stat.id)}
-                        itemName="cette statistique"
-                      />
-                    )}
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="shrink-0 h-10 w-10 rounded-xl bg-muted flex items-center justify-center">
-                      <Icon className="h-5 w-5 text-primary" />
+    <section 
+      id="about" 
+      ref={aboutRef} 
+      className="relative bg-white"
+      style={{ height: '350vh' }}
+    >
+      {/* Contenu pinnné */}
+      <div className="sticky top-0 h-screen overflow-hidden flex items-start">
+        <div className="w-full max-w-[1800px] mx-auto px-6 md:px-10 lg:px-[4vw] pt-28 lg:pt-32">
+        
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-10 lg:gap-8 items-start">
+          
+            {/* Côté gauche - Contenu texte */}
+            <div className="relative space-y-6">
+              <div className="max-w-lg relative h-64 lg:h-72">
+                <span className="text-sm font-medium text-gray-500 tracking-widest uppercase mb-6 block">
+                  01 — About
+                </span>
+                
+                {/* Titre animé */}
+                {(() => {
+                  const [titleStart, titleEnd] = CONFIG.titleRange;
+                  const titleRaw = (smoothProgress - titleStart) / (titleEnd - titleStart);
+                  const titleProgress = Math.max(0, Math.min(1, titleRaw));
+                  
+                  let titleOpacity = 0;
+                  let titleY = -80;
+                  const isTitleActive = smoothProgress >= titleStart && smoothProgress < titleEnd;
+                  
+                  if (isTitleActive) {
+                    if (titleProgress < 0.15) {
+                      titleOpacity = titleProgress / 0.15;
+                    } else if (titleProgress > 0.85) {
+                      titleOpacity = 1 - ((titleProgress - 0.85) / 0.15);
+                    } else {
+                      titleOpacity = 1;
+                    }
+                    titleY = -80 + (titleProgress * 330);
+                  }
+                  
+                  return (
+                    <div
+                      className="absolute top-8 left-0 w-full"
+                      style={{
+                        opacity: titleOpacity,
+                        transform: `translate3d(0, ${titleY}px, 0)`,
+                        willChange: "transform, opacity",
+                      }}
+                    >
+                      <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight mb-4">
+                        Meet {doctorName}
+                      </h2>
+                      <p className="text-base lg:text-lg text-gray-600 leading-relaxed">
+                        {description}
+                      </p>
                     </div>
-                    <div>
-                      <div className="text-2xl md:text-3xl font-bold text-foreground">
-                        {stat.value}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {language === "ar" ? stat.labelAr : stat.labelEn}
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-
-            {isEditMode && (
-              <div className="flex items-end">
-                <AddContentButton
-                  onClick={() => setShowAddDialog(true)}
-                  label={language === "ar" ? "إضافة إحصائية" : "Add Statistic"}
-                />
+                  );
+                })()}
               </div>
-            )}
-          </div>
 
-          {/* Media container with Terminal Industries style dynamic border */}
-          <motion.div
-            ref={mediaRef}
+              {/* Info items animés */}
+              <div className="relative h-80 lg:h-96">
+                {scrollInfoItems.map((item, index) => {
+                  const [rangeStart, rangeEnd] = CONFIG.infoItemsRange;
+                  const scrollRange = rangeEnd - rangeStart;
+                  const totalItems = scrollInfoItems.length;
+                  const itemWindow = scrollRange / totalItems;
+                  const itemStart = rangeStart + index * itemWindow;
+                  const itemEnd = itemStart + itemWindow;
+                  
+                  const rawProgress = (smoothProgress - itemStart) / itemWindow;
+                  const itemProgress = Math.max(0, Math.min(1, rawProgress));
+                  
+                  const isFocused = smoothProgress >= itemStart && smoothProgress < itemEnd;
+                  const isPast = smoothProgress >= itemEnd;
+                  
+                  let opacity = 0;
+                  if (isFocused) {
+                    if (itemProgress < 0.15) {
+                      opacity = itemProgress / 0.15;
+                    } else if (itemProgress > 0.85) {
+                      opacity = 1 - ((itemProgress - 0.85) / 0.15);
+                    } else {
+                      opacity = 1;
+                    }
+                  }
+                  
+                  let y = -120;
+                  if (isFocused) {
+                    y = -120 + (itemProgress * 320);
+                  } else if (isPast) {
+                    y = 200;
+                  }
+
+                  return (
+                    <div
+                      key={item.id}
+                      className="absolute top-0 left-0 w-full max-w-md"
+                      style={{
+                        opacity,
+                        transform: `translate3d(0, ${y}px, 0)`,
+                        willChange: "transform, opacity",
+                      }}
+                    >
+                      <div className="bg-white/80 backdrop-blur-sm rounded-xl p-5 lg:p-6 shadow-lg border border-lime-200">
+                        <span className="text-[10px] font-semibold text-lime-600 tracking-[0.25em] uppercase mb-2 block">
+                          {item.label}
+                        </span>
+                        <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">
+                          {item.value}
+                        </h3>
+                        {item.description && (
+                          <span className="text-sm lg:text-base text-gray-600 mt-2 block">
+                            {item.description}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+                
+                {/* Indicateur de progression */}
+                <div className="absolute -left-4 top-0 w-[2px] h-full bg-gray-200 rounded-full overflow-hidden">
+                  <div 
+                    className="w-full bg-lime-500/60 rounded-full origin-top"
+                    style={{ 
+                      transform: `scaleY(${Math.min(1, (smoothProgress - 0.15) / 0.50)})`,
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+            
+            {/* Côté droit - Image avec cadre */}
+            <div className="relative lg:min-h-[800px]">
+              <motion.div
+                ref={mediaRef}
                 className="relative"
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, x: 40 }}
+                whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
               >
-                {/* The container with Terminal Industries style border */}
-                <div className="relative w-full">
-                  {/* Main media container */}
-                  <div 
-                    className="relative aspect-[16/10] lg:aspect-[16/9] overflow-hidden bg-[#0a0f14]"
-                    style={{
-                      borderRadius: '0 2rem 2rem 0',
-                    }}
-                  >
-                    {/* Terminal Industries style border with moving cutout */}
-                    <div className="hidden lg:block">
-                      <TerminalBorder 
-                        scrollProgress={Math.max(0, Math.min(1, (currentProgress - 0.2) / 0.6))} 
-                        containerHeight={400}
-                      />
-                    </div>
-                    
-                    {/* Grid pattern */}
+                <TerminalContainer 
+                  className="w-full h-[550px] md:h-[650px] lg:h-[800px]"
+                  scrollProgress={smoothProgress}
+                  onNotchPositionChange={setNotchY}
+                >
+                  <div className="relative w-full h-full bg-[#0a0f14]">
+                    {/* Grille subtile */}
                     <div 
                       className="absolute inset-0 pointer-events-none z-[1]"
                       style={{
                         backgroundImage: `
-                          linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-                          linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)
+                          linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                          linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)
                         `,
                         backgroundSize: '40px 40px',
                       }}
                     />
 
-                    {/* Floating dots */}
+                    {/* Points flottants animés */}
                     <div className="absolute inset-0 overflow-hidden z-[2]">
                       {Array.from({ length: 20 }).map((_, i) => (
                         <motion.div
@@ -469,7 +527,7 @@ export const About = ({
                             height: i % 3 === 0 ? 3 : 2,
                             left: `${(i * 41 + 7) % 100}%`,
                             top: `${(i * 59 + 11) % 100}%`,
-                            backgroundColor: i % 4 === 0 ? 'rgba(180,230,100,0.6)' : 'rgba(255,255,255,0.25)',
+                            backgroundColor: i % 4 === 0 ? 'rgba(180,230,100,0.6)' : 'rgba(255,255,255,0.2)',
                           }}
                           animate={{
                             opacity: [0.3, 0.7, 0.3],
@@ -484,61 +542,29 @@ export const About = ({
                       ))}
                     </div>
 
-                    {/* Media with parallax */}
-                    <div className="relative z-[5] h-full w-full">
-                      <EditableMedia
-                        sectionKey="about"
-                        field="doctorMedia"
-                        defaultSrc={doctorImage}
+                    {/* Image avec effet parallax */}
+                    <motion.div 
+                      className="relative z-[5] h-[120%] w-full"
+                      style={{
+                        y: useTransform(
+                          pinnedScrollProgress,
+                          [0, 1],
+                          ['-10%', '10%']
+                        ),
+                      }}
+                    >
+                      <img
+                        src={doctorImage}
                         alt={doctorName}
-                        className="h-full w-full object-cover"
-                        enableParallax={true}
-                        parallaxRange={25}
-                        scrollYProgressOverride={scrollYProgress}
+                        className="h-full w-full object-cover scale-110"
                       />
-                    </div>
+                    </motion.div>
 
-                    {/* Gradient overlays */}
+                    {/* Overlays de gradient */}
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f14]/80 via-transparent to-[#0a0f14]/30 pointer-events-none z-[10]" />
                     <div className="absolute inset-0 bg-gradient-to-r from-[#0a0f14]/70 via-transparent to-transparent pointer-events-none z-[10]" />
-                    
-                    {/* Scroll-driven annotations that appear progressively */}
-                    <ScrollAnnotation 
-                      label="EXPERTISE" 
-                      value="15+ Years" 
-                      position={{ x: "8%", y: "12%" }}
-                      delay={0.1}
-                      scrollProgress={currentProgress}
-                      showAt={[0.15, 0.5]}
-                    />
-                    <ScrollAnnotation 
-                      label="SPECIALTY" 
-                      value="Cosmetic Dentistry" 
-                      position={{ x: "55%", y: "15%" }}
-                      delay={0.2}
-                      accentColor="rgba(100,200,255,0.9)"
-                      scrollProgress={currentProgress}
-                      showAt={[0.25, 0.6]}
-                    />
-                    <ScrollAnnotation 
-                      label="PATIENTS" 
-                      value="5,000+" 
-                      position={{ x: "12%", y: "72%" }}
-                      delay={0.15}
-                      scrollProgress={currentProgress}
-                      showAt={[0.35, 0.7]}
-                    />
-                    <ScrollAnnotation 
-                      label="LOCATION" 
-                      value="Kuwait City" 
-                      position={{ x: "58%", y: "78%" }}
-                      delay={0.25}
-                      accentColor="rgba(255,180,100,0.9)"
-                      scrollProgress={currentProgress}
-                      showAt={[0.4, 0.8]}
-                    />
 
-                    {/* Corner accent - bottom right */}
+                    {/* Accent coin */}
                     <svg className="absolute bottom-3 right-3 w-10 h-10 z-[15]" viewBox="0 0 40 40" fill="none">
                       <motion.path 
                         d="M40 0 L40 24 Q40 40 24 40 L0 40" 
@@ -552,49 +578,83 @@ export const About = ({
                       />
                     </svg>
                   </div>
-                </div>
+                </TerminalContainer>
               </motion.div>
-        </div>
-      </section>
-
-      {/* Transition to dark section */}
-      <SectionTransition variant="white-to-dark" />
-
-      {/* Add Stat Dialog */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Ajouter une statistique</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder="Valeur (ex: 15+)"
-              value={newStat.value}
-              onChange={(e) => setNewStat({ ...newStat, value: e.target.value })}
-            />
-            <Input
-              placeholder="Label (EN)"
-              value={newStat.labelEn}
-              onChange={(e) => setNewStat({ ...newStat, labelEn: e.target.value })}
-            />
-            <Input
-              placeholder="Label (AR)"
-              value={newStat.labelAr}
-              onChange={(e) => setNewStat({ ...newStat, labelAr: e.target.value })}
-            />
-            <select
-              className="w-full border rounded-md p-2"
-              value={newStat.iconType}
-              onChange={(e) => setNewStat({ ...newStat, iconType: e.target.value })}
-            >
-              <option value="award">Award (Trophy)</option>
-              <option value="users">Users (People)</option>
-              <option value="clock">Clock (Time)</option>
-            </select>
-            <Button onClick={handleAddStat} className="w-full">Ajouter</Button>
+            </div>
           </div>
-        </DialogContent>
-      </Dialog>
-    </>
+        </div>
+          
+        {/* Stats animées */}
+        <div className="absolute top-0 left-0 w-full px-6 md:px-10 lg:px-[4vw] z-30 pt-28 lg:pt-32">
+          {(() => {
+            const [statsStart, statsEnd] = CONFIG.statsRange;
+            const statsRaw = (smoothProgress - statsStart) / (statsEnd - statsStart);
+            const statsAnimProgress = Math.max(0, Math.min(1, statsRaw));
+            const isStatsActive = smoothProgress >= statsStart && smoothProgress < statsEnd;
+
+            let statsOpacity = 0;
+            if (isStatsActive) {
+              if (statsAnimProgress < 0.15) {
+                statsOpacity = statsAnimProgress / 0.15;
+              } else if (statsAnimProgress > 0.85) {
+                statsOpacity = 1 - ((statsAnimProgress - 0.85) / 0.15);
+              } else {
+                statsOpacity = 1;
+              }
+            }
+
+            let statsY = -80;
+            if (isStatsActive) {
+              statsY = -80 + (statsAnimProgress * 380);
+            }
+
+            return (
+              <div
+                className="max-w-[1800px] mx-auto"
+                style={{
+                  opacity: statsOpacity,
+                  transform: `translate3d(0, ${statsY}px, 0)`,
+                  willChange: "transform, opacity",
+                  pointerEvents: statsOpacity > 0.1 ? "auto" : "none",
+                }}
+              >
+                <div className="flex flex-wrap gap-6 lg:gap-8">
+                  {displayStats.map((stat, index) => {
+                    const Icon = iconMap[stat.iconType] || Award;
+                    const staggerDelay = index * 0.1;
+                    const itemProgress = Math.max(0, Math.min(1, (statsAnimProgress - staggerDelay) / 0.3));
+
+                    return (
+                      <div
+                        key={stat.id}
+                        className="relative bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-lime-200"
+                        style={{
+                          opacity: itemProgress,
+                          transform: `translate3d(0, ${(1 - itemProgress) * 20}px, 0)`,
+                        }}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="shrink-0 h-10 w-10 rounded-lg bg-lime-100 flex items-center justify-center">
+                            <Icon className="h-5 w-5 text-lime-600" />
+                          </div>
+                          <div>
+                            <div className="text-lg md:text-xl font-bold text-gray-900">
+                              {stat.value}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              {stat.label}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+      </div>
+    </section>
   );
 };
