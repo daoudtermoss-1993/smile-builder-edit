@@ -1,6 +1,7 @@
-import { Award, Users, Clock, LucideIcon } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import React, { useRef, useState, useEffect, useId } from "react";
+import { EditableMedia } from "@/components/admin/EditableMedia";
+import { useEditable } from "@/contexts/EditableContext";
 
 // ============================================
 // CONFIGURATION - Modifiez ces valeurs selon vos besoins
@@ -20,7 +21,6 @@ const CONFIG = {
   // Scroll ranges (0 à 1)
   titleRange: [0, 0.15],           // Quand le titre apparaît/disparaît
   infoItemsRange: [0.15, 0.65],    // Quand les info items défilent
-  statsRange: [0.65, 0.90],        // Quand les stats apparaissent
 };
 
 // ============================================
@@ -240,7 +240,7 @@ const TerminalContainer = ({
         style={{ overflow: 'visible' }}
       >
         <defs>
-          <linearGradient id="terminalBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient id={`terminalBorder-${safeId}`} x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="rgba(180,230,100,0.95)" />
             <stop offset="40%" stopColor="rgba(180,230,100,0.7)" />
             <stop offset="100%" stopColor="rgba(180,230,100,0.4)" />
@@ -249,7 +249,7 @@ const TerminalContainer = ({
         <motion.path
           d={framePath}
           fill="none"
-          stroke="url(#terminalBorder)"
+          stroke={`url(#terminalBorder-${safeId})`}
           strokeWidth="1.5"
           initial={{ pathLength: 0, opacity: 0 }}
           whileInView={{ pathLength: 1, opacity: 1 }}
@@ -278,27 +278,6 @@ const scrollInfoItems: ScrollInfoItem[] = [
   { id: "3", label: "SPECIALTY", value: "Cosmetic dentistry", description: "premium aesthetics" },
 ];
 
-// ============================================
-// STATS ITEMS - Statistiques
-// ============================================
-interface StatItem {
-  id: string;
-  value: string;
-  label: string;
-  iconType: string;
-}
-
-const defaultStats: StatItem[] = [
-  { id: "1", value: "15+", label: "Years Exp.", iconType: "award" },
-  { id: "2", value: "5000+", label: "Patients", iconType: "users" },
-  { id: "3", value: "10000+", label: "Treatments", iconType: "clock" },
-];
-
-const iconMap: Record<string, LucideIcon> = {
-  award: Award,
-  users: Users,
-  clock: Clock,
-};
 
 // ============================================
 // ABOUT COMPONENT - Section principale
@@ -307,19 +286,14 @@ interface AboutProps {
   doctorImage?: string;
   doctorName: string;
   description: string;
-  stats?: {
-    years: string;
-    patients: string;
-    treatments: string;
-  };
 }
 
 export const About = ({ 
   doctorImage = "/placeholder.svg",
   doctorName,
   description,
-  stats,
 }: AboutProps) => {
+  const { isEditMode } = useEditable();
   const [notchY, setNotchY] = useState(300);
   
   const aboutRef = useRef<HTMLElement>(null);
@@ -346,13 +320,6 @@ export const About = ({
   }, [pinnedScrollProgress]);
   
   const smoothProgress = Math.max(0, Math.min(1, currentProgress));
-
-  // Use stats from props if provided
-  const displayStats: StatItem[] = stats ? [
-    { id: "1", value: stats.years, label: "Years Exp.", iconType: "award" },
-    { id: "2", value: stats.patients, label: "Patients", iconType: "users" },
-    { id: "3", value: stats.treatments, label: "Treatments", iconType: "clock" },
-  ] : defaultStats;
   
   return (
     <section 
@@ -542,7 +509,7 @@ export const About = ({
                       ))}
                     </div>
 
-                    {/* Image avec effet parallax */}
+                    {/* Image/Vidéo avec effet parallax et édition admin */}
                     <motion.div 
                       className="relative z-[5] h-[120%] w-full"
                       style={{
@@ -553,10 +520,12 @@ export const About = ({
                         ),
                       }}
                     >
-                      <img
-                        src={doctorImage}
+                      <EditableMedia
+                        sectionKey="about"
+                        field="doctorMedia"
+                        defaultSrc={doctorImage}
                         alt={doctorName}
-                        className="h-full w-full object-cover scale-110"
+                        className="h-full w-full"
                       />
                     </motion.div>
 
@@ -582,77 +551,6 @@ export const About = ({
               </motion.div>
             </div>
           </div>
-        </div>
-          
-        {/* Stats animées */}
-        <div className="absolute top-0 left-0 w-full px-6 md:px-10 lg:px-[4vw] z-30 pt-28 lg:pt-32">
-          {(() => {
-            const [statsStart, statsEnd] = CONFIG.statsRange;
-            const statsRaw = (smoothProgress - statsStart) / (statsEnd - statsStart);
-            const statsAnimProgress = Math.max(0, Math.min(1, statsRaw));
-            const isStatsActive = smoothProgress >= statsStart && smoothProgress < statsEnd;
-
-            let statsOpacity = 0;
-            if (isStatsActive) {
-              if (statsAnimProgress < 0.15) {
-                statsOpacity = statsAnimProgress / 0.15;
-              } else if (statsAnimProgress > 0.85) {
-                statsOpacity = 1 - ((statsAnimProgress - 0.85) / 0.15);
-              } else {
-                statsOpacity = 1;
-              }
-            }
-
-            let statsY = -80;
-            if (isStatsActive) {
-              statsY = -80 + (statsAnimProgress * 380);
-            }
-
-            return (
-              <div
-                className="max-w-[1800px] mx-auto"
-                style={{
-                  opacity: statsOpacity,
-                  transform: `translate3d(0, ${statsY}px, 0)`,
-                  willChange: "transform, opacity",
-                  pointerEvents: statsOpacity > 0.1 ? "auto" : "none",
-                }}
-              >
-                <div className="flex flex-wrap gap-6 lg:gap-8">
-                  {displayStats.map((stat, index) => {
-                    const Icon = iconMap[stat.iconType] || Award;
-                    const staggerDelay = index * 0.1;
-                    const itemProgress = Math.max(0, Math.min(1, (statsAnimProgress - staggerDelay) / 0.3));
-
-                    return (
-                      <div
-                        key={stat.id}
-                        className="relative bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-lime-200"
-                        style={{
-                          opacity: itemProgress,
-                          transform: `translate3d(0, ${(1 - itemProgress) * 20}px, 0)`,
-                        }}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="shrink-0 h-10 w-10 rounded-lg bg-lime-100 flex items-center justify-center">
-                            <Icon className="h-5 w-5 text-lime-600" />
-                          </div>
-                          <div>
-                            <div className="text-lg md:text-xl font-bold text-gray-900">
-                              {stat.value}
-                            </div>
-                            <div className="text-sm text-gray-600">
-                              {stat.label}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })()}
         </div>
       </div>
     </section>
