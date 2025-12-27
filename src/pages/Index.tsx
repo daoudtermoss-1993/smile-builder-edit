@@ -75,11 +75,6 @@ const Index = () => {
           description={language === 'ar' 
             ? 'مع سنوات من الخبرة في طب الأسنان المتقدم، يوفر د. يوسف جيرمان رعاية شاملة للأسنان باستخدام أحدث التقنيات. عيادتنا في الكويت مجهزة بأحدث المرافق لضمان راحتك وسلامتك.'
             : 'With years of experience in advanced dentistry, Dr. Yousif German provides comprehensive dental care using the latest technology and techniques. Our clinic in Kuwait is equipped with state-of-the-art facilities to ensure your comfort and safety.'}
-          stats={{
-            years: "15+",
-            patients: "5000+",
-            treatments: "10000+"
-          }}
         />
       </div>
       
