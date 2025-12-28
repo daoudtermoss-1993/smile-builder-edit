@@ -1,7 +1,13 @@
-import { motion, useScroll, useTransform } from "framer-motion";
+import {
+  motion,
+  useScroll,
+  useMotionValue,
+  useSpring,
+  useMotionValueEvent,
+} from "framer-motion";
 import React, { useRef, useState, useEffect, useId } from "react";
 import { EditableMedia } from "@/components/admin/EditableMedia";
-import { useEditable } from "@/contexts/EditableContext";
+
 
 // ============================================
 // CONFIGURATION - Modifiez ces valeurs selon vos besoins
@@ -15,9 +21,9 @@ const CONFIG = {
   borderInset: 1.5,        // Épaisseur de la bordure
   
   // Couleurs
-  borderColor: "rgba(180,230,100,0.95)",  // Couleur de la bordure (lime/jaune-vert)
-  notchFillColor: "white",                 // Couleur de remplissage du notch
-  
+  borderColor: "hsl(var(--primary) / 0.95)", // Couleur de la bordure (teal)
+  notchFillColor: "hsl(var(--background))", // Remplissage du notch (même que le fond)
+
   // Scroll ranges (0 à 1)
   titleRange: [0, 0.15],           // Quand le titre apparaît/disparaît
   infoItemsRange: [0.15, 0.65],    // Quand les info items défilent
@@ -95,28 +101,38 @@ const TerminalContainer = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 600, height: 800 });
   const [smoothNotchProgress, setSmoothNotchProgress] = useState(0);
-  
+
   // Mesure les dimensions du conteneur
   useEffect(() => {
     const updateDimensions = () => {
       if (containerRef.current) {
         setDimensions({
           width: containerRef.current.offsetWidth,
-          height: containerRef.current.offsetHeight
+          height: containerRef.current.offsetHeight,
         });
       }
     };
-    
+
     updateDimensions();
-    window.addEventListener('resize', updateDimensions);
-    return () => window.removeEventListener('resize', updateDimensions);
+    window.addEventListener("resize", updateDimensions);
+    return () => window.removeEventListener("resize", updateDimensions);
   }, []);
-  
-  // Animation synchronisée du notch - utilise directement scrollProgress
-  // pour éviter le décalage entre clip-path et remplissage blanc
+
+  // Motion values pour un notch fluide et stable (évite l'effet "double notch" au scroll rapide)
+  const rawProgress = useMotionValue(scrollProgress);
+  const springProgress = useSpring(rawProgress, {
+    stiffness: 220,
+    damping: 34,
+    mass: 0.8,
+  });
+
   useEffect(() => {
-    setSmoothNotchProgress(scrollProgress);
-  }, [scrollProgress]);
+    rawProgress.set(scrollProgress);
+  }, [scrollProgress, rawProgress]);
+
+  useMotionValueEvent(springProgress, "change", (v) => {
+    setSmoothNotchProgress(v);
+  });
   
   const { width, height } = dimensions;
   const { cornerRadius, notchRadius, notchDepth, notchHeight, borderInset } = CONFIG;
@@ -202,11 +218,7 @@ const TerminalContainer = ({
         viewBox={`0 0 ${width} ${height}`}
         preserveAspectRatio="none"
       >
-        <path
-          d={notchAreaPath}
-          fill={CONFIG.notchFillColor}
-          style={{ transition: 'd 0.25s cubic-bezier(0.22, 1, 0.36, 1)' }}
-        />
+        <path d={notchAreaPath} fill={CONFIG.notchFillColor} />
       </svg>
 
       {/* Contenu clippé au cadre */}
@@ -229,9 +241,9 @@ const TerminalContainer = ({
       >
         <defs>
           <linearGradient id={`terminalBorder-${safeId}`} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="rgba(180,230,100,0.95)" />
-            <stop offset="40%" stopColor="rgba(180,230,100,0.7)" />
-            <stop offset="100%" stopColor="rgba(180,230,100,0.4)" />
+            <stop offset="0%" style={{ stopColor: "hsl(var(--primary) / 0.95)" }} />
+            <stop offset="40%" style={{ stopColor: "hsl(var(--primary) / 0.7)" }} />
+            <stop offset="100%" style={{ stopColor: "hsl(var(--primary) / 0.35)" }} />
           </linearGradient>
         </defs>
         <motion.path
@@ -243,7 +255,6 @@ const TerminalContainer = ({
           whileInView={{ pathLength: 1, opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 1.8, ease: "easeInOut" }}
-          style={{ transition: 'd 0.25s cubic-bezier(0.22, 1, 0.36, 1)' }}
         />
       </svg>
     </div>
@@ -281,9 +292,6 @@ export const About = ({
   doctorName,
   description,
 }: AboutProps) => {
-  const { isEditMode } = useEditable();
-  const [notchY, setNotchY] = useState(300);
-  
   const aboutRef = useRef<HTMLElement>(null);
   const mediaRef = useRef<HTMLDivElement>(null);
   
@@ -325,7 +333,7 @@ export const About = ({
             {/* Côté gauche - Contenu texte */}
             <div className="relative space-y-6">
               <div className="max-w-lg relative h-64 lg:h-72">
-                <span className="text-sm font-medium text-gray-500 tracking-widest uppercase mb-6 block">
+                <span className="text-sm font-medium text-gradient animate-gradient tracking-widest uppercase mb-6 block">
                   01 — About
                 </span>
                 
@@ -414,8 +422,8 @@ export const About = ({
                         willChange: "transform, opacity",
                       }}
                     >
-                      <div className="bg-white/80 backdrop-blur-sm rounded-xl p-5 lg:p-6 shadow-lg border border-lime-200">
-                        <span className="text-[10px] font-semibold text-lime-600 tracking-[0.25em] uppercase mb-2 block">
+                      <div className="bg-background/80 backdrop-blur-sm rounded-xl p-5 lg:p-6 shadow-lg border border-primary/20">
+                        <span className="text-[10px] font-semibold tracking-[0.25em] uppercase mb-2 block text-gradient animate-gradient">
                           {item.label}
                         </span>
                         <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">
@@ -446,7 +454,6 @@ export const About = ({
                 <TerminalContainer 
                   className="w-full h-[550px] md:h-[650px] lg:h-[800px]"
                   scrollProgress={smoothProgress}
-                  onNotchPositionChange={setNotchY}
                 >
                   <div className="relative w-full h-full bg-[#0a0f14]">
                     {/* Grille subtile */}
@@ -472,7 +479,10 @@ export const About = ({
                             height: i % 3 === 0 ? 3 : 2,
                             left: `${(i * 41 + 7) % 100}%`,
                             top: `${(i * 59 + 11) % 100}%`,
-                            backgroundColor: i % 4 === 0 ? 'rgba(180,230,100,0.6)' : 'rgba(255,255,255,0.2)',
+                            backgroundColor:
+                              i % 4 === 0
+                                ? "hsl(var(--primary) / 0.6)"
+                                : "hsl(var(--primary-foreground) / 0.2)",
                           }}
                           animate={{
                             opacity: [0.3, 0.7, 0.3],
@@ -487,17 +497,8 @@ export const About = ({
                       ))}
                     </div>
 
-                    {/* Image/Vidéo avec effet parallax et édition admin */}
-                    <motion.div 
-                      className="relative z-[5] h-[120%] w-full"
-                      style={{
-                        y: useTransform(
-                          pinnedScrollProgress,
-                          [0, 1],
-                          ['-10%', '10%']
-                        ),
-                      }}
-                    >
+                    {/* Image/Vidéo (fixe) + édition admin */}
+                    <div className="relative z-[5] h-full w-full">
                       <EditableMedia
                         sectionKey="about"
                         field="doctorMedia"
@@ -505,7 +506,7 @@ export const About = ({
                         alt={doctorName}
                         className="h-full w-full"
                       />
-                    </motion.div>
+                    </div>
 
                     {/* Overlays de gradient */}
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f14]/80 via-transparent to-[#0a0f14]/30 pointer-events-none z-[10]" />
@@ -515,7 +516,7 @@ export const About = ({
                     <svg className="absolute bottom-3 right-3 w-10 h-10 z-[15]" viewBox="0 0 40 40" fill="none">
                       <motion.path 
                         d="M40 0 L40 24 Q40 40 24 40 L0 40" 
-                        stroke="rgba(180,230,100,0.5)" 
+                        stroke="hsl(var(--primary) / 0.5)" 
                         strokeWidth="1.5" 
                         fill="none"
                         initial={{ pathLength: 0 }}
