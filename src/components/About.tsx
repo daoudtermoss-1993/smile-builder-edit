@@ -112,22 +112,10 @@ const TerminalContainer = ({
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
   
-  // Animation ultra-fluide du notch avec lerp
+  // Animation synchronisée du notch - utilise directement scrollProgress
+  // pour éviter le décalage entre clip-path et remplissage blanc
   useEffect(() => {
-    let animationFrame: number;
-    const lerp = (start: number, end: number, factor: number) => start + (end - start) * factor;
-    
-    const animate = () => {
-      setSmoothNotchProgress(prev => {
-        const diff = Math.abs(scrollProgress - prev);
-        const factor = diff > 0.1 ? 0.06 : 0.04;
-        return lerp(prev, scrollProgress, factor);
-      });
-      animationFrame = requestAnimationFrame(animate);
-    };
-    
-    animationFrame = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationFrame);
+    setSmoothNotchProgress(scrollProgress);
   }, [scrollProgress]);
   
   const { width, height } = dimensions;
@@ -442,16 +430,6 @@ export const About = ({
                     </div>
                   );
                 })}
-                
-                {/* Indicateur de progression */}
-                <div className="absolute -left-4 top-0 w-[2px] h-full bg-gray-200 rounded-full overflow-hidden">
-                  <div 
-                    className="w-full bg-lime-500/60 rounded-full origin-top"
-                    style={{ 
-                      transform: `scaleY(${Math.min(1, (smoothProgress - 0.15) / 0.50)})`,
-                    }}
-                  />
-                </div>
               </div>
             </div>
             
