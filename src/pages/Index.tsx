@@ -78,6 +78,9 @@ const Index = () => {
         />
       </div>
       
+      {/* Espace blanc entre About et Services */}
+      <div className="h-20 md:h-28 bg-background" />
+      
       <div id="services">
         <Services />
       </div>

@@ -137,13 +137,15 @@ const TerminalContainer = ({
   const { width, height } = dimensions;
   const { cornerRadius, notchRadius, notchDepth, notchHeight, borderInset } = CONFIG;
   
-  // Easing pour le mouvement du notch
+  // Easing pour le mouvement du notch - reste visible à la fin
   const easedProgress = smoothNotchProgress * smoothNotchProgress * (3 - 2 * smoothNotchProgress);
   
-  // Position du notch basée sur le scroll
+  // Position du notch basée sur le scroll - reste à sa position finale
   const minNotchTop = 100;
   const maxNotchTop = height - notchHeight - 150;
-  const notchTop = minNotchTop + (easedProgress * (maxNotchTop - minNotchTop));
+  // Le notch se déplace jusqu'à sa position finale et y reste
+  const clampedProgress = Math.min(easedProgress, 1);
+  const notchTop = minNotchTop + (clampedProgress * (maxNotchTop - minNotchTop));
   const notchBottom = notchTop + notchHeight;
   const notchCenterY = notchTop + notchHeight / 2;
   
@@ -330,14 +332,10 @@ export const About = ({
         
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-10 lg:gap-8 items-start">
           
-            {/* Côté gauche - Contenu texte */}
+            {/* Côté gauche - Contenu texte avec animation Terminal Industries */}
             <div className="relative space-y-6">
               <div className="max-w-lg relative h-64 lg:h-72">
-                <span className="text-sm font-medium text-gradient animate-gradient tracking-widest uppercase mb-6 block">
-                  01 — About
-                </span>
-                
-                {/* Titre animé */}
+                {/* Titre animé avec scanline/glow Terminal Industries */}
                 {(() => {
                   const [titleStart, titleEnd] = CONFIG.titleRange;
                   const titleRaw = (smoothProgress - titleStart) / (titleEnd - titleStart);
@@ -359,21 +357,23 @@ export const About = ({
                   }
                   
                   return (
-                    <div
-                      className="absolute top-8 left-0 w-full"
+                    <motion.div
+                      className="absolute top-8 left-0 w-full terminal-text-reveal"
                       style={{
                         opacity: titleOpacity,
                         transform: `translate3d(0, ${titleY}px, 0)`,
                         willChange: "transform, opacity",
                       }}
                     >
-                      <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight mb-4">
-                        Meet {doctorName}
+                      <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-4 terminal-glow-text">
+                        <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
+                          Meet {doctorName}
+                        </span>
                       </h2>
-                      <p className="text-base lg:text-lg text-gray-600 leading-relaxed">
+                      <p className="text-base lg:text-lg text-gray-600 leading-relaxed terminal-fade-text">
                         {description}
                       </p>
-                    </div>
+                    </motion.div>
                   );
                 })()}
               </div>
@@ -413,29 +413,33 @@ export const About = ({
                   }
 
                   return (
-                    <div
+                    <motion.div
                       key={item.id}
-                      className="absolute top-0 left-0 w-full max-w-md"
+                      className="absolute top-0 left-0 w-full max-w-md terminal-text-reveal"
                       style={{
                         opacity,
                         transform: `translate3d(0, ${y}px, 0)`,
                         willChange: "transform, opacity",
                       }}
                     >
-                      <div className="bg-background/80 backdrop-blur-sm rounded-xl p-5 lg:p-6 shadow-lg border border-primary/20">
-                        <span className="text-[10px] font-semibold tracking-[0.25em] uppercase mb-2 block text-gradient animate-gradient">
-                          {item.label}
+                      <div className="bg-background/80 backdrop-blur-sm rounded-xl p-5 lg:p-6 shadow-lg border border-primary/20 terminal-card-glow">
+                        <span className="text-[10px] font-semibold tracking-[0.25em] uppercase mb-2 block">
+                          <span className="bg-gradient-to-r from-primary via-primary/70 to-primary bg-clip-text text-transparent">
+                            {item.label}
+                          </span>
                         </span>
-                        <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">
-                          {item.value}
+                        <h3 className="text-2xl lg:text-3xl font-bold leading-tight terminal-glow-text">
+                          <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
+                            {item.value}
+                          </span>
                         </h3>
                         {item.description && (
-                          <span className="text-sm lg:text-base text-gray-600 mt-2 block">
+                          <span className="text-sm lg:text-base text-muted-foreground mt-2 block terminal-fade-text">
                             {item.description}
                           </span>
                         )}
                       </div>
-                    </div>
+                    </motion.div>
                   );
                 })}
               </div>
