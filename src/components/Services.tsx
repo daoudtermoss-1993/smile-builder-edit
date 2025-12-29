@@ -88,12 +88,6 @@ export const Services = () => {
         >
           <Interactive3DCards 
             cards={cards3D}
-            cardWidth={300}
-            cardHeight={380}
-            stackSpacing={70}
-            stackDepth={40}
-            cardAngle={8}
-            perspective={1400}
             className="w-full py-12"
           />
         </motion.div>
