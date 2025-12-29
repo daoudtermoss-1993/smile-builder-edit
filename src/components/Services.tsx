@@ -1,6 +1,6 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EditableText } from "@/components/admin/EditableText";
-import { MorphingCardStack, type CardData } from "@/components/ui/morphing-card-stack";
+import { Interactive3DCards, type Card3DData } from "@/components/ui/interactive-3d-cards";
 import { servicesData } from "@/data/servicesData";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -11,13 +11,13 @@ export const Services = () => {
   const { language } = useLanguage();
   const navigate = useNavigate();
 
-  const morphingCards: CardData[] = servicesData.slice(0, 6).map(service => {
+  const cards3D: Card3DData[] = servicesData.slice(0, 6).map(service => {
     const Icon = service.icon;
     return {
       id: service.id,
       title: language === 'ar' ? service.titleAr : service.titleEn,
       description: language === 'ar' ? service.descriptionAr : service.descriptionEn,
-      icon: <Icon className="h-5 w-5" />,
+      icon: <Icon className="h-6 w-6" />,
       onClick: () => navigate(`/services/${service.id}`)
     };
   });
@@ -78,7 +78,7 @@ export const Services = () => {
           </div>
         </motion.div>
 
-        {/* Morphing Card Stack - Centered */}
+        {/* Interactive 3D Cards */}
         <motion.div 
           className="flex justify-center"
           initial={{ opacity: 0, scale: 0.9 }}
@@ -86,10 +86,15 @@ export const Services = () => {
           viewport={{ once: true, margin: "-50px" }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <MorphingCardStack 
-            cards={morphingCards}
-            defaultLayout="stack"
-            className="w-full max-w-lg"
+          <Interactive3DCards 
+            cards={cards3D}
+            cardWidth={300}
+            cardHeight={380}
+            stackSpacing={70}
+            stackDepth={40}
+            cardAngle={8}
+            perspective={1400}
+            className="w-full py-12"
           />
         </motion.div>
       </div>
