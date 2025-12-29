@@ -18,9 +18,16 @@ interface Interactive3DCardsProps {
 
 const springTransition = {
   type: "spring" as const,
-  damping: 40,
-  mass: 2,
-  stiffness: 400,
+  damping: 28,
+  mass: 1,
+  stiffness: 280,
+};
+
+const smoothTransition = {
+  type: "spring" as const,
+  damping: 35,
+  mass: 0.8,
+  stiffness: 200,
 };
 
 export function Interactive3DCards({
@@ -29,8 +36,17 @@ export function Interactive3DCards({
 }: Interactive3DCardsProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
-  // Only show first 4 cards for the stack effect
-  const visibleCards = cards.slice(0, 4);
+  // Show all 6 cards
+  const visibleCards = cards.slice(0, 6);
+  const totalCards = visibleCards.length;
+
+  const handlePrev = () => {
+    setActiveIndex((prev) => (prev - 1 + totalCards) % totalCards);
+  };
+
+  const handleNext = () => {
+    setActiveIndex((prev) => (prev + 1) % totalCards);
+  };
 
   return (
     <div className={cn("relative w-full", className)}>
@@ -38,10 +54,31 @@ export function Interactive3DCards({
       <div 
         className="relative flex items-center justify-center"
         style={{ 
-          height: 520,
-          perspective: 1200,
+          height: 540,
+          perspective: 1400,
         }}
       >
+        {/* Navigation Arrows */}
+        <button
+          onClick={handlePrev}
+          className="absolute left-4 md:left-12 z-50 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-all duration-300 hover:scale-110"
+          aria-label="Previous card"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+
+        <button
+          onClick={handleNext}
+          className="absolute right-4 md:right-12 z-50 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-all duration-300 hover:scale-110"
+          aria-label="Next card"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+
         <div 
           className="relative"
           style={{
@@ -58,8 +95,7 @@ export function Interactive3DCards({
                 index={index}
                 activeIndex={activeIndex}
                 totalCards={visibleCards.length}
-                onHover={() => setActiveIndex(index)}
-                onLeave={() => {}}
+                onSelect={() => setActiveIndex(index)}
               />
             ))}
           </AnimatePresence>
@@ -67,20 +103,27 @@ export function Interactive3DCards({
       </div>
 
       {/* Navigation Dots */}
-      <div className="flex justify-center gap-3 mt-8">
+      <div className="flex justify-center gap-2 mt-6">
         {visibleCards.map((card, index) => (
           <button
             key={card.id}
             onClick={() => setActiveIndex(index)}
             className={cn(
-              "w-2 h-2 rounded-full transition-all duration-300",
+              "h-2 rounded-full transition-all duration-500 ease-out",
               activeIndex === index
-                ? "bg-primary w-8"
-                : "bg-white/30 hover:bg-white/50"
+                ? "bg-primary w-10"
+                : "bg-white/20 w-2 hover:bg-white/40"
             )}
             aria-label={`View ${card.title}`}
           />
         ))}
+      </div>
+      
+      {/* Card Counter */}
+      <div className="flex justify-center mt-4">
+        <span className="text-sm text-white/50 font-medium">
+          {String(activeIndex + 1).padStart(2, '0')} / {String(totalCards).padStart(2, '0')}
+        </span>
       </div>
     </div>
   );
@@ -91,8 +134,7 @@ interface StackedCardProps {
   index: number;
   activeIndex: number;
   totalCards: number;
-  onHover: () => void;
-  onLeave: () => void;
+  onSelect: () => void;
 }
 
 function StackedCard({
@@ -100,8 +142,7 @@ function StackedCard({
   index,
   activeIndex,
   totalCards,
-  onHover,
-  onLeave,
+  onSelect,
 }: StackedCardProps) {
   const isActive = index === activeIndex;
   const isBehind = index < activeIndex;
@@ -178,14 +219,13 @@ function StackedCard({
         scale: transform.scale,
         opacity: transform.opacity,
       }}
-      transition={springTransition}
-      onMouseEnter={onHover}
-      onMouseLeave={onLeave}
+      transition={smoothTransition}
+      onMouseEnter={onSelect}
       onClick={() => {
         if (isActive && card.onClick) {
           card.onClick();
         } else {
-          onHover();
+          onSelect();
         }
       }}
     >
