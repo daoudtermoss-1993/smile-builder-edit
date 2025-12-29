@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect, useCallback } from "react";
-import { motion, useSpring, useTransform } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 export interface Card3DData {
@@ -14,310 +14,281 @@ export interface Card3DData {
 interface Interactive3DCardsProps {
   cards: Card3DData[];
   className?: string;
-  cardWidth?: number;
-  cardHeight?: number;
-  stackSpacing?: number;
-  stackDepth?: number;
-  cardAngle?: number;
-  perspective?: number;
 }
+
+const springTransition = {
+  type: "spring" as const,
+  damping: 40,
+  mass: 2,
+  stiffness: 400,
+};
 
 export function Interactive3DCards({
   cards,
   className,
-  cardWidth = 320,
-  cardHeight = 400,
-  stackSpacing = 60,
-  stackDepth = 50,
-  cardAngle = 5,
-  perspective = 1200,
 }: Interactive3DCardsProps) {
-  const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
 
-  // Handle outside click to unfocus
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setFocusedIndex(null);
-      }
-    };
-
-    if (focusedIndex !== null) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [focusedIndex]);
-
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (focusedIndex === null) return;
-
-      if (e.key === "Escape") {
-        setFocusedIndex(null);
-      } else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-        setFocusedIndex((prev) => (prev !== null ? Math.min(prev + 1, cards.length - 1) : 0));
-      } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-        setFocusedIndex((prev) => (prev !== null ? Math.max(prev - 1, 0) : 0));
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [focusedIndex, cards.length]);
-
-  // Wheel navigation when focused
-  const handleWheel = useCallback(
-    (e: React.WheelEvent) => {
-      if (focusedIndex === null) return;
-      e.preventDefault();
-
-      if (e.deltaY > 0) {
-        setFocusedIndex((prev) => (prev !== null ? Math.min(prev + 1, cards.length - 1) : 0));
-      } else {
-        setFocusedIndex((prev) => (prev !== null ? Math.max(prev - 1, 0) : 0));
-      }
-    },
-    [focusedIndex, cards.length]
-  );
-
-  const handleCardClick = (index: number) => {
-    if (focusedIndex === index) {
-      // If already focused, trigger onClick
-      cards[index].onClick?.();
-    } else {
-      setFocusedIndex(index);
-    }
-  };
+  // Only show first 4 cards for the stack effect
+  const visibleCards = cards.slice(0, 4);
 
   return (
-    <div
-      ref={containerRef}
-      className={cn("relative flex items-center justify-center", className)}
-      style={{
-        perspective: `${perspective}px`,
-        minHeight: cardHeight + 100,
-      }}
-      onWheel={handleWheel}
-    >
-      {/* Counter when focused */}
-      {focusedIndex !== null && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-sm font-medium text-white/80 z-50"
-        >
-          {focusedIndex + 1} / {cards.length}
-        </motion.div>
-      )}
-
-      <div
-        className="relative"
-        style={{
-          transformStyle: "preserve-3d",
-          width: cardWidth,
-          height: cardHeight,
+    <div className={cn("relative w-full", className)}>
+      {/* Card Stack Container */}
+      <div 
+        className="relative flex items-center justify-center"
+        style={{ 
+          height: 520,
+          perspective: 1200,
         }}
       >
-        {cards.map((card, index) => (
-          <Card3D
+        <div 
+          className="relative"
+          style={{
+            transformStyle: "preserve-3d",
+            width: 340,
+            height: 440,
+          }}
+        >
+          <AnimatePresence mode="sync">
+            {visibleCards.map((card, index) => (
+              <StackedCard
+                key={card.id}
+                card={card}
+                index={index}
+                activeIndex={activeIndex}
+                totalCards={visibleCards.length}
+                onHover={() => setActiveIndex(index)}
+                onLeave={() => {}}
+              />
+            ))}
+          </AnimatePresence>
+        </div>
+      </div>
+
+      {/* Navigation Dots */}
+      <div className="flex justify-center gap-3 mt-8">
+        {visibleCards.map((card, index) => (
+          <button
             key={card.id}
-            card={card}
-            index={index}
-            totalCards={cards.length}
-            isFocused={focusedIndex === index}
-            isAnyFocused={focusedIndex !== null}
-            isHovered={hoveredIndex === index}
-            cardWidth={cardWidth}
-            cardHeight={cardHeight}
-            stackSpacing={stackSpacing}
-            stackDepth={stackDepth}
-            cardAngle={cardAngle}
-            onClick={() => handleCardClick(index)}
-            onHover={(hovered) => setHoveredIndex(hovered ? index : null)}
+            onClick={() => setActiveIndex(index)}
+            className={cn(
+              "w-2 h-2 rounded-full transition-all duration-300",
+              activeIndex === index
+                ? "bg-primary w-8"
+                : "bg-white/30 hover:bg-white/50"
+            )}
+            aria-label={`View ${card.title}`}
           />
         ))}
       </div>
-
-      {/* Hint text */}
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: focusedIndex !== null ? 1 : 0 }}
-        className="absolute bottom-4 text-sm text-white/50"
-      >
-        {focusedIndex !== null ? "Click card to view details • Scroll or use arrows to navigate • Esc to close" : ""}
-      </motion.p>
     </div>
   );
 }
 
-interface Card3DProps {
+interface StackedCardProps {
   card: Card3DData;
   index: number;
+  activeIndex: number;
   totalCards: number;
-  isFocused: boolean;
-  isAnyFocused: boolean;
-  isHovered: boolean;
-  cardWidth: number;
-  cardHeight: number;
-  stackSpacing: number;
-  stackDepth: number;
-  cardAngle: number;
-  onClick: () => void;
-  onHover: (hovered: boolean) => void;
+  onHover: () => void;
+  onLeave: () => void;
 }
 
-function Card3D({
+function StackedCard({
   card,
   index,
+  activeIndex,
   totalCards,
-  isFocused,
-  isAnyFocused,
-  isHovered,
-  cardWidth,
-  cardHeight,
-  stackSpacing,
-  stackDepth,
-  cardAngle,
-  onClick,
   onHover,
-}: Card3DProps) {
-  const centerIndex = (totalCards - 1) / 2;
-  const offset = index - centerIndex;
-
-  // Calculate base positions
-  const baseX = offset * stackSpacing;
-  const baseZ = -Math.abs(offset) * stackDepth;
-  const baseRotateY = offset * cardAngle;
-
-  // Spring animations
-  const springConfig = { stiffness: 260, damping: 30 };
-  const focusSpringConfig = { stiffness: 200, damping: 25 };
-
-  const x = useSpring(baseX, isFocused ? focusSpringConfig : springConfig);
-  const y = useSpring(0, springConfig);
-  const z = useSpring(baseZ, isFocused ? focusSpringConfig : springConfig);
-  const rotateY = useSpring(baseRotateY, springConfig);
-  const scale = useSpring(1, springConfig);
-  const opacity = useSpring(1, springConfig);
-
-  // Update springs based on state
-  useEffect(() => {
-    if (isFocused) {
-      x.set(0);
-      y.set(0);
-      z.set(200);
-      rotateY.set(0);
-      scale.set(1.1);
-      opacity.set(1);
-    } else if (isAnyFocused) {
-      x.set(baseX);
-      y.set(0);
-      z.set(baseZ - 100);
-      rotateY.set(baseRotateY);
-      scale.set(0.9);
-      opacity.set(0.3);
-    } else if (isHovered) {
-      x.set(baseX);
-      y.set(-15);
-      z.set(baseZ + 30);
-      rotateY.set(baseRotateY * 0.5);
-      scale.set(1.05);
-      opacity.set(1);
-    } else {
-      x.set(baseX);
-      y.set(0);
-      z.set(baseZ);
-      rotateY.set(baseRotateY);
-      scale.set(1);
-      opacity.set(1);
+  onLeave,
+}: StackedCardProps) {
+  const isActive = index === activeIndex;
+  const isBehind = index < activeIndex;
+  const isAhead = index > activeIndex;
+  
+  // Calculate position in stack
+  const stackOffset = index - activeIndex;
+  
+  // Base 3D rotation for stacked effect
+  const baseRotateX = -20;
+  const baseRotateY = -40;
+  
+  // Calculate positions based on stack order
+  const getTransform = () => {
+    if (isActive) {
+      return {
+        x: 0,
+        y: 0,
+        z: 100,
+        rotateX: 0,
+        rotateY: 0,
+        scale: 1.15,
+        opacity: 1,
+        brightness: 1,
+      };
     }
-  }, [isFocused, isAnyFocused, isHovered, baseX, baseZ, baseRotateY, x, y, z, rotateY, scale, opacity]);
+    
+    // Cards behind the active card
+    if (isBehind) {
+      const distance = activeIndex - index;
+      return {
+        x: -30 * distance,
+        y: 20 * distance,
+        z: -50 * distance,
+        rotateX: baseRotateX,
+        rotateY: baseRotateY,
+        scale: 1 - 0.05 * distance,
+        opacity: 0.5 - 0.15 * distance,
+        brightness: 0.5,
+      };
+    }
+    
+    // Cards ahead of the active card  
+    const distance = index - activeIndex;
+    return {
+      x: 40 * distance,
+      y: -15 * distance,
+      z: -40 * distance,
+      rotateX: baseRotateX,
+      rotateY: baseRotateY,
+      scale: 1 - 0.03 * distance,
+      opacity: 0.9 - 0.2 * distance,
+      brightness: 0.7,
+    };
+  };
+
+  const transform = getTransform();
 
   return (
     <motion.div
-      className="absolute top-0 left-0 cursor-pointer"
+      className="absolute inset-0 cursor-pointer"
       style={{
-        width: cardWidth,
-        height: cardHeight,
-        x,
-        y,
-        z,
-        rotateY,
-        scale,
-        opacity,
         transformStyle: "preserve-3d",
+        transformOrigin: "center center",
+        zIndex: isActive ? 50 : totalCards - Math.abs(stackOffset),
       }}
-      onClick={onClick}
-      onMouseEnter={() => onHover(true)}
-      onMouseLeave={() => onHover(false)}
+      initial={false}
+      animate={{
+        x: transform.x,
+        y: transform.y,
+        z: transform.z,
+        rotateX: transform.rotateX,
+        rotateY: transform.rotateY,
+        scale: transform.scale,
+        opacity: transform.opacity,
+      }}
+      transition={springTransition}
+      onMouseEnter={onHover}
+      onMouseLeave={onLeave}
+      onClick={() => {
+        if (isActive && card.onClick) {
+          card.onClick();
+        } else {
+          onHover();
+        }
+      }}
     >
-      <div
+      <div 
         className={cn(
-          "w-full h-full rounded-2xl overflow-hidden",
-          "bg-gradient-to-br from-white/10 to-white/5",
-          "backdrop-blur-xl border border-white/20",
-          "shadow-2xl shadow-black/20",
-          "transition-shadow duration-300",
-          isFocused && "shadow-primary/30 border-primary/50"
+          "w-full h-full rounded-3xl overflow-hidden",
+          "border border-white/20",
+          "shadow-2xl",
+          isActive && "shadow-primary/40"
         )}
+        style={{
+          filter: `brightness(${transform.brightness})`,
+          transition: "filter 0.3s ease",
+        }}
       >
-        {/* Card Image or Gradient Background */}
-        {card.image ? (
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${card.image})` }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-          </div>
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-primary/10">
-            {/* Decorative grid */}
-            <div
-              className="absolute inset-0 opacity-30"
-              style={{
-                backgroundImage: `
-                  linear-gradient(to right, hsl(var(--primary) / 0.1) 1px, transparent 1px),
-                  linear-gradient(to bottom, hsl(var(--primary) / 0.1) 1px, transparent 1px)
-                `,
-                backgroundSize: "30px 30px",
-              }}
-            />
-          </div>
-        )}
+        {/* Glass Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-terminal-muted/90 via-terminal-dark/95 to-terminal-dark backdrop-blur-xl" />
+        
+        {/* Decorative Grid */}
+        <div 
+          className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage: `
+              linear-gradient(to right, hsl(var(--primary) / 0.15) 1px, transparent 1px),
+              linear-gradient(to bottom, hsl(var(--primary) / 0.15) 1px, transparent 1px)
+            `,
+            backgroundSize: "40px 40px",
+          }}
+        />
+        
+        {/* Glow Effect */}
+        <motion.div
+          className="absolute inset-0 pointer-events-none"
+          animate={{
+            opacity: isActive ? 1 : 0,
+          }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-t from-primary/20 via-transparent to-transparent" />
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+        </motion.div>
 
         {/* Content */}
-        <div className="relative z-10 h-full flex flex-col justify-end p-6">
+        <div className="relative z-10 h-full flex flex-col justify-end p-8">
           {/* Icon */}
           {card.icon && (
-            <div className="mb-4 w-14 h-14 rounded-xl bg-primary/20 backdrop-blur-sm border border-primary/30 flex items-center justify-center text-primary">
+            <motion.div 
+              className={cn(
+                "mb-5 w-16 h-16 rounded-2xl flex items-center justify-center",
+                "bg-primary/20 backdrop-blur-sm border border-primary/30",
+                "text-primary"
+              )}
+              animate={{
+                scale: isActive ? 1.1 : 1,
+                boxShadow: isActive 
+                  ? "0 0 30px hsl(var(--primary) / 0.4)" 
+                  : "0 0 0px transparent",
+              }}
+              transition={springTransition}
+            >
               {card.icon}
-            </div>
+            </motion.div>
           )}
 
           {/* Title */}
-          <h3 className="text-xl font-bold text-white mb-2 line-clamp-2">
+          <motion.h3 
+            className="text-2xl font-bold text-white mb-3"
+            animate={{
+              y: isActive ? 0 : 10,
+              opacity: isActive ? 1 : 0.8,
+            }}
+            transition={springTransition}
+          >
             {card.title}
-          </h3>
+          </motion.h3>
 
           {/* Description */}
-          {card.description && (
-            <p className="text-sm text-white/70 line-clamp-3">
-              {card.description}
-            </p>
-          )}
-
-          {/* Hover indicator */}
-          <motion.div
-            className="mt-4 flex items-center gap-2 text-primary"
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: isFocused ? 1 : 0, x: isFocused ? 0 : -10 }}
-            transition={{ duration: 0.2 }}
+          <motion.p 
+            className="text-white/60 text-sm leading-relaxed line-clamp-3"
+            animate={{
+              y: isActive ? 0 : 15,
+              opacity: isActive ? 1 : 0,
+            }}
+            transition={springTransition}
           >
-            <span className="text-sm font-medium">View details</span>
+            {card.description}
+          </motion.p>
+
+          {/* CTA Arrow */}
+          <motion.div
+            className="mt-6 flex items-center gap-2 text-primary"
+            animate={{
+              y: isActive ? 0 : 20,
+              opacity: isActive ? 1 : 0,
+            }}
+            transition={{
+              ...springTransition,
+              delay: isActive ? 0.1 : 0,
+            }}
+          >
+            <span className="text-sm font-medium">
+              {card.onClick ? "En savoir plus" : "View Details"}
+            </span>
             <svg
               className="w-4 h-4"
               fill="none"
@@ -328,21 +299,27 @@ function Card3D({
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M9 5l7 7-7 7"
+                d="M17 8l4 4m0 0l-4 4m4-4H3"
               />
             </svg>
           </motion.div>
         </div>
 
-        {/* Shine effect on hover */}
+        {/* Shine Effect */}
         <motion.div
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.1) 45%, transparent 50%)",
+            background: "linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.08) 45%, transparent 55%)",
           }}
-          initial={{ x: "-100%" }}
-          animate={{ x: isHovered ? "100%" : "-100%" }}
-          transition={{ duration: 0.6, ease: "easeInOut" }}
+          animate={{
+            x: isActive ? ["-100%", "200%"] : "-100%",
+          }}
+          transition={{
+            duration: 1,
+            ease: "easeInOut",
+            repeat: isActive ? Infinity : 0,
+            repeatDelay: 2,
+          }}
         />
       </div>
     </motion.div>
