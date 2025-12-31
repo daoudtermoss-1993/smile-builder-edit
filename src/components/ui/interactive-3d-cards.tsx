@@ -50,41 +50,38 @@ export function Interactive3DCards({
 
   return (
     <div className={cn("relative w-full", className)}>
-      {/* Card Stack Container */}
+      {/* Card Stack Container - responsive height */}
       <div 
-        className="relative flex items-center justify-center"
+        className="relative flex items-center justify-center h-[420px] sm:h-[480px] md:h-[540px]"
         style={{ 
-          height: 540,
           perspective: 1400,
         }}
       >
-        {/* Navigation Arrows */}
+        {/* Navigation Arrows - smaller on mobile */}
         <button
           onClick={handlePrev}
-          className="absolute left-4 md:left-12 z-50 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-all duration-300 hover:scale-110"
+          className="absolute left-2 sm:left-4 md:left-12 z-50 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-all duration-300 hover:scale-110"
           aria-label="Previous card"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
 
         <button
           onClick={handleNext}
-          className="absolute right-4 md:right-12 z-50 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-all duration-300 hover:scale-110"
+          className="absolute right-2 sm:right-4 md:right-12 z-50 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-all duration-300 hover:scale-110"
           aria-label="Next card"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </button>
 
         <div 
-          className="relative"
+          className="relative w-[280px] h-[360px] sm:w-[300px] sm:h-[400px] md:w-[340px] md:h-[440px]"
           style={{
             transformStyle: "preserve-3d",
-            width: 340,
-            height: 440,
           }}
         >
           <AnimatePresence mode="sync">
@@ -103,16 +100,16 @@ export function Interactive3DCards({
       </div>
 
       {/* Navigation Dots */}
-      <div className="flex justify-center gap-2 mt-6">
+      <div className="flex justify-center gap-1.5 sm:gap-2 mt-4 sm:mt-6">
         {visibleCards.map((card, index) => (
           <button
             key={card.id}
             onClick={() => setActiveIndex(index)}
             className={cn(
-              "h-2 rounded-full transition-all duration-500 ease-out",
+              "h-1.5 sm:h-2 rounded-full transition-all duration-500 ease-out",
               activeIndex === index
-                ? "bg-primary w-10"
-                : "bg-white/20 w-2 hover:bg-white/40"
+                ? "bg-primary w-6 sm:w-10"
+                : "bg-white/20 w-1.5 sm:w-2 hover:bg-white/40"
             )}
             aria-label={`View ${card.title}`}
           />
@@ -120,8 +117,8 @@ export function Interactive3DCards({
       </div>
       
       {/* Card Counter */}
-      <div className="flex justify-center mt-4">
-        <span className="text-sm text-white/50 font-medium">
+      <div className="flex justify-center mt-3 sm:mt-4">
+        <span className="text-xs sm:text-sm text-white/50 font-medium">
           {String(activeIndex + 1).padStart(2, '0')} / {String(totalCards).padStart(2, '0')}
         </span>
       </div>
@@ -231,7 +228,7 @@ function StackedCard({
     >
       <div 
         className={cn(
-          "w-full h-full rounded-3xl overflow-hidden",
+          "w-full h-full rounded-2xl sm:rounded-3xl overflow-hidden",
           "border border-white/20",
           "shadow-2xl",
           isActive && "shadow-primary/40"
@@ -252,7 +249,7 @@ function StackedCard({
               linear-gradient(to right, hsl(var(--primary) / 0.15) 1px, transparent 1px),
               linear-gradient(to bottom, hsl(var(--primary) / 0.15) 1px, transparent 1px)
             `,
-            backgroundSize: "40px 40px",
+            backgroundSize: "30px 30px",
           }}
         />
         
@@ -268,13 +265,13 @@ function StackedCard({
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
         </motion.div>
 
-        {/* Content */}
-        <div className="relative z-10 h-full flex flex-col justify-end p-8">
-          {/* Icon */}
+        {/* Content - responsive padding */}
+        <div className="relative z-10 h-full flex flex-col justify-end p-5 sm:p-6 md:p-8">
+          {/* Icon - responsive size */}
           {card.icon && (
             <motion.div 
               className={cn(
-                "mb-5 w-16 h-16 rounded-2xl flex items-center justify-center",
+                "mb-3 sm:mb-4 md:mb-5 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center",
                 "bg-primary/20 backdrop-blur-sm border border-primary/30",
                 "text-primary"
               )}
@@ -290,9 +287,9 @@ function StackedCard({
             </motion.div>
           )}
 
-          {/* Title */}
+          {/* Title - responsive text */}
           <motion.h3 
-            className="text-2xl font-bold text-white mb-3"
+            className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-2 sm:mb-3"
             animate={{
               y: isActive ? 0 : 10,
               opacity: isActive ? 1 : 0.8,
@@ -302,9 +299,9 @@ function StackedCard({
             {card.title}
           </motion.h3>
 
-          {/* Description */}
+          {/* Description - responsive text */}
           <motion.p 
-            className="text-white/60 text-sm leading-relaxed line-clamp-3"
+            className="text-white/60 text-xs sm:text-sm leading-relaxed line-clamp-2 sm:line-clamp-3"
             animate={{
               y: isActive ? 0 : 15,
               opacity: isActive ? 1 : 0,
@@ -314,9 +311,9 @@ function StackedCard({
             {card.description}
           </motion.p>
 
-          {/* CTA Arrow */}
+          {/* CTA Arrow - responsive */}
           <motion.div
-            className="mt-6 flex items-center gap-2 text-primary"
+            className="mt-4 sm:mt-5 md:mt-6 flex items-center gap-2 text-primary"
             animate={{
               y: isActive ? 0 : 20,
               opacity: isActive ? 1 : 0,
@@ -326,11 +323,11 @@ function StackedCard({
               delay: isActive ? 0.1 : 0,
             }}
           >
-            <span className="text-sm font-medium">
+            <span className="text-xs sm:text-sm font-medium">
               {card.onClick ? "En savoir plus" : "View Details"}
             </span>
             <svg
-              className="w-4 h-4"
+              className="w-3 h-3 sm:w-4 sm:h-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
