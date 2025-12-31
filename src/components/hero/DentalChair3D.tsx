@@ -4,8 +4,10 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { HeroContent } from "./HeroContent";
 import heroVideo from "@/assets/hero-video-new.mp4";
 
-// Number of frames to extract (more = smoother but heavier)
-const FRAME_COUNT = 150;
+// Optimized: fewer frames for faster loading (60 is still smooth)
+const FRAME_COUNT = 60;
+const CACHE_KEY = "hero_frames_v2";
+const MAX_WIDTH = 960; // Reduced resolution for faster extraction
 
 type DentalChair3DProps = {
   onReady?: () => void;
@@ -51,8 +53,30 @@ export function DentalChair3D({ onReady, onProgress, hideLoadingOverlay = false 
     return () => unsubscribe();
   }, [scrollYProgress]);
 
-  // Extract frames from video using canvas
+  // Extract frames from video using canvas - with caching
   useEffect(() => {
+    // Try to load from cache first
+    const loadFromCache = () => {
+      try {
+        const cached = sessionStorage.getItem(CACHE_KEY);
+        if (cached) {
+          const parsedFrames = JSON.parse(cached);
+          if (parsedFrames.length === FRAME_COUNT) {
+            setFrames(parsedFrames);
+            setIsLoading(false);
+            setLoadingProgress(100);
+            onProgress?.(100);
+            return true;
+          }
+        }
+      } catch (e) {
+        // Cache miss or error, continue with extraction
+      }
+      return false;
+    };
+
+    if (loadFromCache()) return;
+
     const video = document.createElement('video');
     video.src = heroVideo;
     video.crossOrigin = 'anonymous';
@@ -69,9 +93,10 @@ export function DentalChair3D({ onReady, onProgress, hideLoadingOverlay = false 
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
-      // Set canvas size to video dimensions
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+      // Reduced resolution for faster extraction
+      const scale = Math.min(1, MAX_WIDTH / video.videoWidth);
+      canvas.width = Math.round(video.videoWidth * scale);
+      canvas.height = Math.round(video.videoHeight * scale);
 
       const duration = video.duration;
       const frameInterval = duration / FRAME_COUNT;
@@ -83,13 +108,21 @@ export function DentalChair3D({ onReady, onProgress, hideLoadingOverlay = false 
         await new Promise<void>((resolve) => {
           video.onseeked = () => {
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            extractedFrames.push(canvas.toDataURL('image/jpeg', 0.85));
+            // Lower quality for faster extraction (0.6 instead of 0.85)
+            extractedFrames.push(canvas.toDataURL('image/jpeg', 0.6));
             const progress = Math.round(((i + 1) / FRAME_COUNT) * 100);
             setLoadingProgress(progress);
             onProgress?.(progress);
             resolve();
           };
         });
+      }
+
+      // Cache the frames for this session
+      try {
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify(extractedFrames));
+      } catch (e) {
+        // Storage full, ignore
       }
 
       setFrames(extractedFrames);
