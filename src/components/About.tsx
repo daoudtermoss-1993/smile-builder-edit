@@ -328,13 +328,13 @@ export const About = ({
     >
       {/* Contenu pinnné */}
       <div className="sticky top-0 h-screen overflow-hidden flex items-start">
-        <div className="w-full max-w-[1800px] mx-auto px-6 md:px-10 lg:px-[4vw] pt-28 lg:pt-32">
+        <div className="w-full max-w-[1800px] mx-auto px-4 sm:px-6 md:px-10 lg:px-[4vw] pt-20 sm:pt-24 md:pt-28 lg:pt-32">
         
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-10 lg:gap-8 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-6 sm:gap-8 lg:gap-8 items-start">
           
             {/* Côté gauche - Contenu texte avec animation Terminal Industries */}
-            <div className="relative space-y-6">
-              <div className="max-w-lg relative h-64 lg:h-72">
+            <div className="relative space-y-4 sm:space-y-6">
+              <div className="max-w-lg relative h-48 sm:h-56 md:h-64 lg:h-72">
                 {/* Titre animé avec scanline/glow Terminal Industries */}
                 {(() => {
                   const [titleStart, titleEnd] = CONFIG.titleRange;
@@ -358,19 +358,19 @@ export const About = ({
                   
                   return (
                     <motion.div
-                      className="absolute top-8 left-0 w-full terminal-text-reveal"
+                      className="absolute top-4 sm:top-6 md:top-8 left-0 w-full terminal-text-reveal"
                       style={{
                         opacity: titleOpacity,
                         transform: `translate3d(0, ${titleY}px, 0)`,
                         willChange: "transform, opacity",
                       }}
                     >
-                      <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-4 terminal-glow-text">
+                      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-3 sm:mb-4 terminal-glow-text">
                         <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
                           Meet {doctorName}
                         </span>
                       </h2>
-                      <p className="text-base lg:text-lg text-gray-600 leading-relaxed terminal-fade-text">
+                      <p className="text-sm sm:text-base lg:text-lg text-gray-600 leading-relaxed terminal-fade-text">
                         {description}
                       </p>
                     </motion.div>
@@ -379,7 +379,7 @@ export const About = ({
               </div>
 
               {/* Info items animés */}
-              <div className="relative h-80 lg:h-96">
+              <div className="relative h-64 sm:h-72 md:h-80 lg:h-96">
                 {scrollInfoItems.map((item, index) => {
                   const [rangeStart, rangeEnd] = CONFIG.infoItemsRange;
                   const scrollRange = rangeEnd - rangeStart;
@@ -422,19 +422,19 @@ export const About = ({
                         willChange: "transform, opacity",
                       }}
                     >
-                      <div className="bg-background/80 backdrop-blur-sm rounded-xl p-5 lg:p-6 shadow-lg border border-primary/20 terminal-card-glow">
-                        <span className="text-[10px] font-semibold tracking-[0.25em] uppercase mb-2 block">
+                      <div className="bg-background/80 backdrop-blur-sm rounded-xl p-4 sm:p-5 lg:p-6 shadow-lg border border-primary/20 terminal-card-glow">
+                        <span className="text-[9px] sm:text-[10px] font-semibold tracking-[0.25em] uppercase mb-1 sm:mb-2 block">
                           <span className="bg-gradient-to-r from-primary via-primary/70 to-primary bg-clip-text text-transparent">
                             {item.label}
                           </span>
                         </span>
-                        <h3 className="text-2xl lg:text-3xl font-bold leading-tight terminal-glow-text">
+                        <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold leading-tight terminal-glow-text">
                           <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
                             {item.value}
                           </span>
                         </h3>
                         {item.description && (
-                          <span className="text-sm lg:text-base text-muted-foreground mt-2 block terminal-fade-text">
+                          <span className="text-xs sm:text-sm lg:text-base text-muted-foreground mt-1 sm:mt-2 block terminal-fade-text">
                             {item.description}
                           </span>
                         )}
@@ -446,7 +446,7 @@ export const About = ({
             </div>
             
             {/* Côté droit - Image avec cadre */}
-            <div className="relative lg:min-h-[800px]">
+            <div className="relative lg:min-h-[800px] hidden lg:block">
               <motion.div
                 ref={mediaRef}
                 className="relative"
@@ -456,7 +456,7 @@ export const About = ({
                 transition={{ duration: 0.8, ease: "easeOut" }}
               >
                 <TerminalContainer 
-                  className="w-full h-[550px] md:h-[650px] lg:h-[800px]"
+                  className="w-full h-[400px] sm:h-[500px] md:h-[650px] lg:h-[800px]"
                   scrollProgress={smoothProgress}
                 >
                   <div className="relative w-full h-full bg-[#0a0f14]">

@@ -84,9 +84,9 @@ export const CTASection = () => {
   ];
 
   return (
-    <section className="relative bg-terminal overflow-hidden py-32 min-h-[500px]">
+    <section className="relative bg-terminal overflow-hidden py-16 sm:py-24 md:py-32 min-h-[350px] sm:min-h-[400px] md:min-h-[500px]">
       {/* Curved wave transition at top */}
-      <div className="absolute top-0 left-0 right-0 h-24 overflow-hidden">
+      <div className="absolute top-0 left-0 right-0 h-16 sm:h-20 md:h-24 overflow-hidden">
         <svg
           viewBox="0 0 1440 120"
           fill="none"
@@ -101,8 +101,8 @@ export const CTASection = () => {
         </svg>
       </div>
 
-      {/* Animated lines with traveling dots */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      {/* Animated lines with traveling dots - hidden on mobile for performance */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden hidden sm:block">
         {lines.map((line, index) => (
           <AnimatedLineWithDot
             key={index}
@@ -229,7 +229,7 @@ export const CTASection = () => {
       {/* Content */}
       <div className="container mx-auto px-4 relative z-10 text-center">
         <motion.h2
-          className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white leading-tight max-w-4xl mx-auto mb-8 italic"
+          className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold text-white leading-tight max-w-4xl mx-auto mb-6 sm:mb-8 italic px-2"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -248,11 +248,11 @@ export const CTASection = () => {
         >
           <Button
             size="lg"
-            className="bg-terminal-muted hover:bg-terminal-muted/80 text-white border-0 px-8 py-6 text-base font-semibold tracking-wide uppercase group"
+            className="bg-terminal-muted hover:bg-terminal-muted/80 text-white border-0 px-6 py-4 sm:px-8 sm:py-6 text-sm sm:text-base font-semibold tracking-wide uppercase group"
             onClick={() => document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' })}
           >
             {language === 'ar' ? 'احجز موعدك الآن' : 'Book Your Appointment'}
-            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
           </Button>
         </motion.div>
       </div>

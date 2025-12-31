@@ -23,14 +23,14 @@ export const Services = () => {
   });
   
   return (
-    <section id="services" className="py-24 overflow-hidden relative bg-terminal-dark">
+    <section id="services" className="py-16 sm:py-20 md:py-24 overflow-hidden relative bg-terminal-dark">
       {/* GridPattern animé comme Contact */}
       <GridPattern />
       
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
         <motion.div 
-          className="text-center mb-16"
+          className="text-center mb-10 sm:mb-12 md:mb-16"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
@@ -38,19 +38,19 @@ export const Services = () => {
         >
           {/* Premium badge */}
           <motion.div
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-terminal-muted/50 backdrop-blur-sm border border-white/10 mb-6"
+            className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-terminal-muted/50 backdrop-blur-sm border border-white/10 mb-4 sm:mb-6"
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <Sparkles className="w-4 h-4 text-terminal-accent" />
-            <span className="text-sm font-medium text-terminal-accent tracking-wide">
+            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-terminal-accent" />
+            <span className="text-xs sm:text-sm font-medium text-terminal-accent tracking-wide">
               {language === 'ar' ? 'خدمات متميزة' : 'Premium Services'}
             </span>
           </motion.div>
           
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold leading-tight mb-6 text-white">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-bold leading-tight mb-4 sm:mb-6 text-white">
             <EditableText 
               sectionKey="services" 
               field="title" 
@@ -59,7 +59,7 @@ export const Services = () => {
             />
           </h2>
           
-          <p className="text-lg text-white/70 leading-relaxed max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-white/70 leading-relaxed max-w-2xl mx-auto px-4">
             <EditableText 
               sectionKey="services" 
               field="subtitle" 
@@ -71,10 +71,10 @@ export const Services = () => {
           </p>
           
           {/* Decorative line */}
-          <div className="flex items-center justify-center gap-2 mt-8">
-            <div className="w-12 h-0.5 bg-gradient-to-r from-transparent to-terminal-accent/30 rounded-full" />
-            <div className="w-2 h-2 bg-terminal-accent rounded-full" />
-            <div className="w-12 h-0.5 bg-gradient-to-l from-transparent to-terminal-accent/30 rounded-full" />
+          <div className="flex items-center justify-center gap-2 mt-6 sm:mt-8">
+            <div className="w-8 sm:w-12 h-0.5 bg-gradient-to-r from-transparent to-terminal-accent/30 rounded-full" />
+            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-terminal-accent rounded-full" />
+            <div className="w-8 sm:w-12 h-0.5 bg-gradient-to-l from-transparent to-terminal-accent/30 rounded-full" />
           </div>
         </motion.div>
 
@@ -88,7 +88,7 @@ export const Services = () => {
         >
           <Interactive3DCards 
             cards={cards3D}
-            className="w-full py-12"
+            className="w-full py-6 sm:py-8 md:py-12"
           />
         </motion.div>
       </div>
