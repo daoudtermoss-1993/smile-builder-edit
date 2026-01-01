@@ -456,28 +456,28 @@ export const BeforeAfter = () => {
   };
 
   return (
-    <section className="py-16 overflow-hidden relative">
+    <section className="py-10 sm:py-12 md:py-16 overflow-hidden relative">
       {/* Subtle gradient accent */}
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/[0.02] to-transparent pointer-events-none" />
       <div className="container mx-auto max-w-7xl px-4 relative z-10">
         {/* Section Header */}
         <motion.div 
-          className="text-center mb-16"
+          className="text-center mb-8 sm:mb-12 md:mb-16"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.8 }}
         >
           <motion.div 
-            className="inline-block px-6 py-2 glass-teal rounded-full mb-6"
+            className="inline-block px-4 sm:px-6 py-1.5 sm:py-2 glass-teal rounded-full mb-4 sm:mb-6"
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <span className="text-sm font-semibold text-primary">{language === 'ar' ? 'النتائج' : 'Results'}</span>
+            <span className="text-xs sm:text-sm font-semibold text-primary">{language === 'ar' ? 'النتائج' : 'Results'}</span>
           </motion.div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-foreground">
             <EditableText 
               sectionKey="gallery" 
               field="title" 
@@ -485,7 +485,7 @@ export const BeforeAfter = () => {
               as="span"
             />
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
             <EditableText 
               sectionKey="gallery" 
               field="subtitle" 
@@ -497,7 +497,7 @@ export const BeforeAfter = () => {
 
         {/* Before/After Gallery */}
         <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 mb-6 sm:mb-8"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true, margin: "-50px" }}
@@ -523,7 +523,7 @@ export const BeforeAfter = () => {
 
         {/* Add Image Button */}
         {isEditMode && (
-          <div className="flex justify-center mb-20">
+          <div className="flex justify-center mb-12 sm:mb-16 md:mb-20">
             <AddContentButton 
               onClick={() => setShowAddImageDialog(true)} 
               label={language === 'ar' ? 'إضافة مقارنة جديدة' : 'Add New Comparison'}
@@ -533,19 +533,19 @@ export const BeforeAfter = () => {
 
         {/* Testimonials Section */}
         <motion.div 
-          className="mt-16"
+          className="mt-10 sm:mt-12 md:mt-16"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-50px" }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <h3 className="text-3xl font-bold text-center mb-12 text-foreground">
+          <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 sm:mb-8 md:mb-12 text-foreground">
             {t("patientTestimonials")}
           </h3>
           
           {/* Add Testimonial Button */}
           {isEditMode && (
-            <div className="flex justify-center mb-8">
+            <div className="flex justify-center mb-4 sm:mb-6 md:mb-8">
               <AddContentButton 
                 onClick={() => setShowAddTestimonialDialog(true)} 
                 label={language === 'ar' ? 'إضافة شهادة جديدة' : 'Add New Testimonial'}
@@ -556,7 +556,7 @@ export const BeforeAfter = () => {
           {/* Testimonials Display - Grid in edit mode, Scrolling otherwise */}
           {isEditMode ? (
             /* Static Grid for Edit Mode - easier to click delete buttons */
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {testimonials.map((testimonial) => (
                 <TestimonialCard 
                   key={testimonial.id} 

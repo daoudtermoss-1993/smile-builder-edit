@@ -95,9 +95,9 @@ export const Navigation = () => {
 
   return (
     <div className="relative w-full">
-      <div className="fixed top-6 inset-x-0 max-w-5xl mx-auto z-50 px-4">
+      <div className="fixed top-4 sm:top-6 inset-x-0 max-w-5xl mx-auto z-50 px-2 sm:px-4">
         <motion.div 
-          className="relative flex items-center justify-between px-6 py-4 bg-ivory/90 backdrop-blur-xl rounded-full border border-primary/10 shadow-2xl shadow-primary/10"
+          className="relative flex items-center justify-between px-3 py-2.5 sm:px-6 sm:py-4 bg-ivory/90 backdrop-blur-xl rounded-full border border-primary/10 shadow-2xl shadow-primary/10"
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
@@ -120,12 +120,12 @@ export const Navigation = () => {
               transition={{ duration: 0.5 }}
             >
               <svg
-                width="48"
-                height="48"
+                width="36"
+                height="36"
                 viewBox="0 0 48 48"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                className="drop-shadow-lg"
+                className="drop-shadow-lg sm:w-12 sm:h-12"
               >
                 <defs>
                   <linearGradient id="tooth-gradient-nav" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -164,11 +164,11 @@ export const Navigation = () => {
                 <path d="M30 11 L30 15 M28 13 L32 13" stroke="hsl(175, 70%, 50%)" strokeWidth="0.8" opacity="0.7" strokeLinecap="round" />
               </svg>
             </motion.div>
-            <div className="hidden sm:flex flex-col">
-              <span className="text-lg font-bold bg-gradient-to-r from-primary via-primary/70 to-primary bg-clip-text text-transparent">
+            <div className="hidden md:flex flex-col">
+              <span className="text-base lg:text-lg font-bold bg-gradient-to-r from-primary via-primary/70 to-primary bg-clip-text text-transparent">
                 {language === 'ar' ? 'د. يوسف جيرمان' : 'Dr. Yousif German'}
               </span>
-              <span className="text-[10px] text-primary/60 font-medium tracking-widest uppercase">
+              <span className="text-[9px] lg:text-[10px] text-primary/60 font-medium tracking-widest uppercase">
                 Premium Dental Care
               </span>
             </div>
