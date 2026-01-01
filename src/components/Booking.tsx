@@ -160,11 +160,11 @@ export const Booking = () => {
     <>
       <SectionTransition variant="dark-to-white" />
       
-      <section className="py-20 md:py-28 overflow-hidden relative bg-background">
+      <section className="py-12 sm:py-16 md:py-20 lg:py-28 overflow-hidden relative bg-background">
         <div className="container mx-auto px-4 relative z-10">
           {/* Header */}
           <motion.div 
-            className="text-center mb-12 md:mb-16"
+            className="text-center mb-8 sm:mb-12 md:mb-16"
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -180,7 +180,7 @@ export const Booking = () => {
               {language === 'ar' ? 'احجز موعدك' : 'Book Appointment'}
             </motion.span>
             
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-foreground leading-tight mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold text-foreground leading-tight mb-4">
               <EditableText 
                 sectionKey="booking" 
                 field="title" 
@@ -189,7 +189,7 @@ export const Booking = () => {
               />
             </h2>
             
-            <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto px-2">
               {language === 'ar' 
                 ? 'احجز موعدك الآن واحصل على أفضل رعاية للأسنان'
                 : 'Book your appointment in just a few simple steps'}
@@ -198,30 +198,30 @@ export const Booking = () => {
 
           {/* Step Indicator */}
           <motion.div 
-            className="flex justify-center mb-12"
+            className="flex justify-center mb-6 sm:mb-8 md:mb-12"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <div className="flex items-center gap-2 md:gap-4">
+            <div className="flex items-center gap-1 sm:gap-2 md:gap-4">
               {steps.map((step, index) => (
                 <div key={step.number} className="flex items-center">
                   <button
                     type="button"
                     onClick={() => setCurrentStep(step.number)}
-                    className={cn(
-                      "flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300",
-                      currentStep === step.number 
-                        ? "bg-primary text-primary-foreground" 
-                        : currentStep > step.number 
-                          ? "bg-primary/20 text-primary"
-                          : "bg-muted text-muted-foreground"
-                    )}
-                  >
-                    <step.icon className="w-4 h-4" />
-                    <span className="hidden md:inline text-sm font-medium">{step.label}</span>
-                    <span className="md:hidden text-sm font-medium">{step.number}</span>
+                      className={cn("px-2.5 py-1.5 sm:px-4 sm:py-2",
+                        "flex items-center gap-1 sm:gap-2 rounded-full transition-all duration-300",
+                        currentStep === step.number 
+                          ? "bg-primary text-primary-foreground" 
+                          : currentStep > step.number 
+                            ? "bg-primary/20 text-primary"
+                            : "bg-muted text-muted-foreground"
+                      )}
+                    >
+                      <step.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      <span className="hidden sm:inline text-xs sm:text-sm font-medium">{step.label}</span>
+                      <span className="sm:hidden text-xs font-medium">{step.number}</span>
                   </button>
                   {index < steps.length - 1 && (
                     <div className={cn(
@@ -242,7 +242,7 @@ export const Booking = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <form onSubmit={handleSubmit} className="bg-card rounded-3xl p-6 md:p-10 shadow-elevated border border-border">
+            <form onSubmit={handleSubmit} className="bg-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-10 shadow-elevated border border-border">
               
               {/* Step 1: Date & Time */}
               {currentStep === 1 && (
@@ -259,7 +259,7 @@ export const Booking = () => {
                       <FileText className="w-4 h-4 text-primary" />
                       {language === 'ar' ? 'الخدمة المطلوبة' : 'Service Needed'}
                     </label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
                       {[
                         { value: "implants", labelEn: "Dental Implants", labelAr: "زراعة الأسنان" },
                         { value: "cosmetic", labelEn: "Cosmetic", labelAr: "تجميل الأسنان" },
@@ -272,8 +272,8 @@ export const Booking = () => {
                           key={service.value}
                           type="button"
                           onClick={() => handleChange("service", service.value)}
-                          className={cn(
-                            "p-4 rounded-xl border-2 text-sm font-medium transition-all duration-200",
+                            className={cn("text-xs sm:text-sm",
+                            "p-2.5 sm:p-4 rounded-lg sm:rounded-xl border-2 font-medium transition-all duration-200",
                             formData.service === service.value 
                               ? "border-primary bg-primary/10 text-primary" 
                               : "border-border bg-background hover:border-primary/50 text-foreground"
@@ -286,7 +286,7 @@ export const Booking = () => {
                   </div>
 
                   {/* Date and Time Selection */}
-                  <div className="grid md:grid-cols-2 gap-8">
+                  <div className="grid md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
                     {/* Calendar */}
                     <div className="space-y-3">
                       <label className="text-sm font-medium text-foreground flex items-center gap-2">

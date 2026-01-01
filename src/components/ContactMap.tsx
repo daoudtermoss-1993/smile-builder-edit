@@ -25,13 +25,13 @@ export const ContactMap = ({ address, phone, email, hours }: ContactMapProps) =>
   ];
   
   return (
-    <section id="contact" className="py-20 md:py-28 overflow-hidden relative bg-terminal-dark">
+    <section id="contact" className="py-12 sm:py-16 md:py-20 lg:py-28 overflow-hidden relative bg-terminal-dark">
       <GridPattern />
       
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
         <motion.div 
-          className="text-center mb-16"
+          className="text-center mb-8 sm:mb-12 md:mb-16"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -47,7 +47,7 @@ export const ContactMap = ({ address, phone, email, hours }: ContactMapProps) =>
             {language === 'ar' ? 'تواصل معنا' : 'Get in Touch'}
           </motion.span>
           
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold text-white mb-4">
             <EditableText 
               sectionKey="contact" 
               field="title" 
@@ -55,7 +55,7 @@ export const ContactMap = ({ address, phone, email, hours }: ContactMapProps) =>
               as="span"
             />
           </h2>
-          <p className="text-lg text-white/70 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg text-white/70 max-w-2xl mx-auto px-2">
             <EditableText 
               sectionKey="contact" 
               field="subtitle" 
@@ -65,21 +65,21 @@ export const ContactMap = ({ address, phone, email, hours }: ContactMapProps) =>
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-5 gap-8 items-stretch">
+        <div className="grid lg:grid-cols-5 gap-4 sm:gap-6 lg:gap-8 items-stretch">
           {/* Contact Cards - Left Side */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-2 space-y-3 sm:space-y-4">
             {contactItems.map((item, index) => (
               <motion.div 
                 key={index}
-                className="bg-terminal-muted/50 backdrop-blur-sm border border-white/10 rounded-2xl p-5 hover:border-gold/30 transition-all duration-300 group"
+                className="bg-terminal-muted/50 backdrop-blur-sm border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-5 hover:border-gold/30 transition-all duration-300 group"
                 initial={{ opacity: 0, x: -40 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.1 * index }}
               >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-gold/20 to-gold/5 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:from-gold/30 group-hover:to-gold/10 transition-all duration-300">
-                    <item.icon className="w-5 h-5 text-gold" />
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-gold/20 to-gold/5 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 group-hover:from-gold/30 group-hover:to-gold/10 transition-all duration-300">
+                    <item.icon className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-white/50 uppercase tracking-wider mb-1">{item.label}</p>
@@ -157,7 +157,7 @@ export const ContactMap = ({ address, phone, email, hours }: ContactMapProps) =>
 
           {/* Map - Right Side */}
           <motion.div 
-            className="lg:col-span-3 rounded-3xl overflow-hidden border border-white/10 min-h-[450px] relative"
+            className="lg:col-span-3 rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 min-h-[280px] sm:min-h-[350px] md:min-h-[400px] lg:min-h-[450px] relative"
             initial={{ opacity: 0, x: 60 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
@@ -180,19 +180,19 @@ export const ContactMap = ({ address, phone, email, hours }: ContactMapProps) =>
             
             {/* Location badge */}
             <motion.div 
-              className="absolute bottom-6 left-6 z-20 bg-terminal-dark/90 backdrop-blur-md border border-white/10 rounded-2xl px-5 py-4"
+              className="absolute bottom-3 left-3 sm:bottom-6 sm:left-6 z-20 bg-terminal-dark/90 backdrop-blur-md border border-white/10 rounded-xl sm:rounded-2xl px-3 py-2.5 sm:px-5 sm:py-4"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.8 }}
             >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gold/20 rounded-full flex items-center justify-center">
-                  <MapPin className="w-5 h-5 text-gold" />
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gold/20 rounded-full flex items-center justify-center">
+                  <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
                 </div>
                 <div>
-                  <p className="text-white font-medium">{language === 'ar' ? 'موقعنا' : 'Our Location'}</p>
-                  <p className="text-xs text-white/60">{language === 'ar' ? 'مدينة الكويت' : 'Kuwait City'}</p>
+                  <p className="text-sm sm:text-base text-white font-medium">{language === 'ar' ? 'موقعنا' : 'Our Location'}</p>
+                  <p className="text-[10px] sm:text-xs text-white/60">{language === 'ar' ? 'مدينة الكويت' : 'Kuwait City'}</p>
                 </div>
               </div>
             </motion.div>

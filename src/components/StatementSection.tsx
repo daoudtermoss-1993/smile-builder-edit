@@ -57,11 +57,11 @@ export function StatementSection() {
   };
 
   return (
-    <section className="relative py-32 md:py-40 lg:py-48 bg-background overflow-hidden">
+    <section className="relative py-16 sm:py-24 md:py-32 lg:py-40 xl:py-48 bg-background overflow-hidden">
       {/* Subtle background gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-muted/20" />
       
-      <div className="container relative z-10 max-w-5xl mx-auto px-6">
+      <div className="container relative z-10 max-w-5xl mx-auto px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -77,14 +77,14 @@ export function StatementSection() {
                 onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
                 autoFocus
-                className="bg-background/80 border-2 border-primary rounded-md p-4 w-full resize-none focus:outline-none focus:ring-2 focus:ring-primary text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-semibold leading-tight tracking-tight text-foreground text-center"
+                className="bg-background/80 border-2 border-primary rounded-md p-4 w-full resize-none focus:outline-none focus:ring-2 focus:ring-primary text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold leading-tight tracking-tight text-foreground text-center"
                 rows={3}
               />
             ) : (
               <h2
                 onClick={handleClick}
                 className={cn(
-                  "text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-semibold leading-tight tracking-tight text-foreground",
+                  "text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold leading-tight tracking-tight text-foreground",
                   "cursor-pointer relative group hover:outline hover:outline-2 hover:outline-primary hover:outline-dashed rounded-sm transition-all inline-block"
                 )}
               >
@@ -93,7 +93,7 @@ export function StatementSection() {
               </h2>
             )
           ) : (
-            <h2 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-semibold leading-tight tracking-tight text-foreground">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold leading-tight tracking-tight text-foreground">
               {defaultText}
             </h2>
           )}
