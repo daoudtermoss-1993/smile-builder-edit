@@ -20,6 +20,12 @@ const CONFIG = {
   notchHeight: 140,        // Hauteur du notch
   borderInset: 1.5,        // Épaisseur de la bordure
   
+  // Mobile config
+  mobileNotchHeight: 100,  // Hauteur du notch sur mobile
+  mobileNotchDepth: 50,    // Profondeur du notch sur mobile
+  mobileCornerRadius: 40,  // Rayon des coins sur mobile
+  mobileNotchRadius: 30,   // Rayon des coins du notch sur mobile
+  
   // Couleurs
   borderColor: "hsl(var(--primary) / 0.95)", // Couleur de la bordure (teal)
   notchFillColor: "hsl(var(--background))", // Remplissage du notch (même que le fond)
@@ -90,13 +96,17 @@ interface TerminalContainerProps {
   className?: string;
   scrollProgress?: number;
   onNotchPositionChange?: (y: number) => void;
+  isMobile?: boolean;
+  notchPosition?: 'left' | 'bottom';
 }
 
 const TerminalContainer = ({ 
   children, 
   className = "", 
   scrollProgress = 0, 
-  onNotchPositionChange 
+  onNotchPositionChange,
+  isMobile = false,
+  notchPosition = 'left'
 }: TerminalContainerProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 600, height: 800 });
@@ -135,61 +145,115 @@ const TerminalContainer = ({
   });
   
   const { width, height } = dimensions;
-  const { cornerRadius, notchRadius, notchDepth, notchHeight, borderInset } = CONFIG;
+  
+  // Use mobile-specific values
+  const cornerRadius = isMobile ? CONFIG.mobileCornerRadius : CONFIG.cornerRadius;
+  const notchRadius = isMobile ? CONFIG.mobileNotchRadius : CONFIG.notchRadius;
+  const notchDepth = isMobile ? CONFIG.mobileNotchDepth : CONFIG.notchDepth;
+  const notchHeight = isMobile ? CONFIG.mobileNotchHeight : CONFIG.notchHeight;
+  const borderInset = CONFIG.borderInset;
   
   // Easing pour le mouvement du notch - reste visible à la fin
   const easedProgress = smoothNotchProgress * smoothNotchProgress * (3 - 2 * smoothNotchProgress);
-  
-  // Position du notch basée sur le scroll - reste à sa position finale
-  const minNotchTop = 100;
-  const maxNotchTop = height - notchHeight - 150;
-  // Le notch se déplace jusqu'à sa position finale et y reste
   const clampedProgress = Math.min(easedProgress, 1);
-  const notchTop = minNotchTop + (clampedProgress * (maxNotchTop - minNotchTop));
-  const notchBottom = notchTop + notchHeight;
-  const notchCenterY = notchTop + notchHeight / 2;
   
-  useEffect(() => {
-    if (onNotchPositionChange) {
-      onNotchPositionChange(notchCenterY);
-    }
-  }, [notchCenterY, onNotchPositionChange]);
+  // Different path generation based on notch position
+  let framePath: string;
+  let notchAreaPath: string;
   
-  // Chemin SVG pour le cadre (utilisé pour clip ET bordure)
-  const framePath = `
-    M ${borderInset} ${cornerRadius}
-    Q ${borderInset} ${borderInset}, ${cornerRadius} ${borderInset}
-    L ${width - cornerRadius} ${borderInset}
-    Q ${width - borderInset} ${borderInset}, ${width - borderInset} ${cornerRadius}
-    L ${width - borderInset} ${height - cornerRadius}
-    Q ${width - borderInset} ${height - borderInset}, ${width - cornerRadius} ${height - borderInset}
-    L ${cornerRadius} ${height - borderInset}
-    Q ${borderInset} ${height - borderInset}, ${borderInset} ${height - cornerRadius}
-    L ${borderInset} ${notchBottom + notchRadius}
-    Q ${borderInset} ${notchBottom}, ${notchRadius} ${notchBottom}
-    L ${notchDepth - notchRadius} ${notchBottom}
-    Q ${notchDepth} ${notchBottom}, ${notchDepth} ${notchBottom - notchRadius}
-    L ${notchDepth} ${notchTop + notchRadius}
-    Q ${notchDepth} ${notchTop}, ${notchDepth - notchRadius} ${notchTop}
-    L ${notchRadius} ${notchTop}
-    Q ${borderInset} ${notchTop}, ${borderInset} ${notchTop - notchRadius}
-    L ${borderInset} ${cornerRadius}
-    Z
-  `;
-  
-  // Chemin pour le remplissage blanc du notch
-  const notchAreaPath = `
-    M 0 ${notchTop}
-    L 0 ${notchBottom}
-    Q 0 ${notchBottom}, ${notchRadius} ${notchBottom}
-    L ${notchDepth - notchRadius} ${notchBottom}
-    Q ${notchDepth} ${notchBottom}, ${notchDepth} ${notchBottom - notchRadius}
-    L ${notchDepth} ${notchTop + notchRadius}
-    Q ${notchDepth} ${notchTop}, ${notchDepth - notchRadius} ${notchTop}
-    L ${notchRadius} ${notchTop}
-    Q 0 ${notchTop}, 0 ${notchTop}
-    Z
-  `;
+  if (notchPosition === 'bottom') {
+    // Notch on bottom, moves from left to right
+    const minNotchLeft = 60;
+    const maxNotchLeft = width - notchHeight - 60;
+    const notchLeft = minNotchLeft + (clampedProgress * (maxNotchLeft - minNotchLeft));
+    const notchRight = notchLeft + notchHeight;
+    const notchCenterX = notchLeft + notchHeight / 2;
+    
+    useEffect(() => {
+      if (onNotchPositionChange) {
+        onNotchPositionChange(notchCenterX);
+      }
+    }, [notchCenterX, onNotchPositionChange]);
+    
+    // Frame path with notch on bottom
+    framePath = `
+      M ${borderInset} ${cornerRadius}
+      Q ${borderInset} ${borderInset}, ${cornerRadius} ${borderInset}
+      L ${width - cornerRadius} ${borderInset}
+      Q ${width - borderInset} ${borderInset}, ${width - borderInset} ${cornerRadius}
+      L ${width - borderInset} ${height - cornerRadius}
+      Q ${width - borderInset} ${height - borderInset}, ${width - cornerRadius} ${height - borderInset}
+      L ${notchRight + notchRadius} ${height - borderInset}
+      Q ${notchRight} ${height - borderInset}, ${notchRight} ${height - notchRadius}
+      L ${notchRight} ${height - notchDepth + notchRadius}
+      Q ${notchRight} ${height - notchDepth}, ${notchRight - notchRadius} ${height - notchDepth}
+      L ${notchLeft + notchRadius} ${height - notchDepth}
+      Q ${notchLeft} ${height - notchDepth}, ${notchLeft} ${height - notchDepth + notchRadius}
+      L ${notchLeft} ${height - notchRadius}
+      Q ${notchLeft} ${height - borderInset}, ${notchLeft - notchRadius} ${height - borderInset}
+      L ${cornerRadius} ${height - borderInset}
+      Q ${borderInset} ${height - borderInset}, ${borderInset} ${height - cornerRadius}
+      Z
+    `;
+    
+    // Notch fill path
+    notchAreaPath = `
+      M ${notchLeft} ${height}
+      L ${notchRight} ${height}
+      L ${notchRight} ${height - notchDepth + notchRadius}
+      Q ${notchRight} ${height - notchDepth}, ${notchRight - notchRadius} ${height - notchDepth}
+      L ${notchLeft + notchRadius} ${height - notchDepth}
+      Q ${notchLeft} ${height - notchDepth}, ${notchLeft} ${height - notchDepth + notchRadius}
+      Z
+    `;
+  } else {
+    // Original left-side notch
+    const minNotchTop = 100;
+    const maxNotchTop = height - notchHeight - 150;
+    const notchTop = minNotchTop + (clampedProgress * (maxNotchTop - minNotchTop));
+    const notchBottom = notchTop + notchHeight;
+    const notchCenterY = notchTop + notchHeight / 2;
+    
+    useEffect(() => {
+      if (onNotchPositionChange) {
+        onNotchPositionChange(notchCenterY);
+      }
+    }, [notchCenterY, onNotchPositionChange]);
+    
+    framePath = `
+      M ${borderInset} ${cornerRadius}
+      Q ${borderInset} ${borderInset}, ${cornerRadius} ${borderInset}
+      L ${width - cornerRadius} ${borderInset}
+      Q ${width - borderInset} ${borderInset}, ${width - borderInset} ${cornerRadius}
+      L ${width - borderInset} ${height - cornerRadius}
+      Q ${width - borderInset} ${height - borderInset}, ${width - cornerRadius} ${height - borderInset}
+      L ${cornerRadius} ${height - borderInset}
+      Q ${borderInset} ${height - borderInset}, ${borderInset} ${height - cornerRadius}
+      L ${borderInset} ${notchBottom + notchRadius}
+      Q ${borderInset} ${notchBottom}, ${notchRadius} ${notchBottom}
+      L ${notchDepth - notchRadius} ${notchBottom}
+      Q ${notchDepth} ${notchBottom}, ${notchDepth} ${notchBottom - notchRadius}
+      L ${notchDepth} ${notchTop + notchRadius}
+      Q ${notchDepth} ${notchTop}, ${notchDepth - notchRadius} ${notchTop}
+      L ${notchRadius} ${notchTop}
+      Q ${borderInset} ${notchTop}, ${borderInset} ${notchTop - notchRadius}
+      L ${borderInset} ${cornerRadius}
+      Z
+    `;
+    
+    notchAreaPath = `
+      M 0 ${notchTop}
+      L 0 ${notchBottom}
+      Q 0 ${notchBottom}, ${notchRadius} ${notchBottom}
+      L ${notchDepth - notchRadius} ${notchBottom}
+      Q ${notchDepth} ${notchBottom}, ${notchDepth} ${notchBottom - notchRadius}
+      L ${notchDepth} ${notchTop + notchRadius}
+      Q ${notchDepth} ${notchTop}, ${notchDepth - notchRadius} ${notchTop}
+      L ${notchRadius} ${notchTop}
+      Q 0 ${notchTop}, 0 ${notchTop}
+      Z
+    `;
+  }
   
   // ID unique pour le clipPath
   const reactId = useId();
@@ -296,6 +360,15 @@ export const About = ({
 }: AboutProps) => {
   const aboutRef = useRef<HTMLElement>(null);
   const mediaRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Detect mobile
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   // Progress du scroll pour la section pinnée
   const { scrollYProgress: pinnedScrollProgress } = useScroll({
@@ -324,62 +397,62 @@ export const About = ({
       id="about" 
       ref={aboutRef} 
       className="relative bg-white"
-      style={{ height: '350vh' }}
+      style={{ height: isMobile ? '250vh' : '350vh' }}
     >
       {/* Contenu pinnné */}
       <div className="sticky top-0 h-screen overflow-hidden flex items-start">
-        <div className="w-full max-w-[1800px] mx-auto px-4 sm:px-6 md:px-10 lg:px-[4vw] pt-20 sm:pt-24 md:pt-28 lg:pt-32">
+        <div className="w-full max-w-[1800px] mx-auto px-4 sm:px-6 md:px-10 lg:px-[4vw] pt-16 sm:pt-20 md:pt-24 lg:pt-32">
         
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-6 sm:gap-8 lg:gap-8 items-start">
-          
-            {/* Côté gauche - Contenu texte avec animation Terminal Industries */}
-            <div className="relative space-y-4 sm:space-y-6">
-              <div className="max-w-lg relative h-48 sm:h-56 md:h-64 lg:h-72">
-                {/* Titre animé avec scanline/glow Terminal Industries */}
-                {(() => {
-                  const [titleStart, titleEnd] = CONFIG.titleRange;
-                  const titleRaw = (smoothProgress - titleStart) / (titleEnd - titleStart);
-                  const titleProgress = Math.max(0, Math.min(1, titleRaw));
-                  
-                  let titleOpacity = 0;
-                  let titleY = -80;
-                  const isTitleActive = smoothProgress >= titleStart && smoothProgress < titleEnd;
-                  
-                  if (isTitleActive) {
-                    if (titleProgress < 0.15) {
-                      titleOpacity = titleProgress / 0.15;
-                    } else if (titleProgress > 0.85) {
-                      titleOpacity = 1 - ((titleProgress - 0.85) / 0.15);
-                    } else {
-                      titleOpacity = 1;
-                    }
-                    titleY = -80 + (titleProgress * 330);
-                  }
-                  
-                  return (
-                    <motion.div
-                      className="absolute top-4 sm:top-6 md:top-8 left-0 w-full terminal-text-reveal"
+          {/* Mobile Layout: Video first, then text */}
+          {isMobile ? (
+            <div className="flex flex-col gap-4">
+              {/* Video Frame with bottom notch moving left to right */}
+              <motion.div
+                ref={mediaRef}
+                className="relative w-full"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+              >
+                <TerminalContainer 
+                  className="w-full h-[240px] sm:h-[280px]"
+                  scrollProgress={smoothProgress}
+                  isMobile={true}
+                  notchPosition="bottom"
+                >
+                  <div className="relative w-full h-full bg-[#0a0f14]">
+                    {/* Grille subtile */}
+                    <div 
+                      className="absolute inset-0 pointer-events-none z-[1]"
                       style={{
-                        opacity: titleOpacity,
-                        transform: `translate3d(0, ${titleY}px, 0)`,
-                        willChange: "transform, opacity",
+                        backgroundImage: `
+                          linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                          linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)
+                        `,
+                        backgroundSize: '30px 30px',
                       }}
-                    >
-                      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-3 sm:mb-4 terminal-glow-text">
-                        <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
-                          Meet {doctorName}
-                        </span>
-                      </h2>
-                      <p className="text-sm sm:text-base lg:text-lg text-gray-600 leading-relaxed terminal-fade-text">
-                        {description}
-                      </p>
-                    </motion.div>
-                  );
-                })()}
-              </div>
+                    />
 
-              {/* Info items animés */}
-              <div className="relative h-64 sm:h-72 md:h-80 lg:h-96">
+                    {/* Image/Vidéo */}
+                    <div className="relative z-[5] h-full w-full">
+                      <EditableMedia
+                        sectionKey="about"
+                        field="doctorMedia"
+                        defaultSrc={doctorImage}
+                        alt={doctorName}
+                        className="h-full w-full"
+                      />
+                    </div>
+
+                    {/* Overlays de gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f14]/70 via-transparent to-[#0a0f14]/20 pointer-events-none z-[10]" />
+                  </div>
+                </TerminalContainer>
+              </motion.div>
+
+              {/* Stats cards appearing with notch movement */}
+              <div className="relative h-[280px] sm:h-[320px]">
                 {scrollInfoItems.map((item, index) => {
                   const [rangeStart, rangeEnd] = CONFIG.infoItemsRange;
                   const scrollRange = rangeEnd - rangeStart;
@@ -405,36 +478,37 @@ export const About = ({
                     }
                   }
                   
-                  let y = -120;
+                  // Horizontal movement from left to right for mobile
+                  let x = -100;
                   if (isFocused) {
-                    y = -120 + (itemProgress * 320);
+                    x = -100 + (itemProgress * 200);
                   } else if (isPast) {
-                    y = 200;
+                    x = 120;
                   }
 
                   return (
                     <motion.div
                       key={item.id}
-                      className="absolute top-0 left-0 w-full max-w-md terminal-text-reveal"
+                      className="absolute top-4 left-0 right-0 terminal-text-reveal"
                       style={{
                         opacity,
-                        transform: `translate3d(0, ${y}px, 0)`,
+                        transform: `translate3d(${x}px, 0, 0)`,
                         willChange: "transform, opacity",
                       }}
                     >
-                      <div className="bg-background/80 backdrop-blur-sm rounded-xl p-4 sm:p-5 lg:p-6 shadow-lg border border-primary/20 terminal-card-glow">
-                        <span className="text-[9px] sm:text-[10px] font-semibold tracking-[0.25em] uppercase mb-1 sm:mb-2 block">
+                      <div className="bg-background/90 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-primary/20 terminal-card-glow mx-4">
+                        <span className="text-[9px] font-semibold tracking-[0.25em] uppercase mb-1 block">
                           <span className="bg-gradient-to-r from-primary via-primary/70 to-primary bg-clip-text text-transparent">
                             {item.label}
                           </span>
                         </span>
-                        <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold leading-tight terminal-glow-text">
+                        <h3 className="text-xl font-bold leading-tight terminal-glow-text">
                           <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
                             {item.value}
                           </span>
                         </h3>
                         {item.description && (
-                          <span className="text-xs sm:text-sm lg:text-base text-muted-foreground mt-1 sm:mt-2 block terminal-fade-text">
+                          <span className="text-xs text-muted-foreground mt-1 block terminal-fade-text">
                             {item.description}
                           </span>
                         )}
@@ -442,98 +516,232 @@ export const About = ({
                     </motion.div>
                   );
                 })}
+                
+                {/* Title at bottom for mobile */}
+                <motion.div
+                  className="absolute bottom-0 left-0 right-0 px-4"
+                  style={{
+                    opacity: smoothProgress < 0.15 ? 1 : Math.max(0, 1 - (smoothProgress - 0.15) * 5),
+                  }}
+                >
+                  <h2 className="text-xl font-bold leading-tight mb-2 terminal-glow-text">
+                    <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
+                      Meet {doctorName}
+                    </span>
+                  </h2>
+                  <p className="text-sm text-gray-600 leading-relaxed terminal-fade-text line-clamp-2">
+                    {description}
+                  </p>
+                </motion.div>
               </div>
             </div>
+          ) : (
+            /* Desktop Layout: Original side by side */
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-6 sm:gap-8 lg:gap-8 items-start">
             
-            {/* Côté droit - Image avec cadre */}
-            <div className="relative lg:min-h-[800px] hidden lg:block">
-              <motion.div
-                ref={mediaRef}
-                className="relative"
-                initial={{ opacity: 0, x: 40 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-              >
-                <TerminalContainer 
-                  className="w-full h-[400px] sm:h-[500px] md:h-[650px] lg:h-[800px]"
-                  scrollProgress={smoothProgress}
+              {/* Côté gauche - Contenu texte avec animation Terminal Industries */}
+              <div className="relative space-y-4 sm:space-y-6">
+                <div className="max-w-lg relative h-48 sm:h-56 md:h-64 lg:h-72">
+                  {/* Titre animé avec scanline/glow Terminal Industries */}
+                  {(() => {
+                    const [titleStart, titleEnd] = CONFIG.titleRange;
+                    const titleRaw = (smoothProgress - titleStart) / (titleEnd - titleStart);
+                    const titleProgress = Math.max(0, Math.min(1, titleRaw));
+                    
+                    let titleOpacity = 0;
+                    let titleY = -80;
+                    const isTitleActive = smoothProgress >= titleStart && smoothProgress < titleEnd;
+                    
+                    if (isTitleActive) {
+                      if (titleProgress < 0.15) {
+                        titleOpacity = titleProgress / 0.15;
+                      } else if (titleProgress > 0.85) {
+                        titleOpacity = 1 - ((titleProgress - 0.85) / 0.15);
+                      } else {
+                        titleOpacity = 1;
+                      }
+                      titleY = -80 + (titleProgress * 330);
+                    }
+                    
+                    return (
+                      <motion.div
+                        className="absolute top-4 sm:top-6 md:top-8 left-0 w-full terminal-text-reveal"
+                        style={{
+                          opacity: titleOpacity,
+                          transform: `translate3d(0, ${titleY}px, 0)`,
+                          willChange: "transform, opacity",
+                        }}
+                      >
+                        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-3 sm:mb-4 terminal-glow-text">
+                          <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
+                            Meet {doctorName}
+                          </span>
+                        </h2>
+                        <p className="text-sm sm:text-base lg:text-lg text-gray-600 leading-relaxed terminal-fade-text">
+                          {description}
+                        </p>
+                      </motion.div>
+                    );
+                  })()}
+                </div>
+
+                {/* Info items animés */}
+                <div className="relative h-64 sm:h-72 md:h-80 lg:h-96">
+                  {scrollInfoItems.map((item, index) => {
+                    const [rangeStart, rangeEnd] = CONFIG.infoItemsRange;
+                    const scrollRange = rangeEnd - rangeStart;
+                    const totalItems = scrollInfoItems.length;
+                    const itemWindow = scrollRange / totalItems;
+                    const itemStart = rangeStart + index * itemWindow;
+                    const itemEnd = itemStart + itemWindow;
+                    
+                    const rawProgress = (smoothProgress - itemStart) / itemWindow;
+                    const itemProgress = Math.max(0, Math.min(1, rawProgress));
+                    
+                    const isFocused = smoothProgress >= itemStart && smoothProgress < itemEnd;
+                    const isPast = smoothProgress >= itemEnd;
+                    
+                    let opacity = 0;
+                    if (isFocused) {
+                      if (itemProgress < 0.15) {
+                        opacity = itemProgress / 0.15;
+                      } else if (itemProgress > 0.85) {
+                        opacity = 1 - ((itemProgress - 0.85) / 0.15);
+                      } else {
+                        opacity = 1;
+                      }
+                    }
+                    
+                    let y = -120;
+                    if (isFocused) {
+                      y = -120 + (itemProgress * 320);
+                    } else if (isPast) {
+                      y = 200;
+                    }
+
+                    return (
+                      <motion.div
+                        key={item.id}
+                        className="absolute top-0 left-0 w-full max-w-md terminal-text-reveal"
+                        style={{
+                          opacity,
+                          transform: `translate3d(0, ${y}px, 0)`,
+                          willChange: "transform, opacity",
+                        }}
+                      >
+                        <div className="bg-background/80 backdrop-blur-sm rounded-xl p-4 sm:p-5 lg:p-6 shadow-lg border border-primary/20 terminal-card-glow">
+                          <span className="text-[9px] sm:text-[10px] font-semibold tracking-[0.25em] uppercase mb-1 sm:mb-2 block">
+                            <span className="bg-gradient-to-r from-primary via-primary/70 to-primary bg-clip-text text-transparent">
+                              {item.label}
+                            </span>
+                          </span>
+                          <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold leading-tight terminal-glow-text">
+                            <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
+                              {item.value}
+                            </span>
+                          </h3>
+                          {item.description && (
+                            <span className="text-xs sm:text-sm lg:text-base text-muted-foreground mt-1 sm:mt-2 block terminal-fade-text">
+                              {item.description}
+                            </span>
+                          )}
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
+              
+              {/* Côté droit - Image avec cadre */}
+              <div className="relative lg:min-h-[800px]">
+                <motion.div
+                  ref={mediaRef}
+                  className="relative"
+                  initial={{ opacity: 0, x: 40 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
                 >
-                  <div className="relative w-full h-full bg-[#0a0f14]">
-                    {/* Grille subtile */}
-                    <div 
-                      className="absolute inset-0 pointer-events-none z-[1]"
-                      style={{
-                        backgroundImage: `
-                          linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                          linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)
-                        `,
-                        backgroundSize: '40px 40px',
-                      }}
-                    />
+                  <TerminalContainer 
+                    className="w-full h-[400px] sm:h-[500px] md:h-[650px] lg:h-[800px]"
+                    scrollProgress={smoothProgress}
+                  >
+                    <div className="relative w-full h-full bg-[#0a0f14]">
+                      {/* Grille subtile */}
+                      <div 
+                        className="absolute inset-0 pointer-events-none z-[1]"
+                        style={{
+                          backgroundImage: `
+                            linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                            linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)
+                          `,
+                          backgroundSize: '40px 40px',
+                        }}
+                      />
 
-                    {/* Points flottants animés */}
-                    <div className="absolute inset-0 overflow-hidden z-[2]">
-                      {Array.from({ length: 20 }).map((_, i) => (
-                        <motion.div
-                          key={i}
-                          className="absolute rounded-full"
-                          style={{
-                            width: i % 3 === 0 ? 3 : 2,
-                            height: i % 3 === 0 ? 3 : 2,
-                            left: `${(i * 41 + 7) % 100}%`,
-                            top: `${(i * 59 + 11) % 100}%`,
-                            backgroundColor:
-                              i % 4 === 0
-                                ? "hsl(var(--primary) / 0.6)"
-                                : "hsl(var(--primary-foreground) / 0.2)",
-                          }}
-                          animate={{
-                            opacity: [0.3, 0.7, 0.3],
-                            scale: [1, 1.15, 1],
-                          }}
-                          transition={{
-                            duration: 3 + (i % 3),
-                            repeat: Infinity,
-                            delay: (i % 5) * 0.4,
-                          }}
+                      {/* Points flottants animés */}
+                      <div className="absolute inset-0 overflow-hidden z-[2]">
+                        {Array.from({ length: 20 }).map((_, i) => (
+                          <motion.div
+                            key={i}
+                            className="absolute rounded-full"
+                            style={{
+                              width: i % 3 === 0 ? 3 : 2,
+                              height: i % 3 === 0 ? 3 : 2,
+                              left: `${(i * 41 + 7) % 100}%`,
+                              top: `${(i * 59 + 11) % 100}%`,
+                              backgroundColor:
+                                i % 4 === 0
+                                  ? "hsl(var(--primary) / 0.6)"
+                                  : "hsl(var(--primary-foreground) / 0.2)",
+                            }}
+                            animate={{
+                              opacity: [0.3, 0.7, 0.3],
+                              scale: [1, 1.15, 1],
+                            }}
+                            transition={{
+                              duration: 3 + (i % 3),
+                              repeat: Infinity,
+                              delay: (i % 5) * 0.4,
+                            }}
+                          />
+                        ))}
+                      </div>
+
+                      {/* Image/Vidéo (fixe) + édition admin */}
+                      <div className="relative z-[5] h-full w-full">
+                        <EditableMedia
+                          sectionKey="about"
+                          field="doctorMedia"
+                          defaultSrc={doctorImage}
+                          alt={doctorName}
+                          className="h-full w-full"
                         />
-                      ))}
+                      </div>
+
+                      {/* Overlays de gradient */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f14]/80 via-transparent to-[#0a0f14]/30 pointer-events-none z-[10]" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-[#0a0f14]/70 via-transparent to-transparent pointer-events-none z-[10]" />
+
+                      {/* Accent coin */}
+                      <svg className="absolute bottom-3 right-3 w-10 h-10 z-[15]" viewBox="0 0 40 40" fill="none">
+                        <motion.path 
+                          d="M40 0 L40 24 Q40 40 24 40 L0 40" 
+                          stroke="hsl(var(--primary) / 0.5)" 
+                          strokeWidth="1.5" 
+                          fill="none"
+                          initial={{ pathLength: 0 }}
+                          whileInView={{ pathLength: 1 }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 0.8, delay: 0.8 }}
+                        />
+                      </svg>
                     </div>
-
-                    {/* Image/Vidéo (fixe) + édition admin */}
-                    <div className="relative z-[5] h-full w-full">
-                      <EditableMedia
-                        sectionKey="about"
-                        field="doctorMedia"
-                        defaultSrc={doctorImage}
-                        alt={doctorName}
-                        className="h-full w-full"
-                      />
-                    </div>
-
-                    {/* Overlays de gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f14]/80 via-transparent to-[#0a0f14]/30 pointer-events-none z-[10]" />
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#0a0f14]/70 via-transparent to-transparent pointer-events-none z-[10]" />
-
-                    {/* Accent coin */}
-                    <svg className="absolute bottom-3 right-3 w-10 h-10 z-[15]" viewBox="0 0 40 40" fill="none">
-                      <motion.path 
-                        d="M40 0 L40 24 Q40 40 24 40 L0 40" 
-                        stroke="hsl(var(--primary) / 0.5)" 
-                        strokeWidth="1.5" 
-                        fill="none"
-                        initial={{ pathLength: 0 }}
-                        whileInView={{ pathLength: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8, delay: 0.8 }}
-                      />
-                    </svg>
-                  </div>
-                </TerminalContainer>
-              </motion.div>
+                  </TerminalContainer>
+                </motion.div>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </section>
