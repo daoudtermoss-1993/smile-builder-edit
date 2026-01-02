@@ -55,12 +55,12 @@ export function Tooth3D() {
     }
   });
 
-  // Mobile: much smaller scale, positioned higher
-  const scale = isMobile ? 0.8 : 1.8;
+  // Mobile: very small scale, positioned higher
+  const scale = isMobile ? 0.5 : 1.8;
 
   return (
     <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.5}>
-      <group ref={toothRef} scale={scale} position={[0, isMobile ? 1.5 : 0, 0]}>
+      <group ref={toothRef} scale={scale} position={[0, isMobile ? 0.8 : 0, 0]}>
         {/* Main tooth body */}
         <mesh>
           <latheGeometry args={[toothShape, 32]} />
