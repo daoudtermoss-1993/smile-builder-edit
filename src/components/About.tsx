@@ -416,12 +416,12 @@ export const About = ({
                 transition={{ duration: 0.6, ease: "easeOut" }}
               >
                 <TerminalContainer 
-                  className="w-full h-[240px] sm:h-[280px]"
+                  className="w-full h-[280px] sm:h-[320px]"
                   scrollProgress={smoothProgress}
                   isMobile={true}
                   notchPosition="bottom"
                 >
-                  <div className="relative w-full h-full bg-[#0a0f14]">
+                  <div className="relative w-full h-full bg-[#0a0f14] overflow-hidden">
                     {/* Grille subtile */}
                     <div 
                       className="absolute inset-0 pointer-events-none z-[1]"
@@ -434,14 +434,14 @@ export const About = ({
                       }}
                     />
 
-                    {/* Image/Vidéo */}
-                    <div className="relative z-[5] h-full w-full">
+                    {/* Image/Vidéo - avec hauteur et largeur forcées */}
+                    <div className="absolute inset-0 z-[5]">
                       <EditableMedia
                         sectionKey="about"
                         field="doctorMedia"
                         defaultSrc={doctorImage}
                         alt={doctorName}
-                        className="h-full w-full"
+                        className="absolute inset-0 w-full h-full object-cover"
                       />
                     </div>
 
