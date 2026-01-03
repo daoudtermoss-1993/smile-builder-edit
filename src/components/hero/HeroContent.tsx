@@ -1,10 +1,11 @@
-import { Phone, Sparkles, Volume2, VolumeX } from "lucide-react";
+import { Phone, Volume2, VolumeX } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EditableText } from "@/components/admin/EditableText";
 import { motion } from "framer-motion";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import doctorIntroAudio from "@/assets/dr-german-intro.mp3";
+import { GlowType } from "@/components/ui/TypeWriter";
 
 interface HeroContentProps {
   onBookClick: () => void;
@@ -53,22 +54,23 @@ export function HeroContent({ onBookClick, onContactClick }: HeroContentProps) {
 
   return (
     <div className="relative z-10 w-full h-full flex flex-col pointer-events-none">
-      {/* Top section - Only subtitle, no title */}
+      {/* Top section - Only subtitle with typewriter effect */}
       <div className="container mx-auto px-4 pt-24 sm:pt-28 md:pt-32 text-center">
-        {/* Subtitle - responsive text size */}
-        <motion.p 
+        {/* Subtitle with GlowType effect - responsive text size */}
+        <motion.div 
           className="text-base sm:text-lg md:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed drop-shadow-lg px-2"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
         >
-          <EditableText 
-            sectionKey="hero" 
-            field="subtitle" 
-            defaultValue={t('heroSubtitle')}
-            as="span"
+          <GlowType
+            text={t('heroSubtitle')}
+            delay={800}
+            speed={35}
+            glowColor="hsl(175 80% 60%)"
+            startOnView={false}
           />
-        </motion.p>
+        </motion.div>
       </div>
 
       {/* Spacer to push buttons to bottom */}
