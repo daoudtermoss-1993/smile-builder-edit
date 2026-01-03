@@ -7,6 +7,7 @@ import {
 } from "framer-motion";
 import React, { useRef, useState, useEffect, useId } from "react";
 import { EditableMedia } from "@/components/admin/EditableMedia";
+import { GlowType } from "@/components/ui/TypeWriter";
 
 
 // ============================================
@@ -574,11 +575,23 @@ export const About = ({
                       >
                         <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-3 sm:mb-4 terminal-glow-text">
                           <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
-                            Meet {doctorName}
+                            <GlowType
+                              text={`Meet ${doctorName}`}
+                              delay={200}
+                              speed={40}
+                              glowColor="hsl(175 60% 50%)"
+                              startOnView={true}
+                            />
                           </span>
                         </h2>
                         <p className="text-sm sm:text-base lg:text-lg text-gray-600 leading-relaxed terminal-fade-text">
-                          {description}
+                          <GlowType
+                            text={description}
+                            delay={600}
+                            speed={25}
+                            glowColor="hsl(175 40% 40%)"
+                            startOnView={true}
+                          />
                         </p>
                       </motion.div>
                     );
