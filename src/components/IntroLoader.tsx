@@ -6,9 +6,9 @@ interface IntroLoaderProps {
   ready?: boolean;
 }
 
-// Tooth icon component - small and elegant
-const ToothIcon = ({ size = 24 }: { size?: number }) => (
-  <svg viewBox="0 0 24 24" width={size} height={size} fill="currentColor">
+// Tooth icon component - visible and elegant
+const ToothIcon = ({ size = 24, color = "white" }: { size?: number; color?: string }) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} fill={color}>
     <path d="M12 2C9.5 2 7.5 3.5 7.5 5.5C7.5 7 8.5 8.5 10 9L9 22H15L14 9C15.5 8.5 16.5 7 16.5 5.5C16.5 3.5 14.5 2 12 2Z" />
   </svg>
 );
@@ -130,20 +130,21 @@ export function IntroLoader({ onComplete, ready = true }: IntroLoaderProps) {
                 
                 {/* Tooth container */}
                 <motion.div
-                  className="relative w-5 h-5 md:w-6 md:h-6 rounded-lg bg-primary flex items-center justify-center text-primary-foreground"
+                  className="relative w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary flex items-center justify-center"
                   style={{
-                    boxShadow: "0 0 16px hsl(var(--primary) / 0.5), 0 2px 8px hsl(0 0% 0% / 0.2)",
+                    boxShadow: "0 0 20px hsl(var(--primary) / 0.7), 0 0 40px hsl(var(--primary) / 0.4), 0 2px 8px hsl(0 0% 0% / 0.3)",
                   }}
                   animate={{
-                    y: [0, -2, 0],
+                    y: [0, -3, 0],
+                    scale: [1, 1.05, 1],
                   }}
                   transition={{
-                    duration: 0.4,
+                    duration: 0.5,
                     repeat: Infinity,
                     ease: "easeInOut",
                   }}
                 >
-                  <ToothIcon size={12} />
+                  <ToothIcon size={18} color="white" />
                 </motion.div>
               </motion.div>
             </div>
