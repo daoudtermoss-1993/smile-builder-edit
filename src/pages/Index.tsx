@@ -46,7 +46,6 @@ const Index = () => {
       {!introComplete && (
         <IntroLoader 
           ready={heroReady} 
-          progress={loadingProgress}
           onComplete={handleIntroComplete} 
         />
       )}
