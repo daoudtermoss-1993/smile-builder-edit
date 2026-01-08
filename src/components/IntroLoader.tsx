@@ -1,17 +1,80 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { MeshTransmissionMaterial, Float } from "@react-three/drei";
+import * as THREE from "three";
 
 interface IntroLoaderProps {
   onComplete: () => void;
   ready?: boolean;
 }
 
-// Tooth icon component - visible and elegant
-const ToothIcon = ({ size = 24, color = "white" }: { size?: number; color?: string }) => (
-  <svg viewBox="0 0 24 24" width={size} height={size} fill={color}>
-    <path d="M12 2C9.5 2 7.5 3.5 7.5 5.5C7.5 7 8.5 8.5 10 9L9 22H15L14 9C15.5 8.5 16.5 7 16.5 5.5C16.5 3.5 14.5 2 12 2Z" />
-  </svg>
-);
+// Mini 3D Tooth component for the loader
+function MiniTooth3D() {
+  const toothRef = useRef<THREE.Group>(null);
+  
+  const toothShape = useMemo(() => {
+    const points: THREE.Vector2[] = [];
+    points.push(new THREE.Vector2(0, -1.5));
+    points.push(new THREE.Vector2(0.15, -1.4));
+    points.push(new THREE.Vector2(0.2, -1.2));
+    points.push(new THREE.Vector2(0.25, -1.0));
+    points.push(new THREE.Vector2(0.3, -0.8));
+    points.push(new THREE.Vector2(0.35, -0.5));
+    points.push(new THREE.Vector2(0.4, -0.3));
+    points.push(new THREE.Vector2(0.55, 0));
+    points.push(new THREE.Vector2(0.65, 0.3));
+    points.push(new THREE.Vector2(0.7, 0.5));
+    points.push(new THREE.Vector2(0.68, 0.7));
+    points.push(new THREE.Vector2(0.6, 0.85));
+    points.push(new THREE.Vector2(0.45, 0.95));
+    points.push(new THREE.Vector2(0.25, 1.0));
+    points.push(new THREE.Vector2(0, 1.02));
+    return points;
+  }, []);
+
+  useFrame((state) => {
+    if (toothRef.current) {
+      toothRef.current.rotation.y = state.clock.elapsedTime * 0.8;
+      toothRef.current.position.y = Math.sin(state.clock.elapsedTime * 2) * 0.05;
+    }
+  });
+
+  return (
+    <Float speed={2} rotationIntensity={0.1} floatIntensity={0.3}>
+      <group ref={toothRef} scale={0.35}>
+        <mesh>
+          <latheGeometry args={[toothShape, 32]} />
+          <MeshTransmissionMaterial
+            backside
+            samples={8}
+            resolution={256}
+            transmission={0.95}
+            roughness={0.05}
+            thickness={0.5}
+            ior={1.5}
+            chromaticAberration={0.06}
+            anisotropy={0.1}
+            distortion={0.1}
+            distortionScale={0.2}
+            temporalDistortion={0.1}
+            color="#e0f7f7"
+          />
+        </mesh>
+        <mesh scale={0.85}>
+          <latheGeometry args={[toothShape, 32]} />
+          <meshStandardMaterial
+            color="#00b3b3"
+            emissive="#00b3b3"
+            emissiveIntensity={0.5}
+            transparent
+            opacity={0.4}
+          />
+        </mesh>
+      </group>
+    </Float>
+  );
+}
 
 export function IntroLoader({ onComplete, ready = true }: IntroLoaderProps) {
   const [progress, setProgress] = useState(0);
@@ -103,7 +166,7 @@ export function IntroLoader({ onComplete, ready = true }: IntroLoaderProps) {
                 }}
               />
 
-              {/* Moving tooth on the loading bar */}
+              {/* Moving 3D tooth on the loading bar */}
               <motion.div
                 className="absolute top-1/2 -translate-y-1/2 flex items-center justify-center"
                 style={{
@@ -113,13 +176,13 @@ export function IntroLoader({ onComplete, ready = true }: IntroLoaderProps) {
               >
                 {/* Glow behind tooth */}
                 <motion.div
-                  className="absolute w-6 h-6 md:w-8 md:h-8 rounded-full"
+                  className="absolute w-12 h-12 md:w-16 md:h-16 rounded-full"
                   style={{
-                    background: "radial-gradient(circle, hsl(var(--primary) / 0.4) 0%, transparent 70%)",
+                    background: "radial-gradient(circle, hsl(var(--primary) / 0.5) 0%, transparent 70%)",
                   }}
                   animate={{
-                    scale: [1, 1.3, 1],
-                    opacity: [0.6, 1, 0.6],
+                    scale: [1, 1.4, 1],
+                    opacity: [0.5, 1, 0.5],
                   }}
                   transition={{
                     duration: 0.8,
@@ -128,24 +191,20 @@ export function IntroLoader({ onComplete, ready = true }: IntroLoaderProps) {
                   }}
                 />
                 
-                {/* Tooth container */}
-                <motion.div
-                  className="relative w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary flex items-center justify-center"
-                  style={{
-                    boxShadow: "0 0 20px hsl(var(--primary) / 0.7), 0 0 40px hsl(var(--primary) / 0.4), 0 2px 8px hsl(0 0% 0% / 0.3)",
-                  }}
-                  animate={{
-                    y: [0, -3, 0],
-                    scale: [1, 1.05, 1],
-                  }}
-                  transition={{
-                    duration: 0.5,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                >
-                  <ToothIcon size={18} color="white" />
-                </motion.div>
+                {/* 3D Tooth Canvas */}
+                <div className="relative w-12 h-12 md:w-16 md:h-16">
+                  <Canvas
+                    camera={{ position: [0, 0, 4], fov: 45 }}
+                    style={{ background: "transparent" }}
+                    gl={{ alpha: true, antialias: true }}
+                  >
+                    <ambientLight intensity={0.8} />
+                    <pointLight position={[10, 10, 10]} intensity={1.5} color="#00ffff" />
+                    <pointLight position={[-10, -10, -10]} intensity={0.5} color="#ffffff" />
+                    <spotLight position={[0, 5, 5]} intensity={1} color="#00b3b3" />
+                    <MiniTooth3D />
+                  </Canvas>
+                </div>
               </motion.div>
             </div>
 
