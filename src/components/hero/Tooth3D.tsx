@@ -55,8 +55,8 @@ export function Tooth3D() {
     }
   });
 
-  // Mobile: minimal scale for better display
-  const scale = isMobile ? 0.35 : 1.8;
+  // Mobile: smaller scale for better display on phones
+  const scale = isMobile ? 0.25 : 1.8;
 
   return (
     <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.5}>
