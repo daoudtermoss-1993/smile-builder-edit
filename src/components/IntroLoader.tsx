@@ -42,7 +42,7 @@ function MiniTooth3D() {
 
   return (
     <Float speed={2} rotationIntensity={0.1} floatIntensity={0.3}>
-      <group ref={toothRef} scale={0.35}>
+      <group ref={toothRef} scale={0.5}>
         <mesh>
           <latheGeometry args={[toothShape, 32]} />
           <MeshTransmissionMaterial
@@ -176,7 +176,7 @@ export function IntroLoader({ onComplete, ready = true }: IntroLoaderProps) {
               >
                 {/* Glow behind tooth */}
                 <motion.div
-                  className="absolute w-12 h-12 md:w-16 md:h-16 rounded-full"
+                  className="absolute w-20 h-20 md:w-28 md:h-28 rounded-full"
                   style={{
                     background: "radial-gradient(circle, hsl(var(--primary) / 0.5) 0%, transparent 70%)",
                   }}
@@ -192,7 +192,7 @@ export function IntroLoader({ onComplete, ready = true }: IntroLoaderProps) {
                 />
                 
                 {/* 3D Tooth Canvas */}
-                <div className="relative w-12 h-12 md:w-16 md:h-16">
+                <div className="relative w-16 h-16 md:w-24 md:h-24">
                   <Canvas
                     camera={{ position: [0, 0, 4], fov: 45 }}
                     style={{ background: "transparent" }}
