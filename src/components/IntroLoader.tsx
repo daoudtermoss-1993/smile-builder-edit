@@ -35,14 +35,14 @@ function MiniTooth3D() {
 
   useFrame((state) => {
     if (toothRef.current) {
-      toothRef.current.rotation.y = state.clock.elapsedTime * 0.8;
-      toothRef.current.position.y = Math.sin(state.clock.elapsedTime * 2) * 0.05;
+      toothRef.current.rotation.y = state.clock.elapsedTime * 0.6;
+      toothRef.current.position.y = Math.sin(state.clock.elapsedTime * 1.5) * 0.03;
     }
   });
 
   return (
-    <Float speed={2} rotationIntensity={0.1} floatIntensity={0.3}>
-      <group ref={toothRef} scale={0.5}>
+    <Float speed={1.5} rotationIntensity={0.05} floatIntensity={0.2}>
+      <group ref={toothRef} scale={0.45}>
         <mesh>
           <latheGeometry args={[toothShape, 32]} />
           <MeshTransmissionMaterial
@@ -85,8 +85,8 @@ export function IntroLoader({ onComplete, ready = true }: IntroLoaderProps) {
     if (!ready || startedRef.current) return;
     startedRef.current = true;
 
-    // Fast progress animation - 800ms total
-    const duration = 800;
+    // Progress animation - 1200ms total for smoother feel
+    const duration = 1200;
     const startTime = Date.now();
     
     const animate = () => {
@@ -101,8 +101,8 @@ export function IntroLoader({ onComplete, ready = true }: IntroLoaderProps) {
         requestAnimationFrame(animate);
       } else {
         setPhase("complete");
-        setTimeout(() => setPhase("exit"), 200);
-        setTimeout(() => onComplete(), 500);
+        setTimeout(() => setPhase("exit"), 300);
+        setTimeout(() => onComplete(), 600);
       }
     };
     
@@ -113,122 +113,148 @@ export function IntroLoader({ onComplete, ready = true }: IntroLoaderProps) {
     <AnimatePresence>
       {phase !== "exit" || progress < 1 ? (
         <motion.div
-          className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background"
+          className="fixed inset-0 z-[9999] flex items-center justify-center"
+          style={{
+            background: "linear-gradient(135deg, hsl(180 15% 92%) 0%, hsl(180 10% 88%) 100%)",
+          }}
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.25 }}
+          transition={{ duration: 0.4, ease: "easeInOut" }}
         >
-          {/* Subtle background gradient */}
-          <motion.div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background: "radial-gradient(ellipse at center, hsl(var(--primary) / 0.05) 0%, transparent 70%)",
-            }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-          />
-
-          {/* Center container */}
-          <div className="relative flex flex-col items-center gap-6 md:gap-8 px-8 w-full max-w-xs md:max-w-sm">
-            {/* Logo text */}
+          {/* Main horizontal line container - full width */}
+          <div className="absolute inset-x-0 flex items-center px-8 md:px-16 lg:px-24">
+            {/* Left side - Logo */}
             <motion.div
-              className="text-center"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.1 }}
+              className="flex-shrink-0 z-10"
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
             >
-              <h1 className="text-lg md:text-xl font-semibold text-foreground tracking-tight">
-                Dr. Yousif German
+              <h1 className="text-xl md:text-2xl lg:text-3xl font-light tracking-wide text-[#2a3a3a]">
+                <span className="font-semibold">German</span>
               </h1>
-              <p className="text-xs md:text-sm text-muted-foreground mt-0.5">
+              <p className="text-[10px] md:text-xs tracking-[0.2em] uppercase text-[#5a6a6a] mt-0.5">
                 Dental Clinic
               </p>
             </motion.div>
 
-            {/* Loading bar container */}
-            <div className="relative w-full">
-              {/* Background track */}
-              <motion.div
-                className="h-0.5 md:h-1 w-full rounded-full bg-muted/30"
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ duration: 0.3 }}
-              />
+            {/* Horizontal line - extends from logo to circles */}
+            <motion.div
+              className="flex-grow h-px bg-[#2a3a3a]/40 mx-4 md:mx-8"
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              style={{ transformOrigin: "left" }}
+            />
 
-              {/* Progress bar with glow */}
+            {/* Center - 3D Tooth with concentric circles */}
+            <div className="relative flex items-center justify-center flex-shrink-0">
+              {/* Outer circle - rotating */}
               <motion.div
-                className="absolute top-0 left-0 h-0.5 md:h-1 rounded-full bg-primary origin-left"
-                style={{
-                  width: "100%",
-                  scaleX: progress,
-                  boxShadow: "0 0 12px hsl(var(--primary) / 0.6), 0 0 24px hsl(var(--primary) / 0.3)",
+                className="absolute w-28 h-28 md:w-36 md:h-36 lg:w-44 lg:h-44 rounded-full border border-[#2a3a3a]/30"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1, rotate: 360 }}
+                transition={{ 
+                  scale: { duration: 0.4, delay: 0.3 },
+                  opacity: { duration: 0.4, delay: 0.3 },
+                  rotate: { duration: 20, repeat: Infinity, ease: "linear" }
                 }}
               />
-
-              {/* Moving 3D tooth on the loading bar */}
+              
+              {/* Middle circle - counter rotating */}
               <motion.div
-                className="absolute top-1/2 -translate-y-1/2 flex items-center justify-center"
-                style={{
-                  left: `${progress * 100}%`,
-                  x: "-50%",
+                className="absolute w-20 h-20 md:w-28 md:h-28 lg:w-36 lg:h-36 rounded-full border border-[#2a3a3a]/50"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1, rotate: -360 }}
+                transition={{ 
+                  scale: { duration: 0.4, delay: 0.4 },
+                  opacity: { duration: 0.4, delay: 0.4 },
+                  rotate: { duration: 15, repeat: Infinity, ease: "linear" }
                 }}
+              />
+              
+              {/* Inner circle - static */}
+              <motion.div
+                className="absolute w-16 h-16 md:w-20 md:h-20 lg:w-28 lg:h-28 rounded-full border-2 border-[#2a3a3a]/70"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.4, delay: 0.5 }}
+              />
+
+              {/* 3D Tooth Canvas */}
+              <motion.div 
+                className="relative w-20 h-20 md:w-28 md:h-28 lg:w-32 lg:h-32 z-10"
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
               >
-                {/* Glow behind tooth */}
-                <motion.div
-                  className="absolute w-20 h-20 md:w-28 md:h-28 rounded-full"
-                  style={{
-                    background: "radial-gradient(circle, hsl(var(--primary) / 0.5) 0%, transparent 70%)",
-                  }}
-                  animate={{
-                    scale: [1, 1.4, 1],
-                    opacity: [0.5, 1, 0.5],
-                  }}
-                  transition={{
-                    duration: 0.8,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                />
-                
-                {/* 3D Tooth Canvas */}
-                <div className="relative w-16 h-16 md:w-24 md:h-24">
-                  <Canvas
-                    camera={{ position: [0, 0, 4], fov: 45 }}
-                    style={{ background: "transparent" }}
-                    gl={{ alpha: true, antialias: true }}
-                  >
-                    <ambientLight intensity={0.8} />
-                    <pointLight position={[10, 10, 10]} intensity={1.5} color="#00ffff" />
-                    <pointLight position={[-10, -10, -10]} intensity={0.5} color="#ffffff" />
-                    <spotLight position={[0, 5, 5]} intensity={1} color="#00b3b3" />
-                    <MiniTooth3D />
-                  </Canvas>
-                </div>
+                <Canvas
+                  camera={{ position: [0, 0, 4], fov: 45 }}
+                  style={{ background: "transparent" }}
+                  gl={{ alpha: true, antialias: true }}
+                >
+                  <ambientLight intensity={1} />
+                  <pointLight position={[10, 10, 10]} intensity={1.2} color="#ffffff" />
+                  <pointLight position={[-10, -10, -10]} intensity={0.4} color="#e0e0e0" />
+                  <spotLight position={[0, 5, 5]} intensity={0.8} color="#00b3b3" />
+                  <MiniTooth3D />
+                </Canvas>
               </motion.div>
             </div>
 
-            {/* Percentage */}
-            <motion.span
-              className="text-xs md:text-sm font-medium text-muted-foreground tabular-nums"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.2, delay: 0.2 }}
+            {/* Horizontal line - extends from circles to percentage */}
+            <motion.div
+              className="flex-grow h-px bg-[#2a3a3a]/40 mx-4 md:mx-8"
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              style={{ transformOrigin: "right" }}
+            />
+
+            {/* Right side - Percentage */}
+            <motion.div
+              className="flex-shrink-0 text-right z-10"
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
             >
-              {Math.round(progress * 100)}%
-            </motion.span>
+              <div className="flex items-baseline gap-1">
+                <span className="text-4xl md:text-5xl lg:text-6xl font-light text-[#2a3a3a] tabular-nums">
+                  {Math.round(progress * 100)}
+                </span>
+                <span className="text-lg md:text-xl text-[#5a6a6a]">%</span>
+              </div>
+              <p className="text-[10px] md:text-xs tracking-[0.15em] uppercase text-[#5a6a6a] mt-1">
+                Loading...
+              </p>
+            </motion.div>
           </div>
+
+          {/* Bottom left - Mission text */}
+          <motion.div
+            className="absolute bottom-8 left-8 md:left-16 lg:left-24 max-w-xs md:max-w-sm"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+          >
+            <p className="text-[10px] md:text-xs tracking-wide text-[#5a6a6a] leading-relaxed">
+              <span className="font-medium text-[#2a3a3a]">Our mission:</span>{" "}
+              To provide exceptional dental care with a commitment to patient comfort, 
+              advanced technology, and lasting beautiful smiles.
+            </p>
+          </motion.div>
 
           {/* Exit curtain effect */}
           {phase === "exit" && (
-            <>
-              <motion.div
-                className="absolute inset-0 bg-background"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.25 }}
-              />
-            </>
+            <motion.div
+              className="absolute inset-0"
+              style={{
+                background: "linear-gradient(135deg, hsl(180 15% 92%) 0%, hsl(180 10% 88%) 100%)",
+              }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            />
           )}
         </motion.div>
       ) : null}
