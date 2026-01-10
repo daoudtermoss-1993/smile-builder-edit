@@ -1,6 +1,6 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EditableText } from "@/components/admin/EditableText";
-import { Interactive3DCards, type Card3DData } from "@/components/ui/interactive-3d-cards";
+import { ServiceFlipCards, type ServiceFlipCardData } from "@/components/ui/flip-card";
 import { servicesData } from "@/data/servicesData";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -11,13 +11,13 @@ export const Services = () => {
   const { language } = useLanguage();
   const navigate = useNavigate();
 
-  const cards3D: Card3DData[] = servicesData.slice(0, 6).map(service => {
+  const flipCards: ServiceFlipCardData[] = servicesData.slice(0, 6).map(service => {
     const Icon = service.icon;
     return {
       id: service.id,
       title: language === 'ar' ? service.titleAr : service.titleEn,
       description: language === 'ar' ? service.descriptionAr : service.descriptionEn,
-      icon: <Icon className="h-6 w-6" />,
+      icon: <Icon className="h-6 w-6 sm:h-8 sm:w-8" />,
       onClick: () => navigate(`/services/${service.id}`)
     };
   });
@@ -78,19 +78,11 @@ export const Services = () => {
           </div>
         </motion.div>
 
-        {/* Interactive 3D Cards */}
-        <motion.div 
-          className="flex justify-center"
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, margin: "-50px" }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
-          <Interactive3DCards 
-            cards={cards3D}
-            className="w-full py-6 sm:py-8 md:py-12"
-          />
-        </motion.div>
+        {/* Flip Cards Grid */}
+        <ServiceFlipCards 
+          cards={flipCards}
+          className="max-w-6xl mx-auto"
+        />
       </div>
     </section>
   );
