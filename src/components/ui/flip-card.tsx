@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, ReactNode } from "react";
+import { useState, useCallback, useMemo, ReactNode, useEffect } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -6,12 +6,29 @@ export interface FlipCardProps {
   frontContent: ReactNode;
   backContent: ReactNode;
   flipDirection?: "horizontal" | "vertical";
-  flipTrigger?: "hover" | "click";
+  flipTrigger?: "hover" | "click" | "auto";
   animationDuration?: number;
   perspective?: number;
   className?: string;
   frontClassName?: string;
   backClassName?: string;
+}
+
+// Hook to detect mobile
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  return isMobile;
 }
 
 export function FlipCard({
@@ -123,6 +140,8 @@ interface ServiceFlipCardsProps {
 }
 
 export function ServiceFlipCards({ cards, className }: ServiceFlipCardsProps) {
+  const isMobile = useIsMobile();
+
   return (
     <div className={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8", className)}>
       {cards.map((card, index) => (
@@ -139,7 +158,7 @@ export function ServiceFlipCards({ cards, className }: ServiceFlipCardsProps) {
           }}
         >
           <FlipCard
-            flipTrigger="hover"
+            flipTrigger={isMobile ? "click" : "hover"}
             animationDuration={0.7}
             perspective={1200}
             frontContent={
@@ -165,22 +184,43 @@ export function ServiceFlipCards({ cards, className }: ServiceFlipCardsProps) {
                   {card.title}
                 </h3>
 
-                {/* Flip Hint */}
+                {/* Flip Hint - adapts to mobile/desktop */}
                 <div className="flex items-center gap-2 text-white/40 text-xs sm:text-sm mt-auto">
-                  <svg 
-                    className="w-4 h-4" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={1.5} 
-                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" 
-                    />
-                  </svg>
-                  <span>Hover to flip</span>
+                  {isMobile ? (
+                    <>
+                      <svg 
+                        className="w-4 h-4" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round" 
+                          strokeWidth={1.5} 
+                          d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" 
+                        />
+                      </svg>
+                      <span>Tap to flip</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg 
+                        className="w-4 h-4" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round" 
+                          strokeWidth={1.5} 
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" 
+                        />
+                      </svg>
+                      <span>Hover to flip</span>
+                    </>
+                  )}
                 </div>
 
                 {/* Decorative gradient overlay */}
