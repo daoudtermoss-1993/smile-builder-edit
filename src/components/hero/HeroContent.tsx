@@ -153,16 +153,49 @@ export function HeroContent({ onBookClick, onContactClick }: HeroContentProps) {
             />
           </motion.button>
           
-          {/* Right button - responsive sizing */}
-          <button 
+          {/* Right button - 3D Neumorphic Style */}
+          <motion.button 
             onClick={onContactClick}
-            className="group w-full sm:w-auto px-5 py-2.5 sm:px-6 sm:py-3 md:px-8 md:py-4 bg-white/10 backdrop-blur-md border border-white/30 text-white rounded-full font-semibold text-sm sm:text-base md:text-lg hover:border-white/50 hover:bg-white/20 transition-all duration-300 hover:scale-105"
+            className="group relative w-full sm:w-auto px-6 py-3 sm:px-7 sm:py-3.5 md:px-8 md:py-4 rounded-2xl font-semibold text-sm sm:text-base md:text-lg text-white backdrop-blur-sm overflow-hidden"
+            style={{
+              background: 'linear-gradient(145deg, hsl(220 15% 25%), hsl(220 15% 18%))',
+              boxShadow: '6px 6px 12px hsl(220 15% 10% / 0.5), -6px -6px 12px hsl(220 15% 35% / 0.2), 0 0 30px hsl(220 15% 30% / 0.3)',
+            }}
+            whileHover={{ 
+              scale: 1.03,
+              boxShadow: '8px 8px 16px hsl(220 15% 8% / 0.6), -8px -8px 16px hsl(220 15% 40% / 0.25), 0 0 40px hsl(220 15% 35% / 0.4)',
+            }}
+            whileTap={{ 
+              scale: 0.97,
+              boxShadow: 'inset 4px 4px 8px hsl(220 15% 12%), inset -4px -4px 8px hsl(220 15% 30%)',
+            }}
+            transition={{ duration: 0.2 }}
           >
-            <span className="inline-flex items-center justify-center gap-2">
-              <Phone className="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:rotate-12" />
-              {t('contactClinic')}
+            {/* Inner glow effect */}
+            <div 
+              className="absolute inset-0 rounded-2xl opacity-50 pointer-events-none"
+              style={{
+                background: 'radial-gradient(ellipse at 30% 20%, hsl(220 15% 50% / 0.3) 0%, transparent 50%)',
+              }}
+            />
+            
+            {/* Content */}
+            <span className="relative z-10 inline-flex items-center justify-center gap-2.5">
+              <Phone className="h-4 w-4 sm:h-5 sm:w-5 drop-shadow-lg transition-transform group-hover:rotate-12" />
+              <span className="drop-shadow-md">{t('contactClinic')}</span>
             </span>
-          </button>
+            
+            {/* Shine effect on hover */}
+            <motion.div 
+              className="absolute inset-0 rounded-2xl pointer-events-none"
+              style={{
+                background: 'linear-gradient(105deg, transparent 40%, hsl(220 15% 60% / 0.15) 45%, hsl(220 15% 60% / 0.25) 50%, hsl(220 15% 60% / 0.15) 55%, transparent 60%)',
+              }}
+              initial={{ x: '-100%' }}
+              whileHover={{ x: '100%' }}
+              transition={{ duration: 0.6 }}
+            />
+          </motion.button>
         </motion.div>
       </div>
     </div>
