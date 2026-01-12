@@ -23,11 +23,34 @@ export const Services = () => {
   });
   
   return (
-    <section id="services" className="py-16 sm:py-20 md:py-24 overflow-hidden relative bg-terminal-dark">
-      {/* GridPattern animé comme Contact */}
-      <GridPattern />
+    <section id="services" className="overflow-hidden relative bg-terminal-dark">
+      {/* Plateau shape at the top - white curving into dark */}
+      <div className="relative bg-background">
+        <svg 
+          viewBox="0 0 1440 80" 
+          fill="none" 
+          className="w-full h-auto block"
+          preserveAspectRatio="none"
+        >
+          <path 
+            d="M0 0 
+               L0 80 
+               C0 80 60 80 120 80 
+               C200 80 280 30 400 30 
+               L1040 30 
+               C1160 30 1240 80 1320 80 
+               C1380 80 1440 80 1440 80 
+               L1440 0 
+               Z" 
+            fill="hsl(180, 35%, 8%)"
+          />
+        </svg>
+      </div>
       
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container mx-auto px-4 relative z-10 pt-8 pb-16 sm:pt-12 sm:pb-20 md:pt-16 md:pb-24">
+        {/* GridPattern animé comme Contact */}
+        <GridPattern />
+        
         {/* Header */}
         <motion.div 
           className="text-center mb-10 sm:mb-12 md:mb-16"
