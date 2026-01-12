@@ -11,6 +11,7 @@ import { Chatbot } from "@/components/Chatbot";
 import { DentalChair3D } from "@/components/hero/DentalChair3D";
 import { StatementSection } from "@/components/StatementSection";
 import { WaveSeparator } from "@/components/ui/WaveSeparator";
+import { PlateauTransition } from "@/components/ui/PlateauTransition";
 import { IntroLoader } from "@/components/IntroLoader";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useVisitorTracking } from "@/hooks/useVisitorTracking";
@@ -77,8 +78,8 @@ const Index = () => {
         />
       </div>
       
-      {/* Espace blanc entre About et Services */}
-      <div className="h-20 md:h-28 bg-background" />
+      {/* Transition plateau entre About et Services */}
+      <PlateauTransition />
       
       <div id="services">
         <Services />
