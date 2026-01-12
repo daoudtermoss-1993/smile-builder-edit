@@ -15,6 +15,39 @@ export function PlateauTransition({
 
   return (
     <div ref={ref} className={`relative w-full overflow-hidden ${className}`}>
+      {/* Plateau curve at TOP - white background with plateau shape curving into dark */}
+      <div className="relative bg-background">
+        <svg 
+          viewBox="0 0 1440 100" 
+          fill="none" 
+          className="w-full h-auto block"
+          preserveAspectRatio="none"
+        >
+          {/* White background fills top */}
+          <rect x="0" y="0" width="1440" height="100" fill="hsl(var(--background))" />
+          {/* Dark plateau shape rising from bottom */}
+          <path 
+            d="M0 100 
+               L0 40 
+               C0 40 20 40 60 40 
+               C100 40 140 100 240 100 
+               L1200 100 
+               C1300 100 1340 40 1380 40 
+               C1420 40 1440 40 1440 40 
+               L1440 100 
+               Z" 
+            fill={darkColor}
+          />
+          {/* Subtle highlight line at the edge of the plateau */}
+          <path 
+            d="M240 100 L1200 100" 
+            stroke="hsl(175, 60%, 40%, 0.2)"
+            strokeWidth="1"
+            fill="none"
+          />
+        </svg>
+      </div>
+      
       {/* Dark section with grid */}
       <div 
         className="relative py-16 md:py-24"
@@ -48,38 +81,6 @@ export function PlateauTransition({
             ))}
           </div>
         )}
-      </div>
-      
-      {/* Plateau curve - white shape with rounded corners */}
-      <div className="relative" style={{ backgroundColor: darkColor }}>
-        <svg 
-          viewBox="0 0 1440 100" 
-          fill="none" 
-          className="w-full h-auto block"
-          preserveAspectRatio="none"
-        >
-          {/* Main plateau shape - flat middle with rounded corners on sides */}
-          <path 
-            d="M0 0 
-               L0 100 
-               L1440 100 
-               L1440 0 
-               C1440 0 1420 0 1380 0 
-               C1340 0 1300 60 1200 60 
-               L240 60 
-               C140 60 100 0 60 0 
-               C20 0 0 0 0 0 
-               Z" 
-            fill="hsl(var(--background))"
-          />
-          {/* Subtle highlight line at the top of the plateau */}
-          <path 
-            d="M240 60 L1200 60" 
-            stroke="hsl(175, 60%, 40%, 0.2)"
-            strokeWidth="1"
-            fill="none"
-          />
-        </svg>
       </div>
     </div>
   );
